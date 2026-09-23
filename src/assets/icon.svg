@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <title>Bullshit Detector</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1d2733"/>
+      <stop offset="1" stop-color="#0b1117"/>
+    </linearGradient>
+    <linearGradient id="arc" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2fbf71"/>
+      <stop offset="0.5" stop-color="#f2b134"/>
+      <stop offset="1" stop-color="#e5484d"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <path d="M24 82 A40 40 0 0 1 104 82" fill="none" stroke="url(#arc)" stroke-width="14" stroke-linecap="round"/>
+  <line x1="64" y1="82" x2="94" y2="52" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="64" cy="82" r="9" fill="#ffffff"/>
+  <text x="64" y="118" text-anchor="middle" font-family="-apple-system, system-ui, Helvetica, Arial, sans-serif" font-weight="900" font-size="30" fill="#ffffff" letter-spacing="1">BS</text>
+</svg>

@@ -1,0 +1,23 @@
+name: Badges don't show up
+description: LinkedIn probably changed its markup.
+labels: [linkedin-markup]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: Which LinkedIn page? (feed, a single post, a profile's activity…)
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Extension version
+      description: From chrome://extensions
+  - type: textarea
+    id: details
+    attributes:
+      label: What happens
+      description: >
+        Do some posts get badges and others not? A screenshot helps, but please blur other
+        people's names and posts.
