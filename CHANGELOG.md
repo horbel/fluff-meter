@@ -5,6 +5,7 @@
 - The score pill shows a mini speedometer instead of an emoji, and reads well on any color.
 - Clearer levels: Pure signal, Mostly solid, A bit fluffy, Fluffy, Very fluffy, Pure fluff.
 - "Why?" is back next to the score, and the AI chip comes last.
+- Two README screenshots: a fluffy post and a useful one.
 
 ## 0.1.0
 

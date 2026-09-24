@@ -10,7 +10,10 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Buy me a coffee](https://img.shields.io/badge/☕-buy%20me%20a%20coffee-ffdd00)](https://buymeacoffee.com/horbel)
 
-<img src="docs/screenshot.png" width="600" alt="A LinkedIn post by Chad Synergy, Chief Visionary Officer, with a badge: 99%, Pure fluff" />
+<img src="docs/screenshot-fluff.png" width="430" alt="A motivational LinkedIn post by Chad Synergy, Chief Visionary Officer, scored 99%, Pure fluff" />
+<img src="docs/screenshot-signal.png" width="430" alt="A technical LinkedIn post by Priya Raman, Staff Engineer, about fixing an N+1 query, scored 3%, Pure signal" />
+
+<sub>The same feed, two posts: a janitor parable and a real fix with numbers.</sub>
 
 </div>
 
