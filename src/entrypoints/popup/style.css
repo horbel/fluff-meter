@@ -447,9 +447,40 @@ input[type="checkbox"] {
 
 .stats-hero {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
   font-weight: 700;
+}
+
+.stats-hero .gauge {
+  flex: none;
+  overflow: visible;
+  color: var(--text);
+}
+
+.gauge-arc {
+  fill: none;
+  stroke: url(#gauge-arc);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.gauge-needle {
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  transform-origin: 14px 14px;
+  transition: transform 900ms cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+.gauge-hub {
+  fill: currentColor;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gauge-needle {
+    transition: none;
+  }
 }
 
 .stats-number {

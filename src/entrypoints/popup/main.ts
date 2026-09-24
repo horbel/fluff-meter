@@ -14,6 +14,7 @@ import {
 } from "@/lib/settings";
 import { type DailyStats, dailyStatsItem, summarize } from "@/lib/stats";
 import { h } from "@/lib/ui/dom";
+import { gauge } from "@/lib/ui/gauge";
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -183,8 +184,9 @@ function renderStats(settings: Settings, daily: DailyStats) {
     h(
       "div",
       { class: "stats-hero", style: `--hue:${verdict.hue}` },
+      gauge(summary.avgIndex, !matchMedia("(prefers-reduced-motion: reduce)").matches, 64),
       h("span", { class: "stats-number" }, `${summary.avgIndex}%`),
-      h("span", null, `${verdict.emoji} ${verdict.label}`),
+      h("span", { class: "stats-verdict" }, `${verdict.emoji} ${verdict.label}`),
     ),
     h(
       "p",
