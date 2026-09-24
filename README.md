@@ -11,7 +11,7 @@
 [![Buy me a coffee](https://img.shields.io/badge/☕-buy%20me%20a%20coffee-ffdd00)](https://buymeacoffee.com/horbel)
 
 <img src="docs/screenshot-fluff.png" width="430" alt="A motivational LinkedIn post by Chad Synergy, Chief Visionary Officer, scored 99%, Pure fluff" />
-<img src="docs/screenshot-signal.png" width="430" alt="A technical LinkedIn post by Priya Raman, Staff Engineer, about fixing an N+1 query, scored 3%, Pure signal" />
+<img src="docs/screenshot-signal.png" width="430" alt="A technical LinkedIn post by Priya Raman, Staff Engineer, about fixing an N+1 query, scored 3%, No fluff" />
 
 <sub>The same feed, two posts: a janitor parable and a real fix with numbers.</sub>
 
@@ -19,7 +19,7 @@
 
 Scroll LinkedIn as usual. Every post gets a small badge that tells you:
 
-- **how much fluff it is**, from 🧠 *Pure signal* to ☁️ *Pure fluff*;
+- **how much fluff it is**, from 🧠 *No fluff* to ☁️ *Pure fluff*;
 - **whether it reads like AI wrote it**;
 - **what kind of post it is**: tech, hiring, career news, motivation, promo…;
 - **which clichés it uses**: humblebrags, "Agree? 👇", janitor stories, one-line-per-sentence

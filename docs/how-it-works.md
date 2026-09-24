@@ -44,10 +44,10 @@ On the sample posts in [`tests/fixtures`](../tests/fixtures/sample-posts.ts) tha
 | "In today's fast-paced world, leveraging synergies…" | 96% ☁️ Pure fluff | 🤖 92% |
 | "Starting a new position as Senior QA at Globex! Thanks to everyone…" | 77% 🎈 Very fluffy | ✍️ 22% |
 | Meetup recap with a link to slides | 63% 🧁 Fluffy | ✍️ 5% |
-| "ok so the coffee machine has been broken for 3 weeks…" | 41% 🍃 A bit fluffy | ✍️ 1% |
-| "After nine years at DeepMind leading AlphaFold 3, I'm joining Anthropic…" | 18% 👍 Mostly solid | ✍️ 9% |
-| Job opening with stack and salary | 3% 🧠 Pure signal | ✍️ 28% |
-| "We cut our CI time from 18 to 6 minutes. What helped…" | 2% 🧠 Pure signal | ✍️ 2% |
+| "ok so the coffee machine has been broken for 3 weeks…" | 41% 🫧 A bit fluffy | ✍️ 1% |
+| "After nine years at DeepMind leading AlphaFold 3, I'm joining Anthropic…" | 18% 💪 Mostly solid | ✍️ 9% |
+| Job opening with stack and salary | 3% 🧠 No fluff | ✍️ 28% |
+| "We cut our CI time from 18 to 6 minutes. What helped…" | 2% 🧠 No fluff | ✍️ 2% |
 
 Posts are scored only when they scroll near the viewport, each at most once, and results are cached
 locally. A post costs about 1,950 input tokens, which at Jev's
