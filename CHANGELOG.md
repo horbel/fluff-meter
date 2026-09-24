@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1
+
+- Icon and popup in LinkedIn blue.
+- Store name: Fluff Meter for LinkedIn.
+
 ## 0.2.0
 
 - The score pill shows a mini speedometer and reads well on any color.

@@ -4,7 +4,8 @@ Everything the developer dashboard asks for, ready to paste.
 
 ## Store listing
 
-**Name:** Fluff Meter
+**Name:** Fluff Meter for LinkedIn
+(set as `name` in `wxt.config.ts`; the store shows the manifest name)
 
 **Summary** (132 characters max):
 Rates every LinkedIn post on a 0–100% Fluff Index, spots AI-written posts and names the clichés.

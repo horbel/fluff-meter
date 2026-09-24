@@ -4,10 +4,10 @@ import { defineConfig } from "wxt";
 export default defineConfig({
   srcDir: "src",
   manifest: {
-    name: "Fluff Meter",
-    short_name: "BS Detector",
+    name: "Fluff Meter for LinkedIn",
+    short_name: "Fluff Meter",
     description:
-      "Rates every LinkedIn post on the Fluff Index (0–100%), spots AI-written posts and names the tropes. Powered by Jev.",
+      "Rates every LinkedIn post on a 0–100% Fluff Index, spots AI-written posts and names the clichés.",
     // `storage` keeps settings and the result cache on this device only.
     permissions: ["storage"],
     // The API hosts are called from the background worker only; LinkedIn is where the badges go.

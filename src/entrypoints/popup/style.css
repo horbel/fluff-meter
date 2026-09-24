@@ -105,8 +105,8 @@ button {
   padding: 16px 16px 14px;
   color: #fff;
   background:
-    radial-gradient(120% 160% at 100% 0%, rgba(255, 255, 255, 0.18), transparent 55%),
-    linear-gradient(135deg, #5b8cff, #8b5cf6);
+    radial-gradient(120% 160% at 100% 0%, rgba(255, 255, 255, 0.16), transparent 55%),
+    linear-gradient(135deg, #1a7fe0, #004182);
 }
 
 .hero::after {
@@ -151,7 +151,7 @@ button {
   margin-top: 12px;
   padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(20, 16, 60, 0.22);
+  background: rgba(0, 30, 70, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.22);
   font-size: 12px;
   font-weight: 600;
@@ -239,8 +239,8 @@ button {
 .primary {
   border: 0;
   color: #fff;
-  background: linear-gradient(135deg, #5b8cff, #8b5cf6);
-  box-shadow: 0 2px 8px rgba(91, 92, 246, 0.35);
+  background: linear-gradient(135deg, #1a7fe0, #0a66c2);
+  box-shadow: 0 2px 8px rgba(10, 102, 194, 0.35);
 }
 
 .primary:hover {
@@ -337,7 +337,7 @@ input[type="checkbox"] {
   position: absolute;
   inset: 0;
   border-radius: 999px;
-  background: rgba(20, 16, 60, 0.3);
+  background: rgba(0, 30, 70, 0.35);
   transition: background 150ms;
 }
 
