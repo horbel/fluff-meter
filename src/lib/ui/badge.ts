@@ -153,7 +153,7 @@ export class Badge {
     const row = h(
       "div",
       { class: "row" },
-      // One pill carries the score and the verdict; "Why?" sits right next to it.
+      // One pill carries the score and the verdict; its arrow opens the breakdown.
       parts.index &&
         h(
           "button",
@@ -162,7 +162,7 @@ export class Badge {
             type: "button",
             style: `--hue:${verdict.hue}`,
             "aria-expanded": String(this.#expanded),
-            title: "Fluff Index. Click for the breakdown.",
+            title: this.#expanded ? "Hide the breakdown" : "Why this score? Show the breakdown",
             onclick: toggle,
           },
           gauge(index, firstRender && !reducedMotion()),
@@ -170,8 +170,10 @@ export class Badge {
           h("span", { class: "pill-sep", "aria-hidden": "true" }),
           h("span", { class: "verdict" }, `${verdict.emoji} ${verdict.label}`),
           demo && h("span", { class: "demo-tag" }, "DEMO"),
+          chevron(this.#expanded),
         ),
-      why,
+      // With the index hidden there is no pill, so the breakdown gets a button of its own.
+      !parts.index && why,
       legend
         ? h("span", { class: "chip chip--legend" }, LEGEND_CHIP)
         : parts.category &&
@@ -332,6 +334,22 @@ function copyVerdict(button: HTMLButtonElement, index: number, legend: boolean):
     () => {
       button.textContent = "Couldn't copy";
     },
+  );
+}
+
+/** The arrow at the end of the pill: a small round button that flips when open. */
+function chevron(open: boolean): HTMLElement {
+  const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  icon.setAttribute("viewBox", "0 0 12 12");
+  icon.setAttribute("width", "10");
+  icon.setAttribute("height", "10");
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", "M2.5 4.5 6 8l3.5-3.5");
+  icon.append(path);
+  return h(
+    "span",
+    { class: open ? "pill-toggle is-open" : "pill-toggle", "aria-hidden": "true" },
+    icon,
   );
 }
 

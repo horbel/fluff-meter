@@ -128,6 +128,36 @@ button:focus-visible {
   fill: currentColor;
 }
 
+.pill-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-left: 2px;
+  margin-right: -5px;
+  border-radius: 50%;
+  background: hsl(var(--hue) 60% 50% / 0.14);
+  transition:
+    background 120ms,
+    transform 200ms ease;
+}
+
+.pill-toggle svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pill--index:hover .pill-toggle {
+  background: hsl(var(--hue) 60% 50% / 0.26);
+}
+
+.pill-toggle.is-open {
+  transform: rotate(180deg);
+}
+
 .pill-sep {
   width: 1px;
   height: 12px;
@@ -329,6 +359,7 @@ button:focus-visible {
     animation: none;
   }
   .pill--index,
+  .pill-toggle,
   .gauge-needle {
     transition: none;
   }

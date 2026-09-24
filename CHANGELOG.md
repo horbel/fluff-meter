@@ -1,12 +1,14 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
 
-- The score pill shows a mini speedometer instead of an emoji, and reads well on any color.
+- The score pill shows a mini speedometer and reads well on any color.
 - Clearer levels: No fluff, Mostly solid, A bit fluffy, Fluffy, Very fluffy, Pure fluff.
-- "Why ▾" sits next to the score as a quiet chip, the verdict emoji is back in the pill, and
-  the AI chip comes last.
-- Two README screenshots: a fluffy post and a useful one.
+- The score pill has an arrow that opens the breakdown, the verdict emoji is back in the pill,
+  and the AI chip comes last.
+- New icon: a fluffy cloud with a gauge. Popup in the new colors.
+- README screenshot shows a fluffy and a useful post side by side.
+- Chrome Web Store assets in `store/`.
 - The popup shows the same speedometer next to your feed's average.
 
 ## 0.1.0

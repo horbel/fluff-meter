@@ -29,10 +29,12 @@ Rates every LinkedIn post on a 0–100% Fluff Index, spots AI-written posts and 
 **Category:** Social & Communication
 **Language:** English
 
-**Assets:**
-- Icon: `public/icon/128.png`
-- Screenshots (1280×800 or 640×400): a feed with badges, the popup, the breakdown.
-- Small promo tile (440×280), optional.
+**Assets** (all in [`store/`](../store)):
+- Icon: `icon-128.png`
+- Screenshots, 1280×800: `screenshot-1.png` (fluff vs signal), `screenshot-2.png` (the breakdown),
+  `screenshot-3.png` (the popup)
+- Small promo tile, 440×280: `promo-small-440x280.png`
+- Marquee, 1400×560: `marquee-1400x560.png`
 
 ## Privacy tab
 
