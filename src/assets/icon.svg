@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <title>Fluff Meter</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1d2733"/>
+      <stop offset="1" stop-color="#0b1117"/>
+    </linearGradient>
+    <linearGradient id="arc" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2fbf71"/>
+      <stop offset="0.5" stop-color="#f2b134"/>
+      <stop offset="1" stop-color="#e5484d"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <path d="M24 70 A40 40 0 0 1 104 70" fill="none" stroke="url(#arc)" stroke-width="14" stroke-linecap="round"/>
+  <line x1="64" y1="70" x2="92" y2="42" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="64" cy="70" r="8" fill="#ffffff"/>
+  <g fill="#ffffff">
+    <circle cx="46" cy="104" r="9"/>
+    <circle cx="60" cy="97" r="12"/>
+    <circle cx="76" cy="99" r="10"/>
+    <circle cx="87" cy="106" r="7"/>
+    <rect x="37" y="102" width="56" height="11" rx="5.5"/>
+  </g>
+</svg>

@@ -1,0 +1,40 @@
+{
+  "name": "fluff-meter",
+  "description": "A browser extension that rates LinkedIn posts on a 0–100% Fluff Index, powered by Jev.",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "wxt",
+    "build": "wxt build",
+    "zip": "wxt zip",
+    "postinstall": "wxt prepare",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "smoke": "vitest run --config vitest.smoke.config.ts",
+    "check": "npm run typecheck && npm run lint && npm run test"
+  },
+  "dependencies": {
+    "@typesafe-ai/sdk": "0.6.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.14",
+    "happy-dom": "20.14.5",
+    "typescript": "5.9.3",
+    "vitest": "5.0.1",
+    "wxt": "0.21.4"
+  },
+  "homepage": "https://github.com/horbel/fluff-meter",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/horbel/fluff-meter.git"
+  },
+  "funding": "https://buymeacoffee.com/horbel"
+}

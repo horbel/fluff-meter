@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fluff Meter</title>
+    <meta name="manifest.type" content="browser_action" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero-row">
+        <img class="logo" src="/icon/48.png" alt="" width="40" height="40" />
+        <div class="brand">
+          <h1>Fluff Meter</h1>
+          <p>for LinkedIn</p>
+        </div>
+        <label class="switch" title="Show badges on LinkedIn">
+          <input id="enabled" type="checkbox" />
+          <span class="switch-track" aria-hidden="true"></span>
+          <span class="sr-only">Show badges on LinkedIn</span>
+        </label>
+      </div>
+      <p id="mode" class="mode-pill" aria-live="polite"></p>
+    </header>
+
+    <main class="content">
+      <section id="stats" class="card stats"></section>
+
+      <section class="card key">
+        <div id="key-summary" class="key-summary" hidden>
+          <span id="key-label"></span>
+          <button id="key-change" type="button" class="link-button">Change</button>
+        </div>
+        <form id="key-form" class="key-form" autocomplete="off">
+          <div class="card-title">
+            <h2>🔑 API key</h2>
+            <span class="muted">stays on this device</span>
+          </div>
+          <div class="input-row">
+            <input
+              id="api-key"
+              type="password"
+              spellcheck="false"
+              placeholder="TypeSafe key or OpenRouter sk-or-…"
+            />
+            <button id="reveal" type="button" class="icon-button" aria-label="Show key">👁</button>
+          </div>
+          <p id="detected" class="hint muted"></p>
+          <div class="actions">
+            <button id="save" type="submit" class="primary">Save &amp; test</button>
+            <button id="remove" type="button" class="secondary" hidden>Remove key</button>
+          </div>
+          <p id="status" class="status" role="status"></p>
+          <p class="hint muted">
+            Get one from
+            <a href="https://console.typesafe.ai/keys" target="_blank" rel="noreferrer">TypeSafe</a>
+            or
+            <a href="https://openrouter.ai/settings/keys" target="_blank" rel="noreferrer">OpenRouter</a>.
+            About 12,000 posts per dollar.
+          </p>
+        </form>
+      </section>
+
+      <details class="card prefs" open>
+        <summary>
+          <h2>🎛️ Customize</h2>
+          <span id="preset-name" class="muted"></span>
+        </summary>
+        <div id="presets" class="presets"></div>
+        <p id="preset-blurb" class="hint muted"></p>
+
+        <label class="option">
+          <input id="show-index" type="checkbox" />
+          <span>Show the Fluff Index</span>
+        </label>
+        <p class="hint muted">
+          ☑ shows a tag on posts. The slider is how much fluff it is for you: all the way to ☁️
+          and any post with it scores 100.
+        </p>
+
+        <fieldset>
+          <legend>
+            <span>Tropes</span>
+            <span class="scale" aria-hidden="true"><span>🏆</span><span>☁️</span></span>
+          </legend>
+          <div id="tropes" class="weights"></div>
+        </fieldset>
+        <fieldset>
+          <legend>
+            <span>Genres</span>
+            <span class="scale" aria-hidden="true"><span>🏆</span><span>☁️</span></span>
+          </legend>
+          <div id="categories" class="weights"></div>
+        </fieldset>
+        <p class="hint muted">Max 5 labels per post, strongest first.</p>
+      </details>
+    </main>
+
+    <footer class="footer">
+      <span class="muted">Rates posts, not people.</span>
+      <nav>
+        <a id="repo" href="https://github.com/horbel/fluff-meter" target="_blank" rel="noreferrer"
+          >GitHub</a
+        >
+        <a class="coffee" href="https://buymeacoffee.com/horbel" target="_blank" rel="noreferrer"
+          >☕ Buy me a coffee</a
+        >
+      </nav>
+    </footer>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
