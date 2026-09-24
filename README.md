@@ -10,13 +10,13 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Buy me a coffee](https://img.shields.io/badge/☕-buy%20me%20a%20coffee-ffdd00)](https://buymeacoffee.com/horbel)
 
-<img src="docs/screenshot.png" width="600" alt="A LinkedIn post by Chad Synergy, Chief Visionary Officer, with a badge: 99%, Certified fluff" />
+<img src="docs/screenshot.png" width="600" alt="A LinkedIn post by Chad Synergy, Chief Visionary Officer, with a badge: 99%, Pure fluff" />
 
 </div>
 
 Scroll LinkedIn as usual. Every post gets a small badge that tells you:
 
-- **how much fluff it is**, from 🧠 *Pure signal* to ☁️ *Certified fluff*;
+- **how much fluff it is**, from 🧠 *Pure signal* to ☁️ *Pure fluff*;
 - **whether it reads like AI wrote it**;
 - **what kind of post it is**: tech, hiring, career news, motivation, promo…;
 - **which clichés it uses**: humblebrags, "Agree? 👇", janitor stories, one-line-per-sentence

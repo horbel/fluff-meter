@@ -15,11 +15,11 @@ export interface Verdict {
 
 /** Sorted by `min`, descending. The first tier whose `min` fits wins. */
 export const VERDICTS: readonly Verdict[] = [
-  { min: 90, label: "Certified fluff", emoji: "☁️", hue: 0 },
-  { min: 75, label: "Hot air", emoji: "🎈", hue: 12 },
-  { min: 55, label: "Thought leader", emoji: "🎤", hue: 28 },
-  { min: 35, label: "A bit fluffy", emoji: "🧁", hue: 45 },
-  { min: 15, label: "Mostly legit", emoji: "👍", hue: 90 },
+  { min: 90, label: "Pure fluff", emoji: "☁️", hue: 0 },
+  { min: 75, label: "Very fluffy", emoji: "🎈", hue: 12 },
+  { min: 55, label: "Fluffy", emoji: "🧁", hue: 28 },
+  { min: 35, label: "A bit fluffy", emoji: "🍃", hue: 45 },
+  { min: 15, label: "Mostly solid", emoji: "👍", hue: 90 },
   { min: 0, label: "Pure signal", emoji: "🧠", hue: 140 },
 ];
 

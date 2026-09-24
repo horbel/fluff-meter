@@ -63,7 +63,7 @@ describe("detectTropes", () => {
 describe("verdicts", () => {
   it("covers every index with the matching tier", () => {
     expect(verdictFor(0).label).toBe("Pure signal");
-    expect(verdictFor(100).label).toBe("Certified fluff");
+    expect(verdictFor(100).label).toBe("Pure fluff");
     for (let i = 0; i <= 100; i++) expect(VERDICTS).toContain(verdictFor(i));
   });
 

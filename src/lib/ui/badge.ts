@@ -137,43 +137,36 @@ export class Badge {
       this.render();
     };
 
-    const chevron = h(
-      "span",
-      { class: "chevron", "aria-hidden": "true" },
-      this.#expanded ? "▴" : "▾",
+    const firstRender = !this.#counted;
+    const why = h(
+      "button",
+      { class: "expand", type: "button", "aria-expanded": String(this.#expanded), onclick: toggle },
+      this.#expanded ? "Hide" : "Why?",
     );
     const row = h(
       "div",
       { class: "row" },
-      // One pill carries the score and the verdict, and opens the breakdown.
-      parts.index
-        ? h(
-            "button",
-            {
-              class: "pill pill--index",
-              type: "button",
-              style: `--hue:${verdict.hue}`,
-              "aria-expanded": String(this.#expanded),
-              title: "Fluff Index. Click for the breakdown.",
-              onclick: toggle,
-            },
-            h("span", { "aria-hidden": "true" }, verdict.emoji),
-            number,
-            h("span", { class: "pill-sep", "aria-hidden": "true" }),
-            h("span", { class: "verdict" }, verdict.label),
-            demo && h("span", { class: "demo-tag" }, "DEMO"),
-            chevron,
-          )
-        : h(
-            "button",
-            {
-              class: "expand",
-              type: "button",
-              "aria-expanded": String(this.#expanded),
-              onclick: toggle,
-            },
-            this.#expanded ? "Hide" : "Why?",
-          ),
+      // One pill carries the score and the verdict; "Why?" sits right next to it.
+      parts.index &&
+        h(
+          "button",
+          {
+            class: "pill pill--index",
+            type: "button",
+            style: `--hue:${verdict.hue}`,
+            "aria-expanded": String(this.#expanded),
+            title: "Fluff Index. Click for the breakdown.",
+            onclick: toggle,
+          },
+          legend
+            ? h("span", { "aria-hidden": "true" }, verdict.emoji)
+            : gauge(index, firstRender && !reducedMotion()),
+          number,
+          h("span", { class: "pill-sep", "aria-hidden": "true" }),
+          h("span", { class: "verdict" }, verdict.label),
+          demo && h("span", { class: "demo-tag" }, "DEMO"),
+        ),
+      why,
       parts.ai && aiChip(analysis),
       legend
         ? h("span", { class: "chip chip--legend" }, LEGEND_CHIP)
@@ -333,6 +326,49 @@ function copyVerdict(button: HTMLButtonElement, index: number, legend: boolean):
     () => {
       button.textContent = "Couldn't copy";
     },
+  );
+}
+
+const SVG = "http://www.w3.org/2000/svg";
+
+function svg(tag: string, attrs: Record<string, string | number>, ...children: SVGElement[]) {
+  const el = document.createElementNS(SVG, tag);
+  for (const [name, value] of Object.entries(attrs)) el.setAttribute(name, String(value));
+  el.append(...children);
+  return el;
+}
+
+/**
+ * A tiny speedometer, the extension's icon in miniature: green on the left, red on the right,
+ * and a needle pointing at the score. On first show the needle sweeps up from zero.
+ */
+function gauge(index: number, sweep: boolean): SVGElement {
+  const angle = -90 + (180 * Math.min(100, Math.max(0, index))) / 100;
+  const needle = svg("line", { class: "gauge-needle", x1: 14, y1: 14, x2: 14, y2: 5 });
+  needle.style.transform = `rotate(${sweep ? -90 : angle}deg)`;
+  if (sweep)
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        needle.style.transform = `rotate(${angle}deg)`;
+      }),
+    );
+  return svg(
+    "svg",
+    { class: "gauge", viewBox: "0 0 28 16", width: 26, height: 15, "aria-hidden": "true" },
+    svg(
+      "defs",
+      {},
+      svg(
+        "linearGradient",
+        { id: "gauge-arc", x1: 0, y1: 0, x2: 1, y2: 0 },
+        svg("stop", { offset: 0, "stop-color": "#2fbf71" }),
+        svg("stop", { offset: 0.5, "stop-color": "#f2b134" }),
+        svg("stop", { offset: 1, "stop-color": "#e5484d" }),
+      ),
+    ),
+    svg("path", { class: "gauge-arc", d: "M3 14 A11 11 0 0 1 25 14" }),
+    needle,
+    svg("circle", { class: "gauge-hub", cx: 14, cy: 14, r: 2.2 }),
   );
 }
 

@@ -39,13 +39,13 @@ On the sample posts in [`tests/fixtures`](../tests/fixtures/sample-posts.ts) tha
 
 | Post | Index | AI |
 | --- | --- | --- |
-| "I got rejected from 47 jobs. Then a janitor told me…" | 99% ☁️ Certified fluff | 🤔 62% |
-| "𝗔𝗜 𝘄𝗼𝗻'𝘁 𝗿𝗲𝗽𝗹𝗮𝗰𝗲 𝘆𝗼𝘂. Here's the thing —…" | 97% ☁️ Certified fluff | 🤖 99% |
-| "In today's fast-paced world, leveraging synergies…" | 96% ☁️ Certified fluff | 🤖 92% |
-| "Starting a new position as Senior QA at Globex! Thanks to everyone…" | 77% 🏭 Hot air | ✍️ 22% |
-| Meetup recap with a link to slides | 63% 🎤 Thought leader | ✍️ 5% |
-| "ok so the coffee machine has been broken for 3 weeks…" | 41% 🧁 A bit fluffy | ✍️ 1% |
-| "After nine years at DeepMind leading AlphaFold 3, I'm joining Anthropic…" | 18% 👍 Mostly legit | ✍️ 9% |
+| "I got rejected from 47 jobs. Then a janitor told me…" | 99% ☁️ Pure fluff | 🤔 62% |
+| "𝗔𝗜 𝘄𝗼𝗻'𝘁 𝗿𝗲𝗽𝗹𝗮𝗰𝗲 𝘆𝗼𝘂. Here's the thing —…" | 97% ☁️ Pure fluff | 🤖 99% |
+| "In today's fast-paced world, leveraging synergies…" | 96% ☁️ Pure fluff | 🤖 92% |
+| "Starting a new position as Senior QA at Globex! Thanks to everyone…" | 77% 🎈 Very fluffy | ✍️ 22% |
+| Meetup recap with a link to slides | 63% 🧁 Fluffy | ✍️ 5% |
+| "ok so the coffee machine has been broken for 3 weeks…" | 41% 🍃 A bit fluffy | ✍️ 1% |
+| "After nine years at DeepMind leading AlphaFold 3, I'm joining Anthropic…" | 18% 👍 Mostly solid | ✍️ 9% |
 | Job opening with stack and salary | 3% 🧠 Pure signal | ✍️ 28% |
 | "We cut our CI time from 18 to 6 minutes. What helped…" | 2% 🧠 Pure signal | ✍️ 2% |
 
