@@ -10,7 +10,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Buy me a coffee](https://img.shields.io/badge/☕-buy%20me%20a%20coffee-ffdd00)](https://buymeacoffee.com/horbel)
 
-<img src="docs/screenshot.png" width="860" alt="Two LinkedIn posts side by side: a janitor parable by Chad Synergy scored 99%, Pure fluff, and a latency fix by Priya Raman scored 3%, No fluff" />
+<img src="docs/screenshot.png" width="860" alt="Two LinkedIn posts side by side: a janitor parable by Chaz Hustleton scored 99%, Pure fluff, and a latency fix by Mira Oyelaran-Holt scored 3%, No fluff" />
 
 <sub>The same feed, two posts: a janitor parable and a real fix with numbers.</sub>
 
