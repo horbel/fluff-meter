@@ -167,7 +167,6 @@ export class Badge {
           demo && h("span", { class: "demo-tag" }, "DEMO"),
         ),
       why,
-      parts.ai && aiChip(analysis),
       legend
         ? h("span", { class: "chip chip--legend" }, LEGEND_CHIP)
         : parts.category &&
@@ -180,6 +179,8 @@ export class Badge {
         const t = TROPE_LABELS[id];
         return h("span", { class: "chip chip--trope", title: t.hint }, `${t.emoji} ${t.label}`);
       }),
+      // A guess, so it goes last: what the post is and does comes first.
+      parts.ai && aiChip(analysis),
     );
 
     // Count up only the first time a badge shows a result; re-renders show the final number.
