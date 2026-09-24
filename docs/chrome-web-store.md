@@ -19,6 +19,9 @@ Rates every LinkedIn post on a 0–100% Fluff Index, spots AI-written posts and 
 > The popup shows how much of your feed was fluff today, this week or this month. Slide any tag
 > from 🏆 to ☁️ to make the score your own, or pick a preset: Engineer, Recruiter or Pragmatist.
 >
+> Scores come from Jev by TypeSafe, a fast model built for rating text: one quick call per post,
+> about 12,000 posts for a dollar.
+>
 > It starts in demo mode with random numbers. For real scores, add your own TypeSafe or OpenRouter
 > API key. No servers, no tracking: only the text of the posts you scroll past goes to the AI
 > provider you picked.
