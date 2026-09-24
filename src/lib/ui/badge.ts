@@ -141,8 +141,14 @@ export class Badge {
     const firstRender = !this.#counted;
     const why = h(
       "button",
-      { class: "expand", type: "button", "aria-expanded": String(this.#expanded), onclick: toggle },
-      this.#expanded ? "Hide" : "Why?",
+      {
+        class: "expand",
+        type: "button",
+        "aria-expanded": String(this.#expanded),
+        title: "What drove this score",
+        onclick: toggle,
+      },
+      this.#expanded ? "Hide ▴" : "Why ▾",
     );
     const row = h(
       "div",
@@ -159,12 +165,10 @@ export class Badge {
             title: "Fluff Index. Click for the breakdown.",
             onclick: toggle,
           },
-          legend
-            ? h("span", { "aria-hidden": "true" }, verdict.emoji)
-            : gauge(index, firstRender && !reducedMotion()),
+          gauge(index, firstRender && !reducedMotion()),
           number,
           h("span", { class: "pill-sep", "aria-hidden": "true" }),
-          h("span", { class: "verdict" }, verdict.label),
+          h("span", { class: "verdict" }, `${verdict.emoji} ${verdict.label}`),
           demo && h("span", { class: "demo-tag" }, "DEMO"),
         ),
       why,
