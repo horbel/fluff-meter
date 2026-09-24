@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.2
+
+- New icon: a white cloud with a three-color gauge on deep navy.
+- Popup header in navy so the icon stands out; buttons stay LinkedIn blue.
+- Store assets restyled on a light background.
+
 ## 0.2.1
 
 - Icon and popup in LinkedIn blue.
