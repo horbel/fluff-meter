@@ -19,7 +19,9 @@ what it is about, and only you know which ones you want.
 - Posts the page hides itself (promoted posts, for example, when an ad blocker is on) get no
   badge and no fold, instead of a fold bar that opens onto nothing.
 - Posts are scored further ahead, and each post that comes into range starts the next two, so
-  badges and folds are ready before you scroll to them.
+  badges and folds are ready before you scroll to them. Posts on screen go first, six at a time.
+- A folded post keeps the bar's height (the bar lies on top), so LinkedIn still sees it and keeps
+  loading the feed.
 - Posts about a loss, a war or an illness get no badge and don't count in the stats.
 - Four levels instead of six: Solid, Light fluff, Fluffy, Pure fluff.
 - A slimmer badge: one row, at most two clichés, the AI chip only when a post reads like AI, the

@@ -3,8 +3,12 @@ import type { Analysis, AnalysisErrorCode, PostInput } from "./analysis/types";
 
 /** Every message the background worker answers. Content scripts and the popup are the senders. */
 export type Request =
-  /** `foldable`: the post is in the feed, where folding applies (it counts in the stats). */
-  { type: "analyze"; post: PostInput; foldable?: boolean } | { type: "test-key"; apiKey: string };
+  /**
+   * `foldable`: the post is in the feed, where folding applies (it counts in the stats).
+   * `urgent`: on screen now, so it goes ahead of posts scored in advance.
+   */
+  | { type: "analyze"; post: PostInput; foldable?: boolean; urgent?: boolean }
+  | { type: "test-key"; apiKey: string };
 
 interface ResponseData {
   analyze: Analysis;

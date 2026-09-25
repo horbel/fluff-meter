@@ -10,8 +10,8 @@ import { personalView } from "./personal";
 import { modeOf, type Settings } from "./settings";
 import { dailyStatsItem, recordAnalysis } from "./stats";
 
-/** Jev answers in well under a second; four at a time keeps a fast scroll well under rate limits. */
-const MAX_CONCURRENT = 4;
+/** Jev answers in well under a second; six at a time keeps a fast scroll well under rate limits. */
+const MAX_CONCURRENT = 6;
 
 /** Runs posts through demo mode or Jev, with caching, de-duplication and a concurrency cap. */
 export class Analyzer {
@@ -24,7 +24,7 @@ export class Analyzer {
 
   constructor(private readonly getSettings: () => Promise<Settings>) {}
 
-  async analyze(post: PostInput, foldable = true): Promise<Analysis> {
+  async analyze(post: PostInput, foldable = true, urgent = true): Promise<Analysis> {
     if (isZeroFluff(post.author)) return legendAnalysis();
     const settings = await this.getSettings();
     const mode = modeOf(settings);
@@ -39,8 +39,9 @@ export class Analyzer {
     const job = (async () => {
       const cached = await getCached(hash);
       if (cached) return cached;
-      const analysis = await this.#limited(() =>
-        analyzeWithJev(this.#clientFor(settings.apiKey), post, topics),
+      const analysis = await this.#limited(
+        () => analyzeWithJev(this.#clientFor(settings.apiKey), post, topics),
+        urgent,
       );
       await putCached(hash, analysis);
       // Posts about a tragedy get no badge, so they don't count towards the feed's fluff either.
@@ -80,9 +81,12 @@ export class Analyzer {
     return this.#client.instance;
   }
 
-  async #limited<T>(task: () => Promise<T>): Promise<T> {
+  /** Runs `task` when a slot is free. Posts on screen go to the front of the line. */
+  async #limited<T>(task: () => Promise<T>, urgent = true): Promise<T> {
     if (this.#running >= MAX_CONCURRENT) {
-      await new Promise<void>((resolve) => this.#queue.push(resolve));
+      await new Promise<void>((resolve) =>
+        urgent ? this.#queue.unshift(resolve) : this.#queue.push(resolve),
+      );
     }
     this.#running++;
     try {

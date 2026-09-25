@@ -27,10 +27,11 @@
 }
 
 .fold {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 40px;
+  height: 44px;
   padding: 6px 10px 6px 12px;
   border: 1px solid var(--border);
   border-radius: 8px;

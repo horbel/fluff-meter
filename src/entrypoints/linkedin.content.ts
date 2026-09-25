@@ -14,20 +14,37 @@ const PRELOAD_MARGIN = "800px 0px 2000px 0px";
 /** On top of that, every post that comes into range also starts the next ones in the feed. */
 const LOOKAHEAD = 2;
 
+/** Height of a folded post: the fold bar's height. */
+const FOLDED_HEIGHT = 44;
+
 /**
- * A folded card collapses to nothing and our bar, placed right before it, stands in for it.
- * Squeezed to zero height rather than `display: none`, so its text stays rendered and reads the
- * same (same key, no new request).
+ * A folded card shrinks to the fold bar's height and the bar lies on top of it. The card never
+ * goes to zero: LinkedIn watches posts come into view (to load the next page of the feed, among
+ * other things), and a zero-height post is never seen. It is squeezed rather than hidden, so its
+ * text stays rendered and reads the same (same key, no new request).
  */
 const PAGE_CSS = `[${FOLDED_ATTR}] {
-  max-height: 0 !important;
+  box-sizing: border-box !important;
+  height: ${FOLDED_HEIGHT}px !important;
   min-height: 0 !important;
+  max-height: ${FOLDED_HEIGHT}px !important;
   overflow: hidden !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
-  box-shadow: none !important;
+}
+:has(> ${FOLD_TAG}) {
+  position: relative !important;
+}
+${FOLD_TAG} {
+  position: absolute !important;
+  inset: 0 0 auto 0 !important;
+  z-index: 2 !important;
 }`;
+
+/** Undoes what a fold did to LinkedIn's card. */
+function release(card: Element): void {
+  if (!card.hasAttribute(FOLDED_ATTR)) return;
+  card.removeAttribute(FOLDED_ATTR);
+  card.removeAttribute("inert");
+}
 
 export default defineContentScript({
   matches: ["https://www.linkedin.com/*"],
@@ -56,13 +73,15 @@ export default defineContentScript({
       for (const badge of badges.get(key) ?? []) badge.render(state);
     };
 
-    const analyze = async (key: string, post: PostInput) => {
+    /** `urgent`: the post is on screen now, so it jumps the queue of posts scored ahead. */
+    const analyze = async (key: string, post: PostInput, urgent = true) => {
       setState(key, { status: "loading" });
       try {
         const analysis = await send({
           type: "analyze",
           post,
           foldable: isFeedPath(location.pathname),
+          urgent,
         });
         const provider = settings.mode.kind === "live" ? settings.mode.provider : undefined;
         setState(key, { status: "done", analysis, ...(provider ? { provider } : {}) });
@@ -101,7 +120,9 @@ export default defineContentScript({
       const found = findPosts(root).find((p) => p.root === root && keyOf(p.post) === job.key);
       if (!found) return;
       mount(job.key, found);
-      if (!states.has(job.key)) void analyze(job.key, found.post);
+      const box = root.getBoundingClientRect();
+      const onScreen = box.top < window.innerHeight && box.bottom > 0;
+      if (!states.has(job.key)) void analyze(job.key, found.post, onScreen);
     };
 
     const io = new IntersectionObserver(
@@ -131,7 +152,7 @@ export default defineContentScript({
         const text = card?.querySelector(SELECTORS.postText);
         if (!card?.hasAttribute(FOLDED_ATTR) || !text || !isShown(text, card)) {
           bar.remove();
-          card?.removeAttribute(FOLDED_ATTR);
+          if (card) release(card);
         }
       }
       if (!settings.enabled) return;
@@ -174,13 +195,12 @@ export default defineContentScript({
     const unfoldCard = (card: Element) => {
       const bar = card.previousElementSibling;
       if (bar?.tagName.toLowerCase() === FOLD_TAG) bar.remove();
-      card.removeAttribute(FOLDED_ATTR);
+      release(card);
     };
 
     const removeAll = () => {
       for (const el of document.querySelectorAll(`${BADGE_TAG}, ${FOLD_TAG}`)) el.remove();
-      for (const card of document.querySelectorAll(`[${FOLDED_ATTR}]`))
-        card.removeAttribute(FOLDED_ATTR);
+      for (const card of document.querySelectorAll(`[${FOLDED_ATTR}]`)) release(card);
       badges.clear();
     };
 

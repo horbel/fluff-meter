@@ -110,6 +110,7 @@ export class Badge {
     this.#fold?.host.remove();
     this.#fold = undefined;
     this.card.removeAttribute(FOLDED_ATTR);
+    this.card.removeAttribute("inert");
   }
 
   #showFold(analysis: Analysis, view: PersonalView, reason: FoldReason): void {
@@ -168,6 +169,8 @@ export class Badge {
     // `display: contents`, which can't be squeezed.
     if (host.nextElementSibling !== this.card) this.card.before(host);
     this.card.setAttribute(FOLDED_ATTR, "");
+    // What's left of the card sits under the bar: keep it out of reach of Tab and screen readers.
+    this.card.setAttribute("inert", "");
   }
 
   #loading(prefs: DisplayPrefs): HTMLElement | null {
