@@ -7,7 +7,7 @@ import { AI_TELL_IDS, type Analysis, CATEGORY_IDS, type PostInput, type Signals 
  * Demo mode: no API key, no network. Numbers are random, but seeded by the post text so a
  * post keeps the same badge when you scroll back to it. The UI labels every demo badge.
  */
-export function demoAnalysis(post: PostInput): Analysis {
+export function demoAnalysis(post: PostInput, topics: readonly string[] = []): Analysis {
   const text = post.reshared ? `${post.text}\n\n${post.reshared}` : post.text;
   const rand = seededRandom(Number.parseInt(hashText(text, 7).slice(-8), 36));
   // A "mood" per post makes the fake signals move together, so the index spreads 0..100
@@ -26,8 +26,6 @@ export function demoAnalysis(post: PostInput): Analysis {
     parable: noul(),
     truism: noul(),
     hustle: noul(),
-    routine: noul(),
-    sales_pitch: noul(),
     formatting: formattingSignal(stats),
   };
   const category = CATEGORY_IDS[Math.floor(rand() * CATEGORY_IDS.length)] ?? "other";
@@ -39,6 +37,9 @@ export function demoAnalysis(post: PostInput): Analysis {
     stats,
     category,
     categoryConfidence: rand(),
+    // Never random: a demo badge must not go quiet on a post for no visible reason.
+    sensitive: 0,
+    topics: Object.fromEntries(topics.map((label) => [label, rand() < 0.15 ? 0.9 : 0.05])),
     source: "demo",
   });
 }

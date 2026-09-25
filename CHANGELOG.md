@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.3.0
+
+Two separate things now: clichés are how a post is written and annoy everyone; categories are
+what it is about, and only you know which ones you want.
+
+- The Fluff Index counts clichés and empty language only. A category never makes a post fluffier.
+- Clichés: Bait (now with "comment GUIDE for the PDF"), Humblebrag, Fable (was Parable), Truism,
+  Hustle, Broetry, and the AI chip. Switch any of them off and it neither shows nor counts.
+  Routine and Pitch are gone: they were categories in disguise.
+- Categories, 11 instead of 13: Know-how, News, Opinion, Stories & lessons, Career moves, Hiring,
+  Job hunt, Events, Promo, Humor, Other. Mark each ⭐ want or 🙈 fold instead of a slider.
+- Your topics: up to three of your own, like "Rust" or "crypto", to star or fold.
+- Folding: pure fluff (or fluffy too, or never) and hidden categories shrink to one line with a
+  Show button. The popup counts folded posts and the time they saved.
+- Posts about a loss, a war or an illness get no badge and don't count in the stats.
+- Four levels instead of six: Solid, Light fluff, Fluffy, Pure fluff.
+- A slimmer badge: one row, at most two clichés, the AI chip only when a post reads like AI, the
+  category as plain text.
+- Presets: Default, Engineer, Recruiter, Job seeker.
+- New icon: a lilac cloud that isn't buying it. Popup in lilac.
+
 ## 0.2.2
 
 - New icon: a white cloud with a three-color gauge on deep navy.

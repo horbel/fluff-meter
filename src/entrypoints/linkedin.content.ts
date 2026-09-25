@@ -1,12 +1,27 @@
 import type { PostInput } from "@/lib/analysis/types";
 import { hashText } from "@/lib/hash";
-import { findPosts } from "@/lib/linkedin/extract";
+import { type FoundPost, findPosts } from "@/lib/linkedin/extract";
 import { RemoteError, send } from "@/lib/messages";
 import { type PublicSettings, publicSettingsItem } from "@/lib/settings";
-import { BADGE_TAG, Badge, type BadgeState } from "@/lib/ui/badge";
+import { BADGE_TAG, Badge, type BadgeState, FOLD_TAG, FOLDED_ATTR } from "@/lib/ui/badge";
 
 /** Posts are scored a little before they scroll into view, so the badge is ready on arrival. */
 const PRELOAD_MARGIN = "800px 0px";
+
+/**
+ * A folded card keeps only our bar visible. The rest is squeezed to zero height rather than
+ * `display: none`, so its text stays rendered and reads the same (same key, no new request).
+ */
+const PAGE_CSS = `[${FOLDED_ATTR}] > :not(${FOLD_TAG}) {
+  max-height: 0 !important;
+  overflow: hidden !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}`;
 
 export default defineContentScript({
   matches: ["https://www.linkedin.com/*"],
@@ -21,8 +36,14 @@ export default defineContentScript({
     /** Cards waiting to scroll near the viewport, with the post they held when found. */
     let waiting = new WeakMap<Element, { key: string; post: PostInput }>();
 
+    const pageStyle = document.createElement("style");
+    pageStyle.textContent = PAGE_CSS;
+    document.head.append(pageStyle);
+
+    // The reader's topics are part of the question, so they are part of the key too.
+    const topicsOf = (s: PublicSettings) => s.display.topics.map((t) => t.label).join("\n");
     const keyOf = (post: PostInput) =>
-      `${settings.mode.kind}:${hashText(`${post.text}\n${post.reshared ?? ""}`)}`;
+      `${settings.mode.kind}:${hashText(`${post.text}\n${post.reshared ?? ""}\n${topicsOf(settings)}`)}`;
 
     const setState = (key: string, state: BadgeState) => {
       states.set(key, state);
@@ -41,9 +62,11 @@ export default defineContentScript({
       }
     };
 
-    const mount = (key: string, post: PostInput, anchor: HTMLElement) => {
+    const mount = (key: string, { root, anchor, post, authorName }: FoundPost) => {
       const badge = new Badge(
         key,
+        root,
+        authorName,
         () => void analyze(key, post),
         () => settings.display,
       );
@@ -67,7 +90,7 @@ export default defineContentScript({
             (p) => p.root === entry.target && keyOf(p.post) === job.key,
           );
           if (!found) continue;
-          mount(job.key, found.post, found.anchor);
+          mount(job.key, found);
           if (!states.has(job.key)) void analyze(job.key, found.post);
         }
       },
@@ -82,17 +105,22 @@ export default defineContentScript({
       }
       if (!settings.enabled) return;
 
-      for (const { root, anchor, post, short } of findPosts()) {
+      for (const found of findPosts()) {
+        const { root, post, short } = found;
         const key = keyOf(post);
         const existing = root.querySelector<HTMLElement>(BADGE_TAG);
         if (existing?.dataset.key === key) continue;
-        existing?.remove(); // the card now shows a different post
+        if (existing) {
+          // The card now shows a different post: drop the old badge and any fold it made.
+          existing.remove();
+          unfoldCard(root);
+        }
 
         // A few words get a joke right away: nothing to send, nothing to wait for.
         if (short) states.set(key, { status: "short" });
 
         if (states.has(key)) {
-          mount(key, post, anchor);
+          mount(key, found);
         } else if (waiting.get(root)?.key !== key) {
           waiting.set(root, { key, post });
           io.observe(root);
@@ -110,8 +138,14 @@ export default defineContentScript({
       });
     };
 
+    const unfoldCard = (card: Element) => {
+      for (const el of card.querySelectorAll(`:scope > ${FOLD_TAG}`)) el.remove();
+      card.removeAttribute(FOLDED_ATTR);
+    };
+
     const removeAll = () => {
       for (const el of document.querySelectorAll(BADGE_TAG)) el.remove();
+      for (const card of document.querySelectorAll(`[${FOLDED_ATTR}]`)) unfoldCard(card);
       badges.clear();
     };
 
@@ -120,7 +154,8 @@ export default defineContentScript({
       // inserting a badge host does; skip batches that only contain those.
       const external = mutations.some((m) =>
         [...m.addedNodes, ...m.removedNodes].some(
-          (n) => !(n instanceof HTMLElement && n.tagName.toLowerCase() === BADGE_TAG),
+          (n) =>
+            !(n instanceof HTMLElement && [BADGE_TAG, FOLD_TAG].includes(n.tagName.toLowerCase())),
         ),
       );
       if (external) scheduleScan();
@@ -128,7 +163,9 @@ export default defineContentScript({
     mo.observe(document.body, { childList: true, subtree: true });
 
     const unwatch = publicSettingsItem.watch((next) => {
-      const modeChanged = JSON.stringify(next.mode) !== JSON.stringify(settings.mode);
+      const modeChanged =
+        JSON.stringify(next.mode) !== JSON.stringify(settings.mode) ||
+        topicsOf(next) !== topicsOf(settings);
       const onlyDisplay =
         !modeChanged &&
         next.enabled === settings.enabled &&
@@ -155,6 +192,7 @@ export default defineContentScript({
       io.disconnect();
       unwatch();
       removeAll();
+      pageStyle.remove();
     });
 
     scan();

@@ -1,0 +1,93 @@
+/* The one-line bar that replaces a folded post. Same palette as badge.css. */
+:host {
+  --bg: #ffffff;
+  --text: rgba(0, 0, 0, 0.9);
+  --muted: rgba(0, 0, 0, 0.6);
+  --border: rgba(0, 0, 0, 0.12);
+  --accent: #0a66c2;
+
+  all: initial;
+  display: block;
+  font-family:
+    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji";
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+:host([data-theme="dark"]) {
+  --bg: #1b1f23;
+  --text: rgba(255, 255, 255, 0.9);
+  --muted: rgba(255, 255, 255, 0.6);
+  --border: rgba(255, 255, 255, 0.15);
+  --accent: #71b7fb;
+}
+
+.fold {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 6px 12px 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.why {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+}
+
+.score {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: hsl(var(--hue) 70% 42%);
+}
+
+:host([data-theme="dark"]) .score {
+  color: hsl(var(--hue) 80% 66%);
+}
+
+.label {
+  font-weight: 600;
+}
+
+.muted,
+.author {
+  color: var(--muted);
+}
+
+.author {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.show {
+  flex: none;
+  margin-left: auto;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.show:hover {
+  border-color: var(--accent);
+}
+
+.show:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

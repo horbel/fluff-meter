@@ -19,9 +19,9 @@ function jevResponse(overrides: Record<string, unknown> = {}) {
     answers: {
       category: {
         type: "choice",
-        choice: "motivational",
+        choice: "stories",
         confidence: 0.8,
-        probabilities: { motivational: 0.9, other: 0.1 },
+        probabilities: { stories: 0.9, other: 0.1 },
       },
       buzzwords: score(3),
       substance: score(0),
@@ -31,7 +31,6 @@ function jevResponse(overrides: Record<string, unknown> = {}) {
       parable: noul(0.85),
       truism: noul(0.8),
       hustle: noul(0.7),
-      routine: noul(0.1),
       ai_overall: score(2),
       ai_words: noul(0.9),
       not_x_but_y: noul(0.1),
@@ -39,7 +38,7 @@ function jevResponse(overrides: Record<string, unknown> = {}) {
       fragments: noul(0.95),
       fake_candor: noul(0.05),
       human_details: noul(0.1),
-      sales_pitch: noul(0.05),
+      sensitive: noul(0.02),
       ...overrides,
     },
     usage: { input_tokens: 1200, output_tokens: 90 },
@@ -115,15 +114,40 @@ describe("analyzeWithJev", () => {
 
     expect(a.source).toBe("jev");
     expect(a.model).toBe("jev-1.13.0");
-    expect(a.category).toBe("motivational");
+    expect(a.category).toBe("stories");
     expect(a.signals.buzzwords).toBe(1); // top of a 4-level score
     expect(a.signals.fluff).toBe(1); // zero substance
     expect(a.signals.self_promotion).toBeCloseTo(0.5);
     expect(a.tropes.slice(0, 2)).toEqual(["engagement_bait", "humblebrag"]);
-    expect(a.tropes).not.toContain("sales_pitch");
+    expect(a.sensitive).toBe(false);
+    expect(a.topics).toEqual({});
     expect(a.index).toBeGreaterThan(70);
     expect(a.ai.likelihood).toBeGreaterThan(0.65);
     expect(a.ai.tells.slice(0, 2)).toEqual(["fragments", "ai_words"]);
+  });
+
+  it("asks about the reader's topics in the same request", async () => {
+    const fetch = mockFetch(
+      200,
+      jevResponse({ topic_0: { type: "noul", noul: 0.92 }, topic_1: { type: "noul", noul: 0.03 } }),
+    );
+    const a = await analyzeWithJev(
+      createClient("k", "typesafe", { fetch, retry: noRetry }),
+      { text: "x" },
+      ["Rust", "crypto"],
+    );
+    const body = JSON.parse(String(fetch.mock.calls[0]?.[1]?.body));
+    expect(body.questions.topic_0.type).toBe("noul");
+    expect(JSON.stringify(body.questions.topic_0)).toContain("Rust");
+    expect(a.topics).toEqual({ Rust: 0.92, crypto: 0.03 });
+  });
+
+  it("marks posts about a tragedy so the badge can stay quiet", async () => {
+    const fetch = mockFetch(200, jevResponse({ sensitive: { type: "noul", noul: 0.95 } }));
+    const a = await analyzeWithJev(createClient("k", "typesafe", { fetch, retry: noRetry }), {
+      text: "x",
+    });
+    expect(a.sensitive).toBe(true);
   });
 
   it("rejects responses it can't trust instead of showing a wrong number", async () => {

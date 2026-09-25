@@ -10,7 +10,7 @@
   <body>
     <header class="hero">
       <div class="hero-row">
-        <img class="logo" src="/icon/48.png" alt="" width="40" height="40" />
+        <img class="logo" src="/icon/128.png" alt="" width="44" height="44" />
         <div class="brand">
           <h1>Fluff Meter</h1>
           <p>for LinkedIn</p>
@@ -64,36 +64,52 @@
 
       <details class="card prefs" open>
         <summary>
-          <h2>🎛️ Customize</h2>
+          <h2>🎛️ Make it yours</h2>
           <span id="preset-name" class="muted"></span>
         </summary>
         <div id="presets" class="presets"></div>
         <p id="preset-blurb" class="hint muted"></p>
 
-        <label class="option">
-          <input id="show-index" type="checkbox" />
-          <span>Show the Fluff Index</span>
-        </label>
-        <p class="hint muted">
-          ☑ shows a tag on posts. The slider is how much fluff it is for you: all the way to ☁️
-          and any post with it scores 100.
-        </p>
+        <fieldset>
+          <legend><span>Fold posts</span></legend>
+          <div id="fold"></div>
+          <p class="hint muted">A folded post shrinks to one line. One click opens it.</p>
+        </fieldset>
 
         <fieldset>
           <legend>
-            <span>Tropes</span>
-            <span class="scale" aria-hidden="true"><span>🏆</span><span>☁️</span></span>
+            <span>Categories</span>
+            <span class="legend-hint">⭐ want · 🙈 fold</span>
           </legend>
-          <div id="tropes" class="weights"></div>
+          <div id="categories" class="marks"></div>
         </fieldset>
+
         <fieldset>
           <legend>
-            <span>Genres</span>
-            <span class="scale" aria-hidden="true"><span>🏆</span><span>☁️</span></span>
+            <span>Your topics</span>
+            <span class="legend-hint">⭐ want · 🙈 fold</span>
           </legend>
-          <div id="categories" class="weights"></div>
+          <div id="topics" class="topics"></div>
+          <button id="add-topic" type="button" class="secondary small">+ Add a topic</button>
+          <p class="hint muted">
+            A few words each, like <em>Rust</em>, <em>crypto</em> or <em>AI agents</em>. Posts on
+            screen get scored again when topics change.
+          </p>
         </fieldset>
-        <p class="hint muted">Max 5 labels per post, strongest first.</p>
+
+        <fieldset>
+          <legend><span>Clichés</span></legend>
+          <div id="tropes" class="checks"></div>
+          <p class="hint muted">Switched off: not shown and not counted in the score.</p>
+        </fieldset>
+
+        <fieldset>
+          <legend><span>On the badge</span></legend>
+          <div class="checks">
+            <label class="check"><input id="show-index" type="checkbox" /><span>Fluff Index</span></label>
+            <label class="check"><input id="show-category" type="checkbox" /><span>Category</span></label>
+          </div>
+        </fieldset>
       </details>
     </main>
 

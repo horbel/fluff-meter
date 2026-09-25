@@ -13,14 +13,16 @@ export interface Verdict {
   hue: number;
 }
 
-/** Sorted by `min`, descending. The first tier whose `min` fits wins. */
+/**
+ * Sorted by `min`, descending. The first tier whose `min` fits wins. The emoji are weather: the
+ * more fluff, the more cloud. The badge shows the gauge instead; emoji go into the popup and
+ * the copied text.
+ */
 export const VERDICTS: readonly Verdict[] = [
-  { min: 90, label: "Pure fluff", emoji: "☁️", hue: 0 },
-  { min: 75, label: "Very fluffy", emoji: "🎈", hue: 12 },
-  { min: 55, label: "Fluffy", emoji: "🧁", hue: 28 },
-  { min: 35, label: "A bit fluffy", emoji: "🫧", hue: 45 },
-  { min: 15, label: "Mostly solid", emoji: "💪", hue: 90 },
-  { min: 0, label: "No fluff", emoji: "🧠", hue: 140 },
+  { min: 85, label: "Pure fluff", emoji: "☁️", hue: 0 },
+  { min: 60, label: "Fluffy", emoji: "🌥️", hue: 22 },
+  { min: 30, label: "Light fluff", emoji: "🌤️", hue: 42 },
+  { min: 0, label: "Solid", emoji: "☀️", hue: 140 },
 ];
 
 export function verdictFor(index: number): Verdict {
@@ -32,34 +34,30 @@ export const LEGEND_VERDICT: Verdict = { min: 0, label: "Zero fluff", emoji: "�
 export const LEGEND_CHIP = "✨ Legend";
 
 export const CATEGORY_LABELS: Record<CategoryId, { label: string; emoji: string }> = {
-  motivational: { label: "Motivation", emoji: "🚀" },
-  technical: { label: "Tech", emoji: "🛠️" },
-  career_news: { label: "Career", emoji: "🎉" },
+  know_how: { label: "Know-how", emoji: "🛠️" },
+  news: { label: "News", emoji: "📰" },
+  opinion: { label: "Opinion", emoji: "💬" },
+  stories: { label: "Stories & lessons", emoji: "📖" },
+  career_moves: { label: "Career moves", emoji: "🎉" },
   hiring: { label: "Hiring", emoji: "📣" },
-  job_seeking: { label: "Job hunt", emoji: "🔎" },
-  event: { label: "Event", emoji: "🤝" },
-  company_news: { label: "Company", emoji: "🏢" },
-  hot_take: { label: "Hot take", emoji: "🌶️" },
-  personal_story: { label: "Story", emoji: "📖" },
+  job_hunt: { label: "Job hunt", emoji: "🔎" },
+  events: { label: "Events", emoji: "🤝" },
   promo: { label: "Promo", emoji: "💸" },
   humor: { label: "Humor", emoji: "😂" },
-  industry_news: { label: "News", emoji: "📰" },
   other: { label: "Other", emoji: "🌀" },
 };
 
 export const TROPE_LABELS: Record<TropeId, { label: string; emoji: string; hint: string }> = {
-  engagement_bait: { label: "Bait", emoji: "🎣", hint: "Begs for likes, comments or reposts" },
+  engagement_bait: {
+    label: "Bait",
+    emoji: "🎣",
+    hint: "Begs for likes, comments or reposts, or 'comment GUIDE for the PDF'",
+  },
   humblebrag: { label: "Humblebrag", emoji: "🙏", hint: "A brag dressed up as humility" },
-  parable: { label: "Parable", emoji: "📜", hint: "A dramatic story with a business moral" },
+  parable: { label: "Fable", emoji: "📜", hint: "A too-neat story with a business moral" },
   truism: { label: "Truism", emoji: "💡", hint: "An obvious idea sold as insight" },
   hustle: { label: "Hustle", emoji: "⏰", hint: "Overwork as a virtue" },
-  sales_pitch: { label: "Pitch", emoji: "🛒", hint: "Wants you to buy, book or DM" },
   broetry: { label: "Broetry", emoji: "🪶", hint: "One sentence per line" },
-  routine: {
-    label: "Routine",
-    emoji: "🥱",
-    hint: "An update only the author's friends care about",
-  },
 };
 
 export const SIGNAL_LABELS: Record<SignalId, string> = {
@@ -68,12 +66,10 @@ export const SIGNAL_LABELS: Record<SignalId, string> = {
   self_promotion: "Self-promo",
   engagement_bait: "Bait",
   humblebrag: "Humblebrag",
-  parable: "Parable",
+  parable: "Fable",
   truism: "Truisms",
   hustle: "Hustle",
-  routine: "Routine",
   ai: "AI style",
-  sales_pitch: "Pitch",
   formatting: "Emoji & broetry",
 };
 

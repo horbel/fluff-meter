@@ -64,7 +64,7 @@ for (const [provider, key] of Object.entries(keys)) {
       expect(r.technical.index).toBeLessThan(20);
       expect(r.cliche.index).toBeGreaterThan(r.technical.index + 50);
       expect(r.corporate.index).toBeGreaterThan(r.hiring.index);
-      expect(r.technical.category).toBe("technical");
+      expect(r.technical.category).toBe("know_how");
       expect(r.hiring.category).toBe("hiring");
       expect(r.cliche.tropes).toContain("engagement_bait");
       expect(r.aiWritten.ai.likelihood).toBeGreaterThanOrEqual(0.65);
@@ -72,18 +72,38 @@ for (const [provider, key] of Object.entries(keys)) {
       expect(r.technical.ai.likelihood).toBeLessThan(0.5);
     }, 60_000);
 
-    it("tells routine updates from notable news", async () => {
+    it("sorts categories, finds topics and stays quiet on a loss", async () => {
       const client = createClient(key as string);
-      const [routine, notable] = await Promise.all([
+      const [routine, notable, lesson, magnet, loss, technical] = await Promise.all([
         analyzeWithJev(client, { text: SAMPLE_POSTS.routineJob }),
         analyzeWithJev(client, { text: SAMPLE_POSTS.notableJob }),
+        analyzeWithJev(client, { text: SAMPLE_POSTS.b2bLesson }),
+        analyzeWithJev(client, { text: SAMPLE_POSTS.leadMagnet }),
+        analyzeWithJev(client, { text: SAMPLE_POSTS.loss }),
+        analyzeWithJev(client, { text: SAMPLE_POSTS.technical }, ["CI pipelines", "crypto"]),
       ]);
-      console.log(
-        `Routine: new job ${routine.signals.routine.toFixed(2)} → ${routine.index}%, notable ${notable.signals.routine.toFixed(2)} → ${notable.index}%`,
+      console.table(
+        Object.fromEntries(
+          Object.entries({ routine, notable, lesson, magnet, loss, technical }).map(([n, a]) => [
+            n,
+            {
+              index: a.index,
+              category: a.category,
+              tropes: a.tropes.join(", "),
+              sensitive: a.sensitive,
+              topics: JSON.stringify(a.topics),
+            },
+          ]),
+        ),
       );
-      expect(routine.tropes).toContain("routine");
-      expect(notable.tropes).not.toContain("routine");
-      expect(routine.index).toBeGreaterThan(notable.index);
+      expect(routine.category).toBe("career_moves");
+      expect(lesson.category).toBe("stories");
+      expect(magnet.tropes).toContain("engagement_bait");
+      expect(loss.sensitive).toBe(true);
+      expect(notable.sensitive).toBe(false);
+      expect(lesson.sensitive).toBe(false);
+      expect(technical.topics["CI pipelines"]).toBeGreaterThanOrEqual(0.6);
+      expect(technical.topics.crypto).toBeLessThan(0.4);
     }, 60_000);
   });
 }

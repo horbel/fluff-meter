@@ -9,13 +9,21 @@ import {
   verdictFor,
 } from "../analysis/labels";
 import { PROVIDERS, type ProviderId } from "../analysis/providers";
-import { impact, personalIndex } from "../analysis/scoring";
-import { type Analysis, CATEGORY_IDS, type SignalId, TROPE_IDS } from "../analysis/types";
+import { impact } from "../analysis/scoring";
+import type { Analysis, SignalId } from "../analysis/types";
 import { REPO_URL } from "../constants";
 import { hashText } from "../hash";
+import {
+  type FoldReason,
+  offSignals,
+  type PersonalView,
+  personalView,
+  TOPIC_THRESHOLD,
+} from "../personal";
 import type { DisplayPrefs } from "../settings";
 import css from "./badge.css?inline";
 import { h } from "./dom";
+import foldCss from "./fold.css?inline";
 import { gauge } from "./gauge";
 import { isEmpty, visibleParts } from "./visible";
 
@@ -26,11 +34,12 @@ export type BadgeState =
   /** Too short to judge; no model call was made. */
   | { status: "short" };
 
-/** Custom tag, so LinkedIn's CSS has nothing to match and we can find our own nodes. */
+/** Custom tags, so LinkedIn's CSS has nothing to match and we can find our own nodes. */
 export const BADGE_TAG = "fluff-meter-badge";
+export const FOLD_TAG = "fluff-meter-fold";
+/** Set on a post card while it is folded; the page stylesheet in linkedin.content.ts reads it. */
+export const FOLDED_ATTR = "data-fluff-folded";
 
-const CATEGORY_COUNT = CATEGORY_IDS.length;
-const TROPE_COUNT = TROPE_IDS.length;
 /** What a post of a few words gets instead of a score. */
 const SHORT_JOKES = [
   "🤏 Too short to judge",
@@ -39,11 +48,16 @@ const SHORT_JOKES = [
   "🫥 Nothing to see here",
 ] as const;
 
+/** Posts the reader unfolded in this tab. Shared by every badge, so a re-rendered card stays open. */
+const revealed = new Set<string>();
+
 const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /**
  * One badge per post, rendered in a closed shadow root: LinkedIn's styles can't leak in,
- * ours can't leak out, and the page's scripts can't reach inside.
+ * ours can't leak out, and the page's scripts can't reach inside. When the reader's settings
+ * fold the post, the badge also puts a one-line bar at the top of the card and collapses the
+ * rest of it.
  */
 export class Badge {
   readonly host: HTMLElement;
@@ -51,54 +65,112 @@ export class Badge {
   #state: BadgeState = { status: "loading" };
   #expanded = false;
   #counted = false;
+  #fold: { host: HTMLElement; shadow: ShadowRoot } | undefined;
 
   constructor(
     readonly key: string,
+    private readonly card: HTMLElement,
+    private readonly author: string | undefined,
     private readonly onRetry: () => void,
     private readonly display: () => DisplayPrefs,
   ) {
-    this.host = document.createElement(BADGE_TAG);
+    this.host = createHost(BADGE_TAG);
     this.host.dataset.key = key;
     this.#shadow = this.host.attachShadow({ mode: "closed" });
-    // Clicks inside the badge must not open the post or trigger LinkedIn's handlers.
-    for (const type of ["click", "mousedown", "pointerdown", "keydown"]) {
-      this.host.addEventListener(type, (e) => e.stopPropagation());
-    }
   }
 
   render(state: BadgeState = this.#state): void {
     this.#state = state;
+    const prefs = this.display();
+    const view = state.status === "done" ? personalView(state.analysis, prefs) : undefined;
     const body =
       state.status === "loading"
-        ? this.#loading()
+        ? this.#loading(prefs)
         : state.status === "error"
           ? this.#error(state.message)
           : state.status === "short"
-            ? this.#short()
-            : this.#done(state.analysis, state.provider);
+            ? this.#short(prefs)
+            : this.#done(state.analysis, view as PersonalView, prefs, state.provider);
     // With everything switched off in the popup, the badge takes no space at all.
     this.host.hidden = !body;
     this.host.dataset.theme = pageTheme();
     this.#shadow.replaceChildren(...(body ? [h("style", null, css), body] : []));
+
+    const fold = state.status === "done" && !revealed.has(this.key) ? view?.fold : undefined;
+    if (fold && state.status === "done") this.#showFold(state.analysis, view as PersonalView, fold);
+    else this.unfold();
   }
 
-  #loading(): HTMLElement | null {
-    const prefs = this.display();
-    const anything =
-      prefs.showIndex ||
-      prefs.showAi ||
-      prefs.hiddenCategories.length < CATEGORY_COUNT ||
-      prefs.hiddenTropes.length < TROPE_COUNT;
-    if (!anything) return null;
+  /** Takes the fold bar away and lets the card show again. Also used when the card is reused. */
+  unfold(): void {
+    this.#fold?.host.remove();
+    this.#fold = undefined;
+    if (this.card.querySelector(`:scope > ${FOLD_TAG}`) === null) {
+      this.card.removeAttribute(FOLDED_ATTR);
+    }
+  }
+
+  #showFold(analysis: Analysis, view: PersonalView, reason: FoldReason): void {
+    if (!this.#fold) {
+      const host = createHost(FOLD_TAG);
+      this.#fold = { host, shadow: host.attachShadow({ mode: "closed" }) };
+    }
+    const { host, shadow } = this.#fold;
+    host.dataset.theme = pageTheme();
+    const verdict = verdictFor(view.index);
+    const why =
+      reason.kind === "fluff"
+        ? [
+            h("span", { class: "score", style: `--hue:${verdict.hue}` }, `${view.index}%`),
+            h("span", { class: "label" }, verdict.label),
+            ...analysis.tropes
+              .filter((t) => !this.display().hiddenTropes.includes(t))
+              .slice(0, 2)
+              .map((t) => h("span", { class: "muted" }, `· ${TROPE_LABELS[t].label}`)),
+          ]
+        : [
+            h("span", { class: "label" }, "🙈"),
+            h(
+              "span",
+              { class: "label" },
+              reason.kind === "category"
+                ? CATEGORY_LABELS[reason.category].label
+                : `“${reason.topic}”`,
+            ),
+          ];
+    const show = () => {
+      revealed.add(this.key);
+      this.render();
+    };
+    shadow.replaceChildren(
+      h("style", null, foldCss),
+      h(
+        "div",
+        {
+          class: "fold",
+          title:
+            reason.kind === "fluff" ? "Folded: too much fluff for you" : "Folded: you hide this",
+        },
+        h("span", { class: "why" }, ...why),
+        this.author && h("span", { class: "author" }, this.author),
+        h("button", { class: "show", type: "button", onclick: show }, "Show"),
+      ),
+    );
+    if (host.parentElement !== this.card) this.card.prepend(host);
+    this.card.setAttribute(FOLDED_ATTR, "");
+  }
+
+  #loading(prefs: DisplayPrefs): HTMLElement | null {
+    if (!prefs.showIndex) return null;
     return h(
       "div",
       { class: "row", role: "status", "aria-live": "polite" },
-      h("span", { class: "pill pill--loading" }, "☁️ Weighing…"),
+      h("span", { class: "pill pill--loading" }, "Weighing…"),
     );
   }
 
-  #short(): HTMLElement | null {
-    if (!this.display().showIndex) return null;
+  #short(prefs: DisplayPrefs): HTMLElement | null {
+    if (!prefs.showIndex) return null;
     // The same post always gets the same joke.
     const joke =
       SHORT_JOKES[Number.parseInt(hashText(this.key).slice(-4), 36) % SHORT_JOKES.length];
@@ -123,13 +195,23 @@ export class Badge {
     );
   }
 
-  #done(analysis: Analysis, provider?: ProviderId): HTMLElement | null {
+  #done(
+    analysis: Analysis,
+    view: PersonalView,
+    prefs: DisplayPrefs,
+    provider?: ProviderId,
+  ): HTMLElement | null {
+    // A post about a loss or a war gets no score and no labels. Not "sensitive", just nothing.
+    if (analysis.sensitive) return null;
     const legend = analysis.source === "legend";
-    const parts = visibleParts(analysis, this.display());
-    if (isEmpty(parts) && !legend) return null;
+    const parts = visibleParts(analysis, prefs);
+    const starred = [
+      ...(view.wantedCategory ? [CATEGORY_LABELS[analysis.category].label] : []),
+      ...view.wantedTopics,
+    ];
+    if (isEmpty(parts) && !legend && starred.length === 0) return null;
 
-    // The reader's sliders shift the number they see; the cached signals stay as they are.
-    const index = legend ? 0 : personalIndex(analysis, this.display());
+    const index = view.index;
     const verdict = legend ? LEGEND_VERDICT : verdictFor(index);
     const demo = analysis.source === "demo";
     const number = h("span", { class: "index-number" }, `${index}%`);
@@ -137,66 +219,94 @@ export class Badge {
       this.#expanded = !this.#expanded;
       this.render();
     };
-
     const firstRender = !this.#counted;
-    const why = h(
-      "button",
-      {
-        class: "expand",
-        type: "button",
-        "aria-expanded": String(this.#expanded),
-        title: "What drove this score",
-        onclick: toggle,
-      },
-      this.#expanded ? "Hide ▴" : "Why ▾",
-    );
+    const refold = view.fold && revealed.has(this.key);
+
     const row = h(
       "div",
       { class: "row" },
       // One pill carries the score and the verdict; its arrow opens the breakdown.
-      parts.index &&
+      parts.index
+        ? h(
+            "button",
+            {
+              class: "pill pill--index",
+              type: "button",
+              style: `--hue:${verdict.hue}`,
+              "aria-expanded": String(this.#expanded),
+              title: this.#expanded ? "Hide the breakdown" : "Why this score? Show the breakdown",
+              onclick: toggle,
+            },
+            gauge(index, firstRender && !reducedMotion(), 21),
+            number,
+            h("span", { class: "pill-sep", "aria-hidden": "true" }),
+            h("span", { class: "verdict" }, verdict.label),
+            demo && h("span", { class: "demo-tag" }, "DEMO"),
+            chevron(this.#expanded),
+          )
+        : // With the index hidden there is no pill, so the breakdown gets a button of its own.
+          h(
+            "button",
+            {
+              class: "expand",
+              type: "button",
+              "aria-expanded": String(this.#expanded),
+              title: "What drove this score",
+              onclick: toggle,
+            },
+            this.#expanded ? "Hide ▴" : "Why ▾",
+          ),
+      legend && h("span", { class: "chip chip--legend" }, LEGEND_CHIP),
+      // What the reader asked for comes first: it's the reason to read this one.
+      ...starred.map((label) =>
+        h(
+          "span",
+          { class: "chip chip--star", title: "You marked this as something you want" },
+          `⭐ ${label}`,
+        ),
+      ),
+      ...(legend
+        ? []
+        : parts.tropes.map((id) => {
+            const t = TROPE_LABELS[id];
+            return h("span", { class: "chip chip--trope", title: t.hint }, `${t.emoji} ${t.label}`);
+          })),
+      !legend &&
+        parts.ai &&
+        h(
+          "span",
+          { class: "chip chip--ai", title: "Reads like AI. A guess from style, not proof." },
+          aiLabel(analysis.ai.likelihood).label,
+        ),
+      // Neutral context, so plain text rather than a chip.
+      !legend &&
+        parts.category &&
+        !view.wantedCategory &&
+        h(
+          "span",
+          { class: "category" },
+          `${CATEGORY_LABELS[analysis.category].emoji} ${CATEGORY_LABELS[analysis.category].label}`,
+        ),
+      refold &&
         h(
           "button",
           {
-            class: "pill pill--index",
+            class: "link refold",
             type: "button",
-            style: `--hue:${verdict.hue}`,
-            "aria-expanded": String(this.#expanded),
-            title: this.#expanded ? "Hide the breakdown" : "Why this score? Show the breakdown",
-            onclick: toggle,
+            onclick: () => {
+              revealed.delete(this.key);
+              this.render();
+            },
           },
-          gauge(index, firstRender && !reducedMotion()),
-          number,
-          h("span", { class: "pill-sep", "aria-hidden": "true" }),
-          h("span", { class: "verdict" }, `${verdict.emoji} ${verdict.label}`),
-          demo && h("span", { class: "demo-tag" }, "DEMO"),
-          chevron(this.#expanded),
+          "Fold",
         ),
-      // With the index hidden there is no pill, so the breakdown gets a button of its own.
-      !parts.index && why,
-      legend
-        ? h("span", { class: "chip chip--legend" }, LEGEND_CHIP)
-        : parts.category &&
-            h(
-              "span",
-              { class: "chip chip--category" },
-              `${CATEGORY_LABELS[parts.category].emoji} ${CATEGORY_LABELS[parts.category].label}`,
-            ),
-      ...parts.tropes.map((id) => {
-        const t = TROPE_LABELS[id];
-        return h("span", { class: "chip chip--trope", title: t.hint }, `${t.emoji} ${t.label}`);
-      }),
-      // A guess, so it goes last: what the post is and does comes first.
-      parts.ai && aiChip(analysis),
     );
 
     // Count up only the first time a badge shows a result; re-renders show the final number.
-    if (!parts.index) {
-      // nothing to animate
-    } else if (!this.#counted) {
+    if (parts.index && !this.#counted) {
       this.#counted = true;
       countUp(number, index);
-    } else {
+    } else if (parts.index) {
       this.host.dataset.settled = "";
     }
 
@@ -204,23 +314,26 @@ export class Badge {
       "div",
       { class: "badge" },
       row,
-      this.#expanded && this.#details(analysis, index, provider),
+      this.#expanded && this.#details(analysis, index, prefs, provider),
     );
   }
 
-  #details(analysis: Analysis, index: number, provider?: ProviderId): HTMLElement {
+  #details(
+    analysis: Analysis,
+    index: number,
+    prefs: DisplayPrefs,
+    provider?: ProviderId,
+  ): HTMLElement {
     const demo = analysis.source === "demo";
     const legend = analysis.source === "legend";
-    const prefs = this.display();
-    const weights = impact(prefs.tropeWeights);
-    const genreWeight = prefs.categoryWeights[analysis.category] ?? 0;
-    const genre = CATEGORY_LABELS[analysis.category];
-    const rows = (Object.keys(weights) as SignalId[]).map((id) => ({
-      label: SIGNAL_LABELS[id],
-      value: analysis.signals[id],
-      impact: weights[id],
-    }));
-    const ranked = rows.sort((a, b) => b.impact * b.value - a.impact * a.value);
+    const weights = impact(offSignals(prefs));
+    const category = CATEGORY_LABELS[analysis.category];
+    const rows = (Object.keys(weights) as SignalId[])
+      .filter((id) => weights[id] > 0)
+      .map((id) => ({ label: SIGNAL_LABELS[id], value: analysis.signals[id], impact: weights[id] }))
+      .sort((a, b) => b.impact * b.value - a.impact * a.value);
+    const ai = aiLabel(analysis.ai.likelihood);
+    const topics = prefs.topics.filter((t) => (analysis.topics?.[t.label] ?? 0) >= TOPIC_THRESHOLD);
 
     return h(
       "div",
@@ -235,7 +348,7 @@ export class Badge {
       h(
         "ul",
         { class: "signals" },
-        ...ranked.map(({ label, value }) =>
+        ...rows.map(({ label, value }) =>
           h(
             "li",
             null,
@@ -253,21 +366,22 @@ export class Badge {
         ),
       ),
       !legend &&
-        genreWeight > 0 &&
         h(
           "p",
-          { class: "ai-line" },
-          `${genre.emoji} ${genre.label} posts count as ${Math.round(genreWeight * 100)}% fluff for you`,
+          { class: "line" },
+          h("strong", null, `${category.emoji} ${category.label}`),
+          prefs.categories[analysis.category] === "want"
+            ? " · you want these"
+            : prefs.categories[analysis.category] === "hide"
+              ? " · you fold these"
+              : "",
+          topics.length ? ` · about ${topics.map((t) => `“${t.label}”`).join(", ")}` : "",
         ),
       !legend &&
         h(
           "p",
-          { class: "ai-line" },
-          h(
-            "strong",
-            null,
-            `${aiLabel(analysis.ai.likelihood).emoji} ${aiLabel(analysis.ai.likelihood).label}`,
-          ),
+          { class: "line" },
+          h("strong", null, `${ai.emoji} ${ai.label}`),
           analysis.ai.tells.length
             ? ` · ${analysis.ai.tells.map((id) => AI_TELL_LABELS[id]).join(", ")}`
             : " · no AI tells found",
@@ -301,19 +415,13 @@ export class Badge {
   }
 }
 
-function aiChip(analysis: Analysis): HTMLElement {
-  const { emoji, label, level } =
-    analysis.source === "legend"
-      ? { emoji: "✍️", label: "Human", level: "human" as const }
-      : aiLabel(analysis.ai.likelihood);
-  return h(
-    "span",
-    {
-      class: `chip chip--ai chip--ai-${level}`,
-      title: "Does it read like AI? A guess from style, not proof.",
-    },
-    `${emoji} ${label}`,
-  );
+/** A host element whose clicks never reach LinkedIn's handlers (they would open the post). */
+function createHost(tag: string): HTMLElement {
+  const host = document.createElement(tag);
+  for (const type of ["click", "mousedown", "pointerdown", "keydown"]) {
+    host.addEventListener(type, (e) => e.stopPropagation());
+  }
+  return host;
 }
 
 /** "typesafe/jev-1.13-20260917" → "jev-1.13-20260917". */
@@ -341,8 +449,8 @@ function copyVerdict(button: HTMLButtonElement, index: number, legend: boolean):
 function chevron(open: boolean): HTMLElement {
   const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   icon.setAttribute("viewBox", "0 0 12 12");
-  icon.setAttribute("width", "10");
-  icon.setAttribute("height", "10");
+  icon.setAttribute("width", "8");
+  icon.setAttribute("height", "8");
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   path.setAttribute("d", "M2.5 4.5 6 8l3.5-3.5");
   icon.append(path);

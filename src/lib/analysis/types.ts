@@ -8,41 +8,40 @@ export const SIGNAL_IDS = [
   "parable",
   "truism",
   "hustle",
-  /** A new job, anniversary or thank-you only the author's friends care about. */
-  "routine",
   /** How much the post reads like AI output; see ai.ts. */
   "ai",
-  "sales_pitch",
   "formatting",
 ] as const;
 export type SignalId = (typeof SIGNAL_IDS)[number];
 export type Signals = Record<SignalId, number>;
 
+/**
+ * What a post is about. Neutral on purpose: a category never makes a post fluffier, the
+ * reader decides which ones they want and which ones to fold. How a post is written is the
+ * job of the tropes below.
+ */
 export const CATEGORY_IDS = [
-  "motivational",
-  "technical",
-  "career_news",
+  "know_how",
+  "news",
+  "opinion",
+  "stories",
+  "career_moves",
   "hiring",
-  "job_seeking",
-  "event",
-  "company_news",
-  "hot_take",
-  "personal_story",
+  "job_hunt",
+  "events",
   "promo",
   "humor",
-  "industry_news",
   "other",
 ] as const;
 export type CategoryId = (typeof CATEGORY_IDS)[number];
 
+/** Clichés that annoy everyone. They drive the index; the reader can switch any of them off. */
 export const TROPE_IDS = [
   "engagement_bait",
   "humblebrag",
   "parable",
   "truism",
   "hustle",
-  "routine",
-  "sales_pitch",
   "broetry",
 ] as const;
 export type TropeId = (typeof TROPE_IDS)[number];
@@ -80,6 +79,13 @@ export interface Analysis {
   signals: Signals;
   tropes: TropeId[];
   ai: AiVerdict;
+  /**
+   * The post is about death, war, illness or another tragedy. Such posts get no score and no
+   * labels at all: judging them would be cruel, whatever the writing.
+   */
+  sensitive: boolean;
+  /** The reader's own topics (see settings.ts) and how likely the post is about each, 0..1. */
+  topics: Record<string, number>;
   source: AnalysisSource;
   /** Versioned model id that answered, e.g. "jev-1.13.0". Absent in demo mode. */
   model?: string;
@@ -98,6 +104,12 @@ export interface PostInput {
    * the easter egg; it is never sent to the API.
    */
   author?: string;
+}
+
+/** A reader's own category, e.g. "Rust" or "crypto": shown as a chip or folded. */
+export interface Topic {
+  label: string;
+  mode: "want" | "hide";
 }
 
 export type AnalysisErrorCode =

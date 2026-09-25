@@ -1,11 +1,31 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
   <title>Fluff Meter</title>
-<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#16325c"/><stop offset="1" stop-color="#0a1628"/></linearGradient></defs>
-<rect width="128" height="128" rx="28" fill="url(#g)"/>
-<g fill="#ffffff"><path d="M36 100 C22 100 14 90 14 79 C14 67 23 58 35 58 C37 42 50 31 66 31 C82 31 94 41 97 56 C107 57 114 66 114 77 C114 89 105 100 93 100 Z"/></g>
-<path d="M40.00 92.00 A24 24 0 0 1 50.58 72.10" fill="none" stroke="#2fd27a" stroke-width="9" stroke-linecap="butt"/>
-<path d="M52.73 70.81 A24 24 0 0 1 75.27 70.81" fill="none" stroke="#ffc53d" stroke-width="9" stroke-linecap="butt"/>
-<path d="M77.42 72.10 A24 24 0 0 1 88.00 92.00" fill="none" stroke="#ff5a5f" stroke-width="9" stroke-linecap="butt"/>
-<line x1="64" y1="92" x2="78.14" y2="77.86" stroke="#0a1628" stroke-width="6" stroke-linecap="round"/>
-<circle cx="64" cy="92" r="5.5" fill="#0a1628"/>
+  <defs>
+    <linearGradient id="fill" gradientUnits="userSpaceOnUse" x1="0" y1="18" x2="0" y2="108">
+      <stop offset="0" stop-color="#d9c8ff"/>
+      <stop offset="1" stop-color="#b294f7"/>
+    </linearGradient>
+    <g id="cloud">
+      <circle cx="38" cy="66" r="22"/>
+      <circle cx="64" cy="48" r="29"/>
+      <circle cx="92" cy="62" r="21"/>
+      <circle cx="104" cy="84" r="16"/>
+      <circle cx="24" cy="86" r="15"/>
+      <rect x="22" y="66" width="86" height="40" rx="20"/>
+    </g>
+  </defs>
+  <!-- Outline: the same lumps drawn fatter underneath, so only the outer edge shows. -->
+  <use href="#cloud" fill="#4b2fa8" stroke="#4b2fa8" stroke-width="10" stroke-linejoin="round"/>
+  <use href="#cloud" fill="url(#fill)"/>
+  <!-- A soft highlight on the biggest lump. -->
+  <ellipse cx="54" cy="36" rx="12" ry="6" fill="#fff" opacity="0.55" transform="rotate(-20 54 36)"/>
+  <!-- Half-closed, unimpressed eyes: lower half of a pupil under a flat lid. -->
+  <path d="M42 74 a8 8 0 0 0 16 0 Z" fill="#2e1d6b"/>
+  <path d="M70 74 a8 8 0 0 0 16 0 Z" fill="#2e1d6b"/>
+  <path d="M39 74 H61 M67 74 H89" stroke="#2e1d6b" stroke-width="4" stroke-linecap="round"/>
+  <!-- One raised brow: "sure, a janitor told you that". -->
+  <path d="M70 61 Q78 55 88 59" fill="none" stroke="#2e1d6b" stroke-width="4" stroke-linecap="round"/>
+  <path d="M58 92 Q65 95 72 90" fill="none" stroke="#2e1d6b" stroke-width="3.5" stroke-linecap="round"/>
+  <ellipse cx="36" cy="88" rx="7" ry="4" fill="#ff8fc4" opacity="0.7"/>
+  <ellipse cx="94" cy="88" rx="7" ry="4" fill="#ff8fc4" opacity="0.7"/>
 </svg>

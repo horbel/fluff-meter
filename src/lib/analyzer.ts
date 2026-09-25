@@ -2,10 +2,11 @@ import type { TypeSafeClient } from "@typesafe-ai/sdk";
 import { demoAnalysis } from "./analysis/demo";
 import { isZeroFluff, legendAnalysis } from "./analysis/easter-egg";
 import { analyzeWithJev, createClient } from "./analysis/jev";
-import { personalIndex } from "./analysis/scoring";
+import { cleanTopics } from "./analysis/rubric";
 import type { Analysis, PostInput } from "./analysis/types";
 import { getCached, putCached } from "./cache";
 import { hashText } from "./hash";
+import { personalView } from "./personal";
 import { modeOf, type Settings } from "./settings";
 import { dailyStatsItem, recordAnalysis } from "./stats";
 
@@ -27,9 +28,11 @@ export class Analyzer {
     if (isZeroFluff(post.author)) return legendAnalysis();
     const settings = await this.getSettings();
     const mode = modeOf(settings);
-    if (mode.kind === "demo") return demoAnalysis(post);
+    const topics = cleanTopics(settings.display.topics.map((t) => t.label));
+    if (mode.kind === "demo") return demoAnalysis(post, topics);
 
-    const hash = hashText(`${post.text}\n${post.reshared ?? ""}`);
+    // Topics are part of the question, so a different set of topics is a different result.
+    const hash = hashText(`${post.text}\n${post.reshared ?? ""}\n${topics.join("\n")}`);
     const existing = this.#inflight.get(hash);
     if (existing) return existing;
 
@@ -37,10 +40,11 @@ export class Analyzer {
       const cached = await getCached(hash);
       if (cached) return cached;
       const analysis = await this.#limited(() =>
-        analyzeWithJev(this.#clientFor(settings.apiKey), post),
+        analyzeWithJev(this.#clientFor(settings.apiKey), post, topics),
       );
       await putCached(hash, analysis);
-      await this.#recordStats(analysis, personalIndex(analysis, settings.display));
+      // Posts about a tragedy get no badge, so they don't count towards the feed's fluff either.
+      if (!analysis.sensitive) await this.#recordStats(analysis, settings);
       return analysis;
     })();
     this.#inflight.set(hash, job);
@@ -51,11 +55,18 @@ export class Analyzer {
     }
   }
 
-  #recordStats(analysis: Analysis, index: number): Promise<void> {
+  #recordStats(analysis: Analysis, settings: Settings): Promise<void> {
+    const view = personalView(analysis, settings.display);
     this.#statsWrite = this.#statsWrite
       .then(async () =>
         dailyStatsItem.setValue(
-          recordAnalysis(await dailyStatsItem.getValue(), analysis, new Date(), index),
+          recordAnalysis(
+            await dailyStatsItem.getValue(),
+            analysis,
+            new Date(),
+            view.index,
+            !!view.fold,
+          ),
         ),
       )
       .catch(() => {}); // stats are cosmetic; never fail an analysis over them

@@ -1,11 +1,12 @@
-import { CATEGORY_LABELS, TROPE_LABELS, verdictFor } from "@/lib/analysis/labels";
+import { CATEGORY_LABELS, TROPE_LABELS, VERDICTS, verdictFor } from "@/lib/analysis/labels";
 import { detectProvider, PROVIDERS } from "@/lib/analysis/providers";
-import { TROPE_SIGNAL, TROPE_WEIGHTS } from "@/lib/analysis/scoring";
-import { CATEGORY_IDS, TROPE_IDS } from "@/lib/analysis/types";
+import { MAX_TOPIC_CHARS, MAX_TOPICS } from "@/lib/analysis/rubric";
+import { CATEGORY_IDS, type Topic, TROPE_IDS } from "@/lib/analysis/types";
 import { REPO_URL } from "@/lib/constants";
 import { RemoteError, send } from "@/lib/messages";
-import { activePreset, PRESETS, presetOverrides } from "@/lib/presets";
+import { activePreset, PRESETS } from "@/lib/presets";
 import {
+  type CategoryMode,
   type DisplayPrefs,
   modeOf,
   type Settings,
@@ -32,10 +33,14 @@ const keyLabel = $("key-label");
 const keyChange = $<HTMLButtonElement>("key-change");
 const statsCard = $("stats");
 const showIndex = $<HTMLInputElement>("show-index");
+const showCategory = $<HTMLInputElement>("show-category");
 const presetsBox = $("presets");
 const presetName = $("preset-name");
 const presetBlurb = $("preset-blurb");
+const foldBox = $("fold");
 const categoriesBox = $("categories");
+const topicsBox = $("topics");
+const addTopic = $<HTMLButtonElement>("add-topic");
 const tropesBox = $("tropes");
 
 function setStatus(text: string, tone: "info" | "ok" | "error" = "info") {
@@ -88,10 +93,14 @@ const formatCost = (usd: number) =>
   usd === 0 ? "$0" : usd < 0.01 ? `$${usd.toFixed(4)}` : `$${usd.toFixed(2)}`;
 
 /** A labelled list of shares with bars, e.g. "🙏 Humblebrag ▇▇▁ 23%". */
-function shareList(title: string, rows: { label: string; share: number }[]) {
+function shareList(
+  title: string,
+  rows: { label: string; share: number }[],
+  tone: "fluff" | "neutral" = "fluff",
+) {
   return h(
     "div",
-    null,
+    { class: `share share--${tone}` },
     h("p", { class: "stats-subtitle muted" }, title),
     h(
       "ul",
@@ -162,7 +171,7 @@ function renderStats(settings: Settings, daily: DailyStats) {
       .map(({ id, share }) => `${pct(share)} ${TROPE_LABELS[id].label.toLowerCase()}`);
     const genre = topGenres[0] ? CATEGORY_LABELS[topGenres[0].id] : undefined;
     // "as a 🛠️ Engineer": the preset is part of the joke, and of the invite to compare.
-    const preset = activePreset(settings.display);
+    const preset = activePreset(settings.display.categories);
     const lens = preset && preset.id !== "default" ? ` (as a ${preset.emoji} ${preset.label})` : "";
     const parts = [
       `${summary.avgIndex}% fluff ${verdict.emoji}`,
@@ -194,8 +203,24 @@ function renderStats(settings: Settings, daily: DailyStats) {
       trend === null
         ? ""
         : `${trend > 0 ? `▲ ${trend}` : trend < 0 ? `▼ ${-trend}` : "Same"} ${period.versus} · `,
-      `${summary.posts} posts · 🤖 ${pct(summary.aiShare)} read like AI · worst ${summary.worst}%`,
+      `${summary.posts} posts · 🤖 ${pct(summary.aiShare)} read like AI`,
     ),
+    ...(summary.folded > 0
+      ? [
+          h(
+            "p",
+            { class: "saved" },
+            `🙈 ${summary.folded} folded`,
+            h(
+              "span",
+              { class: "muted" },
+              summary.minutesSaved > 0
+                ? ` · about ${summary.minutesSaved} min not spent on them`
+                : "",
+            ),
+          ),
+        ]
+      : []),
     h(
       "p",
       { class: "muted cost" },
@@ -205,7 +230,7 @@ function renderStats(settings: Settings, daily: DailyStats) {
       ? []
       : [
           shareList(
-            "Tropes",
+            "Clichés",
             topTropes.map(({ id, share }) => ({
               label: `${TROPE_LABELS[id].emoji} ${TROPE_LABELS[id].label}`,
               share,
@@ -213,96 +238,69 @@ function renderStats(settings: Settings, daily: DailyStats) {
           ),
         ]),
     shareList(
-      "Genres",
+      "Categories",
       topGenres.map(({ id, share }) => ({
         label: `${CATEGORY_LABELS[id].emoji} ${CATEGORY_LABELS[id].label}`,
         share,
       })),
+      "neutral",
     ),
     h("div", { class: "actions" }, copy, reset),
   );
 }
 
-interface WeightRow {
-  label: string;
-  shown: boolean;
-  /** 0..1 */
-  weight: number;
-  onShow: (shown: boolean) => void;
-  onWeight: (weight: number) => void;
-}
-
-/** One line per tag: show it or not, and how much fluff it is for the reader. */
-function weightRow(row: WeightRow): HTMLElement {
-  const show = h("input", { type: "checkbox", "aria-label": `Show ${row.label}` });
-  show.checked = row.shown;
-  show.addEventListener("change", () => {
-    line.classList.toggle("is-hidden", !show.checked);
-    row.onShow(show.checked);
-  });
-
-  const value = h("span", { class: "weight-value" }, pct(row.weight));
-  // Green at 0% ("fine by me"), red at 100% ("pure fluff").
-  const paint = (percent: number) => {
-    const color = `hsl(${Math.round(140 - 1.4 * percent)} 68% 46%)`;
-    slider.style.setProperty("--thumb", color);
-    value.style.color = percent > 0 ? color : "";
+/** A row of toggle buttons where exactly one is pressed. */
+function segmented<T>(
+  options: { value: T; label: string; title: string }[],
+  current: T,
+  onPick: (value: T) => void,
+  className = "segmented",
+): HTMLElement {
+  const box = h("div", { class: className, role: "radiogroup" });
+  const paint = (value: T) => {
+    for (const [i, button] of [...box.children].entries()) {
+      button.setAttribute("aria-checked", String(options[i]?.value === value));
+    }
   };
-  const slider = h("input", {
-    type: "range",
-    min: 0,
-    max: 100,
-    step: 5,
-    value: Math.round(row.weight * 100),
-    "aria-label": `How much fluff ${row.label} is for you`,
-  });
-  slider.addEventListener("input", () => {
-    value.textContent = `${slider.value}%`;
-    paint(Number(slider.value));
-  });
-  paint(Math.round(row.weight * 100));
-  // Save on release: every save re-renders the badges on open LinkedIn tabs.
-  slider.addEventListener("change", () => row.onWeight(Number(slider.value) / 100));
-
-  const line = h(
-    "div",
-    { class: row.shown ? "weight-row" : "weight-row is-hidden" },
-    show,
-    h("span", { class: "weight-label", title: row.label }, row.label),
-    slider,
-    value,
-  );
-  return line;
+  for (const option of options) {
+    const button = h(
+      "button",
+      { type: "button", role: "radio", title: option.title, "aria-label": option.title },
+      option.label,
+    );
+    button.addEventListener("click", () => {
+      paint(option.value);
+      onPick(option.value);
+    });
+    box.append(button);
+  }
+  paint(current);
+  return box;
 }
+
+const FOLD_OPTIONS = [
+  { value: null, label: "Never", title: "Never fold on fluff alone" },
+  ...VERDICTS.slice(0, 2).map((v, i) => ({
+    value: v.min,
+    label: i === 0 ? `${v.emoji} ${v.label}` : `${v.emoji} ${v.label} too`,
+    title: `Fold posts at ${v.min}% fluff and above`,
+  })),
+];
 
 function renderDisplay(settings: Settings) {
   let display = settings.display;
   const save = (patch: Partial<DisplayPrefs>) => {
     display = { ...display, ...patch };
     void saveSettings({ display });
-    if ("tropeWeights" in patch || "categoryWeights" in patch) paintPreset();
+    if ("categories" in patch) paintPreset();
   };
   const paintPreset = () => {
-    const active = activePreset(display);
+    const active = activePreset(display.categories);
     presetName.textContent = active ? `· ${active.emoji} ${active.label}` : "· Custom";
     presetBlurb.textContent = active?.blurb ?? "Your own mix. Pick a preset to start over.";
     for (const [i, button] of [...presetsBox.children].entries()) {
       button.setAttribute("aria-pressed", String(PRESETS[i] === active));
     }
-  };
-  const toggle = <T extends string>(list: readonly T[], id: T, shown: boolean) =>
-    shown ? list.filter((x) => x !== id) : [...new Set([...list, id])];
-  /** Stores only overrides, so improving a default later reaches everyone who didn't touch it. */
-  const override = <K extends string>(
-    map: Partial<Record<K, number>>,
-    id: K,
-    weight: number,
-    fallback: number,
-  ) => {
-    const next = { ...map };
-    if (Math.abs(weight - fallback) < 0.001) delete next[id];
-    else next[id] = weight;
-    return next;
   };
 
   presetsBox.replaceChildren(
@@ -314,51 +312,152 @@ function renderDisplay(settings: Settings) {
         preset.label,
       );
       button.addEventListener("click", () => {
-        save(presetOverrides(preset));
+        save({ categories: { ...preset.categories } });
         renderDisplay({ ...settings, display });
       });
       return button;
     }),
   );
-
   paintPreset();
 
-  showIndex.checked = display.showIndex;
-  showIndex.onchange = () => save({ showIndex: showIndex.checked });
-
-  tropesBox.replaceChildren(
-    ...TROPE_IDS.map((id) => {
-      const signal = TROPE_SIGNAL[id];
-      return weightRow({
-        label: `${TROPE_LABELS[id].emoji} ${TROPE_LABELS[id].label}`,
-        shown: !display.hiddenTropes.includes(id),
-        weight: display.tropeWeights[signal] ?? TROPE_WEIGHTS[signal],
-        onShow: (shown) => save({ hiddenTropes: toggle(display.hiddenTropes, id, shown) }),
-        onWeight: (w) =>
-          save({ tropeWeights: override(display.tropeWeights, signal, w, TROPE_WEIGHTS[signal]) }),
-      });
-    }),
-    weightRow({
-      label: "🤖 AI-written",
-      shown: display.showAi,
-      weight: display.tropeWeights.ai ?? TROPE_WEIGHTS.ai,
-      onShow: (shown) => save({ showAi: shown }),
-      onWeight: (w) =>
-        save({ tropeWeights: override(display.tropeWeights, "ai", w, TROPE_WEIGHTS.ai) }),
-    }),
+  foldBox.replaceChildren(
+    segmented(
+      FOLD_OPTIONS,
+      display.foldAt,
+      (foldAt) => save({ foldAt }),
+      "segmented segmented--wide",
+    ),
   );
 
   categoriesBox.replaceChildren(
-    ...CATEGORY_IDS.map((id) =>
-      weightRow({
-        label: `${CATEGORY_LABELS[id].emoji} ${CATEGORY_LABELS[id].label}`,
-        shown: !display.hiddenCategories.includes(id),
-        weight: display.categoryWeights[id] ?? 0,
-        onShow: (shown) => save({ hiddenCategories: toggle(display.hiddenCategories, id, shown) }),
-        onWeight: (w) => save({ categoryWeights: override(display.categoryWeights, id, w, 0) }),
-      }),
+    ...CATEGORY_IDS.map((id) => {
+      const { emoji, label } = CATEGORY_LABELS[id];
+      return h(
+        "div",
+        { class: "mark-row" },
+        h("span", { class: "mark-label" }, `${emoji} ${label}`),
+        segmented<CategoryMode | undefined>(
+          [
+            { value: "want", label: "⭐", title: `Want ${label}` },
+            { value: undefined, label: "·", title: `${label}: neutral` },
+            { value: "hide", label: "🙈", title: `Fold ${label}` },
+          ],
+          display.categories[id],
+          (mode) => {
+            const categories = { ...display.categories };
+            if (mode) categories[id] = mode;
+            else delete categories[id];
+            save({ categories });
+          },
+        ),
+      );
+    }),
+  );
+
+  renderTopics(display.topics, (topics) => save({ topics }));
+
+  tropesBox.replaceChildren(
+    ...TROPE_IDS.map((id) => {
+      const t = TROPE_LABELS[id];
+      return check(`${t.emoji} ${t.label}`, t.hint, !display.hiddenTropes.includes(id), (on) =>
+        save({
+          hiddenTropes: on
+            ? display.hiddenTropes.filter((x) => x !== id)
+            : [...new Set([...display.hiddenTropes, id])],
+        }),
+      );
+    }),
+    check(
+      "🤖 Reads like AI",
+      "Em dashes, stock phrases, template structure",
+      display.showAi,
+      (on) => save({ showAi: on }),
     ),
   );
+
+  showIndex.checked = display.showIndex;
+  showIndex.onchange = () => save({ showIndex: showIndex.checked });
+  showCategory.checked = display.showCategory;
+  showCategory.onchange = () => save({ showCategory: showCategory.checked });
+}
+
+function check(label: string, hint: string, on: boolean, onChange: (on: boolean) => void) {
+  const input = h("input", { type: "checkbox" });
+  input.checked = on;
+  input.addEventListener("change", () => onChange(input.checked));
+  return h(
+    "label",
+    { class: "check", title: hint },
+    input,
+    h("span", null, label),
+    h("span", { class: "check-hint muted" }, hint),
+  );
+}
+
+/**
+ * Topic rows. Saved on "change" (blur or Enter), not on every keystroke: each save re-scores
+ * the posts on screen.
+ */
+function renderTopics(initial: Topic[], onSave: (topics: Topic[]) => void) {
+  let topics = initial.map((t) => ({ ...t }));
+  const commit = () => {
+    const clean = topics
+      .map((t) => ({ ...t, label: t.label.replace(/\s+/g, " ").trim() }))
+      .filter((t) => t.label);
+    onSave(clean);
+  };
+  const draw = () => {
+    topicsBox.replaceChildren(
+      ...topics.map((topic, i) => {
+        const input = h("input", {
+          type: "text",
+          class: "topic-input",
+          maxlength: MAX_TOPIC_CHARS,
+          placeholder: "e.g. Rust",
+          value: topic.label,
+          "aria-label": "Topic",
+        });
+        input.addEventListener("change", () => {
+          topic.label = input.value;
+          commit();
+        });
+        const remove = h(
+          "button",
+          { type: "button", class: "icon-button small-icon", "aria-label": "Remove topic" },
+          "✕",
+        );
+        remove.addEventListener("click", () => {
+          topics = topics.filter((_, j) => j !== i);
+          commit();
+          draw();
+        });
+        return h(
+          "div",
+          { class: "topic-row" },
+          input,
+          segmented<Topic["mode"]>(
+            [
+              { value: "want", label: "⭐", title: "Want posts about this" },
+              { value: "hide", label: "🙈", title: "Fold posts about this" },
+            ],
+            topic.mode,
+            (mode) => {
+              topic.mode = mode;
+              commit();
+            },
+          ),
+          remove,
+        );
+      }),
+    );
+    addTopic.hidden = topics.length >= MAX_TOPICS;
+  };
+  addTopic.onclick = () => {
+    topics = [...topics, { label: "", mode: "want" }];
+    draw();
+    topicsBox.querySelector<HTMLInputElement>(".topic-row:last-child input")?.focus();
+  };
+  draw();
 }
 
 async function refresh() {

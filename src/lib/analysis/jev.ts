@@ -9,7 +9,7 @@ import { REPO_URL } from "../constants";
 import { aiVerdict } from "./ai";
 import { formattingSignal, textStats } from "./heuristics";
 import { detectProvider, PROVIDERS, type ProviderId } from "./providers";
-import { QUESTIONS } from "./rubric";
+import { QUESTIONS, topicQuestions } from "./rubric";
 import { buildAnalysis, normaliseScore } from "./scoring";
 import {
   type Analysis,
@@ -62,15 +62,25 @@ const finite = (value: unknown, field: string): number => {
 const isCategory = (value: unknown): value is CategoryId =>
   typeof value === "string" && (CATEGORY_IDS as readonly string[]).includes(value);
 
+/**
+ * `topics` are the reader's own categories (already cleaned, see cleanTopics). They ride
+ * along in the same request as one yes/no question each.
+ */
 export async function analyzeWithJev(
   client: TypeSafeClient,
   post: PostInput,
+  topics: readonly string[] = [],
   signal?: AbortSignal,
 ): Promise<Analysis> {
   let result: Awaited<ReturnType<typeof client.systemOne<typeof QUESTIONS>>>;
   try {
     result = await client.systemOne(
-      { model: MODEL, state: buildState(post), questions: QUESTIONS },
+      {
+        model: MODEL,
+        state: buildState(post),
+        // The topic questions are built at runtime, so the typed answers only cover QUESTIONS.
+        questions: { ...QUESTIONS, ...topicQuestions(topics) } as typeof QUESTIONS,
+      },
       signal ? { signal } : {},
     );
   } catch (err) {
@@ -119,14 +129,19 @@ export async function analyzeWithJev(
       parable: finite(a.parable?.noul, "parable"),
       truism: finite(a.truism?.noul, "truism"),
       hustle: finite(a.hustle?.noul, "hustle"),
-      routine: finite(a.routine?.noul, "routine"),
-      sales_pitch: finite(a.sales_pitch?.noul, "sales_pitch"),
       formatting: formattingSignal(stats),
     },
     ai,
     stats,
     category: a.category.choice,
     categoryConfidence: finite(a.category.confidence, "category.confidence"),
+    sensitive: finite(a.sensitive?.noul, "sensitive"),
+    topics: Object.fromEntries(
+      topics.map((label, i) => {
+        const answer = (a as Record<string, { noul?: unknown } | undefined>)[`topic_${i}`];
+        return [label, finite(answer?.noul, `topic_${i}`)];
+      }),
+    ),
     source: "jev",
     model: result.model,
     tokens: result.usage?.input_tokens ?? 0,

@@ -24,7 +24,7 @@ export function legendAnalysis(): Analysis {
     signals,
     ai: { likelihood: 0, tells: [] },
     stats: { chars: 0, paragraphs: 0, avgParagraph: 0, emojis: 0, hashtags: 0 },
-    category: "other",
+    category: "know_how",
     categoryConfidence: 1,
     source: "legend",
   });

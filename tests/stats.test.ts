@@ -9,13 +9,13 @@ const at = (day: string) => new Date(`${day}T12:00:00`);
 const humblebrag = post({
   index: 80,
   tokens: 2000,
-  category: "motivational",
+  category: "stories",
   tropes: ["humblebrag", "engagement_bait"],
   ai: { likelihood: 0.9, tells: [] },
 });
 const tech = post({
   index: 10,
-  category: "technical",
+  category: "know_how",
   tropes: [],
   ai: { likelihood: 0.1, tells: [] },
 });
@@ -48,7 +48,7 @@ describe("daily stats", () => {
     expect(week.avgIndex).toBe(45);
     expect(week.aiShare).toBe(0.5);
     expect(week.tropes[0]).toEqual({ id: "humblebrag", share: 0.5 });
-    expect(week.categories.map((c) => c.id).sort()).toEqual(["motivational", "technical"]);
+    expect(week.categories.map((c) => c.id).sort()).toEqual(["know_how", "stories"]);
     expect(week.categories.every((c) => c.share === 0.5)).toBe(true);
 
     const today = summarize(daily, 1, at("2026-09-23"));
@@ -73,6 +73,33 @@ describe("daily stats", () => {
   it("records the index the reader saw, not the default one", () => {
     const daily = recordAnalysis({}, tech, at("2026-09-23"), 64);
     expect(daily["2026-09-23"]?.indexSum).toBe(64);
+  });
+
+  it("counts folded posts and estimates the time they saved", () => {
+    let daily: DailyStats = {};
+    for (let i = 0; i < 10; i++)
+      daily = recordAnalysis(daily, humblebrag, at("2026-09-23"), 80, true);
+    daily = recordAnalysis(daily, tech, at("2026-09-23"), 10, false);
+    const today = summarize(daily, 1, at("2026-09-23"));
+    expect(today.folded).toBe(10);
+    expect(today.minutesSaved).toBe(2);
+  });
+
+  it("ignores categories and tropes from older versions", () => {
+    const daily: DailyStats = {
+      "2026-09-23": {
+        posts: 2,
+        indexSum: 100,
+        worst: 60,
+        ai: 0,
+        categories: { technical: 1, know_how: 1 } as DailyStats[string]["categories"],
+        tropes: { routine: 2 } as DailyStats[string]["tropes"],
+      },
+    };
+    const today = summarize(daily, 1, at("2026-09-23"));
+    expect(today.categories.map((c) => c.id)).toEqual(["know_how"]);
+    expect(today.tropes).toEqual([]);
+    expect(today.folded).toBe(0);
   });
 
   it("forgets days older than the retention window", () => {

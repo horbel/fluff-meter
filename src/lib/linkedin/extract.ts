@@ -11,6 +11,8 @@ export interface FoundPost {
   post: PostInput;
   /** Too short to score. It gets a joke instead of a request to the model. */
   short: boolean;
+  /** The author's display name, shown on the bar of a folded post. Never sent anywhere. */
+  authorName?: string;
 }
 
 /** Normalises LinkedIn's rendered text: hidden "hashtag" prefixes, "…more" buttons, blank runs. */
@@ -46,15 +48,16 @@ export function profileId(href: string): string | undefined {
  * author is the profile whose name the post menu mentions or, failing that, the last profile
  * linked above the text, which is the author line right on top of it.
  */
-function findAuthor(root: HTMLElement, text: HTMLElement): string | undefined {
+function findAuthor(root: HTMLElement, text: HTMLElement): { id?: string; name?: string } {
   const above = [...root.querySelectorAll<HTMLAnchorElement>(SELECTORS.profileLink)].filter(
     (a) => a.compareDocumentPosition(text) & Node.DOCUMENT_POSITION_FOLLOWING,
   );
   const label = root.querySelector(SELECTORS.postMenu)?.getAttribute("aria-label") ?? "";
-  const name = label.replace(/^.*post by\s*/i, "").trim();
+  const name = /post by/i.test(label) ? label.replace(/^.*post by\s*/i, "").trim() : "";
   const byName = name && above.find((a) => (a.textContent ?? "").includes(name));
   const link = byName || above.at(-1);
-  return link ? profileId(link.getAttribute("href") ?? "") : undefined;
+  const id = link ? profileId(link.getAttribute("href") ?? "") : undefined;
+  return { ...(id ? { id } : {}), ...(name ? { name } : {}) };
 }
 
 function depth(el: Element, root: Element): number {
@@ -96,10 +99,11 @@ export function findPosts(scope: ParentNode = document): FoundPost[] {
       root,
       anchor: link && root.contains(link) ? link : block,
       short: text.length + resharedText.length < MIN_POST_CHARS,
+      ...(author.name ? { authorName: author.name } : {}),
       post: {
         text,
         ...(resharedText ? { reshared: resharedText } : {}),
-        ...(author ? { author } : {}),
+        ...(author.id ? { author: author.id } : {}),
       },
     });
   }

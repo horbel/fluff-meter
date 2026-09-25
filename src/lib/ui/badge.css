@@ -11,11 +11,11 @@
 
   all: initial;
   display: block;
-  margin: 2px 12px 8px;
+  margin: 0 12px 6px;
   font-family:
     system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji";
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.35;
   color: var(--text);
 }
@@ -60,23 +60,23 @@ button:focus-visible {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
 }
 
 .pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  height: 24px;
-  padding: 0 10px;
+  gap: 4px;
+  height: 20px;
+  padding: 0 8px;
   border-radius: 999px;
   font-weight: 600;
   white-space: nowrap;
 }
 
 .pill--index {
-  gap: 6px;
-  padding: 0 10px 0 8px;
+  gap: 5px;
+  padding: 0 8px 0 6px;
   border: 1px solid hsl(var(--hue) 55% 80%);
   color: hsl(var(--hue) 55% 26%);
   background: hsl(var(--hue) 85% 96%);
@@ -131,10 +131,10 @@ button:focus-visible {
 .pill-toggle {
   display: inline-grid;
   place-items: center;
-  width: 18px;
-  height: 18px;
-  margin-left: 2px;
-  margin-right: -5px;
+  width: 15px;
+  height: 15px;
+  margin-left: 1px;
+  margin-right: -4px;
   border-radius: 50%;
   background: hsl(var(--hue) 60% 50% / 0.14);
   transition:
@@ -160,14 +160,14 @@ button:focus-visible {
 
 .pill-sep {
   width: 1px;
-  height: 12px;
+  height: 10px;
   background: currentColor;
   opacity: 0.25;
 }
 
 .index-number {
   font-variant-numeric: tabular-nums;
-  font-size: 13px;
+  font-size: 11.5px;
   font-weight: 800;
 }
 
@@ -175,7 +175,7 @@ button:focus-visible {
   padding: 1px 5px;
   border-radius: 4px;
   background: rgba(0, 0, 0, 0.25);
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 800;
   letter-spacing: 0.06em;
 }
@@ -207,19 +207,14 @@ button:focus-visible {
 .chip {
   display: inline-flex;
   align-items: center;
-  height: 22px;
-  padding: 0 8px;
+  height: 18px;
+  padding: 0 7px;
   border: 1px solid transparent;
   border-radius: 999px;
   background: var(--surface);
   color: var(--text);
-  font-size: 11.5px;
+  font-size: 10.5px;
   white-space: nowrap;
-}
-
-.chip--category {
-  background: transparent;
-  border-color: var(--border);
 }
 
 .chip--legend {
@@ -230,34 +225,49 @@ button:focus-visible {
 }
 
 .chip--ai {
+  border-color: transparent;
+  color: #fff;
+  background: #6a4fd8;
   font-variant-numeric: tabular-nums;
 }
 
-.chip--ai-ai {
-  border-color: transparent;
-  color: #fff;
-  background: #5b4bd6;
+.chip--star {
+  border-color: hsl(43 80% 72%);
+  color: hsl(35 80% 24%);
+  background: hsl(46 100% 92%);
+  font-weight: 600;
 }
 
-.chip--ai-maybe {
-  background: transparent;
-  border-color: var(--border);
-  border-style: dashed;
+:host([data-theme="dark"]) .chip--star {
+  border-color: hsl(43 45% 36%);
+  color: hsl(45 90% 80%);
+  background: hsl(43 40% 16%);
 }
 
-.ai-line {
+.category {
+  padding: 0 2px;
+  color: var(--muted);
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+
+.refold {
+  font-size: 10.5px;
+}
+
+.line {
   margin: 8px 0 0;
 }
 
 .expand {
   display: inline-flex;
   align-items: center;
-  height: 22px;
-  padding: 0 9px;
+  height: 18px;
+  padding: 0 8px;
   border: 1px solid var(--border);
   border-radius: 999px;
   color: var(--muted);
-  font-size: 11.5px;
+  font-size: 10.5px;
   font-weight: 600;
   transition:
     color 120ms,

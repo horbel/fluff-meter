@@ -67,4 +67,26 @@ What's your take? 👇`,
   routineJob: `I'm happy to share that I'm starting a new position as Senior QA Engineer at Globex! Huge thanks to everyone at Initech for 4 amazing years. Excited for this new chapter!`,
 
   notableJob: `Personal news: after nine years at Google DeepMind, where I led the AlphaFold 3 team, I'm joining Anthropic to build a new lab for AI-driven drug discovery. We're starting with protein design for rare diseases and will publish our first results openly.`,
+
+  b2bLesson: `Last weekend I proposed to my girlfriend.
+
+She said yes.
+
+Here's what it taught me about B2B sales:
+
+1. Timing is everything.
+2. Know your customer.
+3. Always ask for the close.
+
+What's your biggest lesson from a personal milestone? 👇`,
+
+  leadMagnet: `I spent 200 hours building the ultimate LinkedIn growth playbook.
+
+It's 47 pages. It's free.
+
+Comment "GROWTH" and I'll send it to you.
+
+(Must be connected so I can DM you.)`,
+
+  loss: `Last week we lost our colleague Tomasz. He built the first version of our billing system in 2016 and spent the next eight years answering everyone's questions about it with endless patience. We will miss him. If you worked with him, his family would be glad to read your memories.`,
 } as const;

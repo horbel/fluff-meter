@@ -28,14 +28,16 @@ the fixture in [`tests/fixtures/feed.html`](tests/fixtures/feed.html) so the tes
 markup. Please don't paste real people's posts into fixtures; use made-up text.
 
 **The index feels too harsh or too soft.** Change `CORE_WEIGHTS`, `CORE_SHARE`, `TROPE_WEIGHTS`
-(the sliders' defaults), the contrast curve or the thresholds in
+(how far each cliché pushes), the contrast curve or the thresholds in
 [`src/lib/analysis/scoring.ts`](src/lib/analysis/scoring.ts). None of them need new model calls.
 
 **The AI detector.** Questions, typography checks and weights are all in
 [`src/lib/analysis/ai.ts`](src/lib/analysis/ai.ts). Mind false positives: polished writing, one em
 dash or a non-native writer's plain English are not evidence on their own.
 
-**A new question or category.** Edit [`src/lib/analysis/rubric.ts`](src/lib/analysis/rubric.ts),
+**A new cliché or category.** Decide which axis it is on first. A cliché is about how a post is
+written and annoys everyone; it goes into the index. A category is about what a post is about,
+which some readers want and some don't; it never touches the index. Then edit [`src/lib/analysis/rubric.ts`](src/lib/analysis/rubric.ts),
 add the signal to `types.ts`, `scoring.ts` and `labels.ts`, and bump `RUBRIC_VERSION` in
 [`src/lib/analysis/version.ts`](src/lib/analysis/version.ts) so old cached scores are dropped.
 Read TypeSafe's guidance on [writing questions](https://docs.typesafe.ai/primitives) and

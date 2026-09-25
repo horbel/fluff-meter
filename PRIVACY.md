@@ -10,18 +10,20 @@ Fluff Meter has no server, no analytics and no account. Here is everything it do
   - TypeSafe: `https://api.typesafe.ai/v1/systemone` ([TypeSafe legal](https://docs.typesafe.ai/legal))
   - OpenRouter: `https://openrouter.ai/api/v1/systemone` ([OpenRouter privacy](https://openrouter.ai/privacy))
 
-Only the post text is sent. Author names, profile data, images, comments and your own identity
-are not. (The extension reads the author's profile id from the page for one feature; it stays in
-your browser.) Each post is sent at most once; the result is cached.
+Only the post text is sent, plus the topics you typed under "Your topics" (for example "Rust"),
+so the model can say whether a post is about them. Author names, profile data, images, comments
+and your own identity are not. (The extension reads the author's name to label folded posts, and
+their profile id for one easter egg; both stay in your browser.) Each post is sent at most once;
+the result is cached.
 
 ## What is stored on your device
 
 In `chrome.storage.local`, which never syncs to your Google account:
 
-- your API key and your Customize settings;
+- your API key and your settings (categories, topics, clichés);
 - scores for posts you've seen, keyed by a hash of the post text (the text itself is not stored);
 - feed analytics shown in the popup: per-day counts of posts, scores, categories and tropes for the
-  last 60 days. Counts only, no post text or authors.
+  last 60 days, and how many posts were folded. Counts only, no post text or authors.
 
 Uninstalling the extension deletes all of it. "Remove key" in the popup deletes the key.
 

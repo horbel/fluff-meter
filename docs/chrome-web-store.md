@@ -8,16 +8,20 @@ Everything the developer dashboard asks for, ready to paste.
 (set as `name` in `wxt.config.ts`; the store shows the manifest name)
 
 **Summary** (132 characters max):
-Rates every LinkedIn post on a 0–100% Fluff Index, spots AI-written posts and names the clichés.
+Rates LinkedIn posts on a 0–100% Fluff Index, names the clichés and folds what you don't want to read.
 
 **Description:**
 
-> Scroll LinkedIn as usual. Every post gets a small badge that tells you how much fluff it is,
-> whether it reads like AI wrote it, what kind of post it is and which clichés it uses:
-> humblebrags, "Agree? 👇", janitor stories, one-line-per-sentence "broetry".
+> Scroll LinkedIn as usual. Every post gets a small badge: how much fluff it is, which clichés it
+> leans on (engagement bait, humblebrags, too-neat fables, broetry) and what it is about.
 >
-> The popup shows how much of your feed was fluff today, this week or this month. Slide any tag
-> from 🏆 to ☁️ to make the score your own, or pick a preset: Engineer, Recruiter or Pragmatist.
+> Pure fluff folds into one line, so you skip it in a second. One click opens it again.
+>
+> Make it yours: star the categories you want (know-how, hiring, news…) and fold the ones you
+> don't (promo, career moves, events…), or pick a preset: Engineer, Recruiter or Job seeker. Add
+> topics of your own, like "Rust" or "crypto", to star or fold them too.
+>
+> Posts about a loss, a war or an illness never get a score.
 >
 > Scores come from Jev by TypeSafe, a fast model built for rating text: one quick call per post,
 > about 12,000 posts for a dollar.
@@ -35,14 +39,16 @@ Rates every LinkedIn post on a 0–100% Fluff Index, spots AI-written posts and 
 
 **Assets** (all in [`store/`](../store)):
 - Icon: `icon-128.png`
-- Screenshots, 1280×800: `screenshot-1.png` (fluff vs signal), `screenshot-2.png` (the breakdown),
-  `screenshot-3.png` (the popup)
+- Screenshots, 1280×800: `screenshot-1.png` (fluff vs substance), `screenshot-2.png` (folded
+  posts), `screenshot-3.png` (categories and presets), `screenshot-4.png` (the breakdown),
+  `screenshot-5.png` (feed stats)
 - Small promo tile, 440×280: `promo-small-440x280.png`
 - Marquee, 1400×560: `marquee-1400x560.png`
 
 ## Privacy tab
 
-**Single purpose:** Show a Fluff Index and short labels on LinkedIn posts.
+**Single purpose:** Show a Fluff Index and short labels on LinkedIn posts, and fold the ones the
+user doesn't want to see.
 
 **Permission justifications:**
 - `storage`: saves the user's settings, API key and scores on their device.
