@@ -22,9 +22,14 @@ Scroll LinkedIn as usual. Every post gets a small badge that tells you:
 - **which clichés it leans on**: engagement bait ("Agree? 👇", "comment GUIDE"), humblebrags,
   too-neat fables with a janitor in them, truisms, hustle, broetry;
 - **what it is about**: know-how, news, hiring, career moves, thank-yous, events, promo…
+- **whether it has 📊 real numbers**: metrics, benchmarks, results. Those never fold for fluff.
 
-Pure fluff folds into one line, so you skip it in a second. One click opens it again. The popup
-shows how much of your feed was fluff and how many posts it folded for you.
+Pure fluff folds into one line, so you skip it in a second. Click the line to open it again, or
+fold any post yourself with **Fold**. The popup shows how much of your feed was fluff and how many
+posts it folded for you.
+
+It reads the text of a post, and of the post it reshares. Images, videos and the text inside them
+are not analyzed.
 
 Posts about a loss, a war or an illness never get a score. It rates posts, not people.
 

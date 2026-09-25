@@ -217,6 +217,31 @@ button:focus-visible {
   white-space: nowrap;
 }
 
+.chip--insight {
+  border-color: hsl(145 45% 70%);
+  color: hsl(150 60% 22%);
+  background: hsl(140 60% 93%);
+  font-weight: 600;
+}
+
+:host([data-theme="dark"]) .chip--insight {
+  border-color: hsl(145 30% 32%);
+  color: hsl(140 55% 78%);
+  background: hsl(145 30% 15%);
+}
+
+.link.fold-btn {
+  margin-left: auto;
+  padding: 0 4px;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.link.fold-btn:hover {
+  color: var(--accent);
+}
+
 .chip--legend {
   border: 0;
   color: #fff;
@@ -249,10 +274,6 @@ button:focus-visible {
   color: var(--muted);
   font-size: 10.5px;
   white-space: nowrap;
-}
-
-.refold {
-  font-size: 10.5px;
 }
 
 .line {

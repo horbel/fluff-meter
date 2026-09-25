@@ -39,6 +39,7 @@ export function demoAnalysis(post: PostInput, topics: readonly string[] = []): A
     categoryConfidence: rand(),
     // Never random: a demo badge must not go quiet on a post for no visible reason.
     sensitive: 0,
+    insight: mood < 0.3 && rand() < 0.6 ? 0.9 : 0.1,
     topics: Object.fromEntries(topics.map((label) => [label, rand() < 0.15 ? 0.9 : 0.05])),
     source: "demo",
   });

@@ -51,6 +51,8 @@ const DEAD_ZONE = 0.15;
 export const TROPE_THRESHOLD = 0.6;
 /** Same bar for "this post is about a tragedy, stay quiet". */
 export const SENSITIVE_THRESHOLD = 0.6;
+/** And for "this post has real numbers". */
+export const INSIGHT_THRESHOLD = 0.6;
 const BROETRY_THRESHOLD = 0.5;
 
 const clamp01 = (x: number) => (Number.isFinite(x) ? Math.min(1, Math.max(0, x)) : 0);
@@ -120,6 +122,8 @@ export function buildAnalysis(input: {
   categoryConfidence: number;
   /** Probability that the post is about a tragedy. */
   sensitive?: number;
+  /** Probability that the post shares real data or results. */
+  insight?: number;
   topics?: Record<string, number>;
   source: AnalysisSource;
   model?: string;
@@ -141,6 +145,7 @@ export function buildAnalysis(input: {
     tropes: detectTropes(signals, input.stats),
     ai,
     sensitive: clamp01(input.sensitive ?? 0) >= SENSITIVE_THRESHOLD,
+    insight: clamp01(input.insight ?? 0) >= INSIGHT_THRESHOLD,
     topics,
     source: input.source,
     ...(input.model ? { model: input.model } : {}),

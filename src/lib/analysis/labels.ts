@@ -57,13 +57,24 @@ export const TROPE_LABELS: Record<TropeId, { label: string; emoji: string; hint:
   humblebrag: { label: "Humblebrag", emoji: "🙏", hint: "A brag dressed up as humility" },
   parable: { label: "Fable", emoji: "📜", hint: "A too-neat story with a business moral" },
   truism: { label: "Truism", emoji: "💡", hint: "An obvious idea sold as insight" },
-  hustle: { label: "Hustle", emoji: "⏰", hint: "Overwork as a virtue" },
+  hustle: {
+    label: "Hustle",
+    emoji: "⏰",
+    hint: "The grind as a virtue: overwork, 4am, no days off",
+  },
   broetry: { label: "Broetry", emoji: "🪶", hint: "One sentence per line" },
+};
+
+/** The one positive chip: the post shares real data or results. */
+export const INSIGHT_LABEL = {
+  label: "Real numbers",
+  emoji: "📊",
+  hint: "Shares real data or results: metrics, benchmarks, outcomes",
 };
 
 export const SIGNAL_LABELS: Record<SignalId, string> = {
   buzzwords: "Buzzwords",
-  fluff: "No substance",
+  fluff: "Nothing concrete",
   self_promotion: "Self-promo",
   engagement_bait: "Bait",
   humblebrag: "Humblebrag",
@@ -74,17 +85,37 @@ export const SIGNAL_LABELS: Record<SignalId, string> = {
   formatting: "Emoji & broetry",
 };
 
-/** The AI chip. It is a guess from style, and the wording keeps it one. */
+/**
+ * The AI chip. It is a guess from style, so the chip says it in words and the number goes in the
+ * tooltip and the breakdown: one number per post (the Fluff Index) is enough on the badge.
+ */
 export function aiLabel(likelihood: number): {
   emoji: string;
   label: string;
+  /** For the tooltip and the breakdown. */
+  percent: string;
   level: "human" | "maybe" | "ai";
 } {
   const pct = Math.round(likelihood * 100);
-  if (pct >= 65) return { emoji: "🤖", label: `AI ${pct}%`, level: "ai" };
-  if (pct >= 35) return { emoji: "🤔", label: `AI? ${pct}%`, level: "maybe" };
-  return { emoji: "✍️", label: "Human", level: "human" };
+  const percent = `${pct}%`;
+  if (pct >= 65) return { emoji: "🤖", label: "Reads like AI", percent, level: "ai" };
+  if (pct >= 35) return { emoji: "🤔", label: "Maybe AI", percent, level: "maybe" };
+  return { emoji: "✍️", label: "Human", percent, level: "human" };
 }
+
+/** What each row of the breakdown measures, for its tooltip. */
+export const SIGNAL_HINTS: Record<SignalId, string> = {
+  buzzwords: "Corporate jargon instead of plain words",
+  fluff: "No numbers, names, steps, code or examples",
+  self_promotion: "About making the author look impressive",
+  engagement_bait: "Asks for likes, comments, reposts or a keyword",
+  humblebrag: "An achievement dressed up as humility or gratitude",
+  parable: "A too-neat story that ends with a moral",
+  truism: "An obvious idea presented as a deep insight",
+  hustle: "Glorifies the grind: overwork, 4am, no days off",
+  ai: "Reads like an AI assistant wrote it",
+  formatting: "One-line paragraphs, emoji bullets, hashtag walls",
+};
 
 export const AI_TELL_LABELS: Record<AiTellId, string> = {
   ai_words: "AI words",

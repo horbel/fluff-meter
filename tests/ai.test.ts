@@ -50,9 +50,9 @@ describe("aiVerdict", () => {
 });
 
 describe("aiLabel", () => {
-  it("never claims certainty below the top band", () => {
+  it("says it in words and keeps the number for the tooltip", () => {
     expect(aiLabel(0.1).label).toBe("Human");
-    expect(aiLabel(0.5).label).toBe("AI? 50%");
-    expect(aiLabel(0.82).label).toBe("AI 82%");
+    expect(aiLabel(0.5).label).toBe("Maybe AI");
+    expect(aiLabel(0.82)).toMatchObject({ label: "Reads like AI", percent: "82%", level: "ai" });
   });
 });

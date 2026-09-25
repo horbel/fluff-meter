@@ -136,6 +136,7 @@ export async function analyzeWithJev(
     category: a.category.choice,
     categoryConfidence: finite(a.category.confidence, "category.confidence"),
     sensitive: finite(a.sensitive?.noul, "sensitive"),
+    insight: finite(a.insight?.noul, "insight"),
     topics: Object.fromEntries(
       topics.map((label, i) => {
         const answer = (a as Record<string, { noul?: unknown } | undefined>)[`topic_${i}`];

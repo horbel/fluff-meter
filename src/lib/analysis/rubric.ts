@@ -94,7 +94,20 @@ export const QUESTIONS = {
   }),
 
   hustle: noul(
-    "Does the post praise overwork, such as working very long hours, waking up at 4am or sacrificing personal life for work?",
+    "Does the post glorify the grind: overwork, very long hours, 4am routines, no days off, or giving up rest and personal life for success?",
+    {
+      true: "e.g. 'I haven't taken a day off in 800 days', 'While you sleep, I build', 'Sleep is for the weak'.",
+      false: "Work is described without making exhaustion or sacrifice a virtue.",
+    },
+  ),
+
+  insight: noul(
+    "Does the post share real data or results, such as metrics, benchmarks, experiment outcomes or numbers from the author's own work or research?",
+    {
+      true: "e.g. 'we cut p99 latency from 1.2s to 180ms', 'our survey of 2,000 engineers found', 'churn fell from 8% to 5% after'.",
+      false:
+        "No real numbers, or only vanity numbers like follower counts, likes or 'I got rejected from 47 jobs'.",
+    },
   ),
 
   ...AI_QUESTIONS,

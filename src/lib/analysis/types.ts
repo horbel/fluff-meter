@@ -85,6 +85,11 @@ export interface Analysis {
    * labels at all: judging them would be cruel, whatever the writing.
    */
   sensitive: boolean;
+  /**
+   * The post shares real data or results: metrics, benchmarks, outcomes. The opposite of a
+   * cliché: it gets a chip of its own and never folds for fluff. Optional in older results.
+   */
+  insight?: boolean;
   /** The reader's own topics (see settings.ts) and how likely the post is about each, 0..1. */
   topics: Record<string, number>;
   source: AnalysisSource;

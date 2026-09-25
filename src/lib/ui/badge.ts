@@ -1,16 +1,18 @@
-import cloudSvg from "../../assets/icon.svg?raw";
+import cloudSvg from "../../assets/cloud.svg?raw";
 import {
   AI_TELL_LABELS,
   aiLabel,
   CATEGORY_LABELS,
+  INSIGHT_LABEL,
   LEGEND_CHIP,
   LEGEND_VERDICT,
+  SIGNAL_HINTS,
   SIGNAL_LABELS,
   TROPE_LABELS,
   verdictFor,
 } from "../analysis/labels";
 import { PROVIDERS, type ProviderId } from "../analysis/providers";
-import { impact } from "../analysis/scoring";
+import { impact, TROPE_SIGNAL } from "../analysis/scoring";
 import type { Analysis, SignalId } from "../analysis/types";
 import { REPO_URL } from "../constants";
 import { hashText } from "../hash";
@@ -49,8 +51,12 @@ const SHORT_JOKES = [
   "🫥 Nothing to see here",
 ] as const;
 
-/** Posts the reader unfolded in this tab. Shared by every badge, so a re-rendered card stays open. */
+/**
+ * Posts the reader unfolded, and posts they folded by hand, in this tab. Shared by every badge,
+ * so a re-rendered card keeps its state.
+ */
 const revealed = new Set<string>();
+const folded = new Set<string>();
 
 const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -99,10 +105,27 @@ export class Badge {
     this.host.dataset.theme = pageTheme();
     this.#shadow.replaceChildren(...(body ? [h("style", null, css), body] : []));
 
-    const fold =
-      state.status === "done" && !revealed.has(this.key) && this.canFold() ? view?.fold : undefined;
+    const fold = state.status === "done" && this.canFold() ? this.#foldReason(view) : undefined;
     if (fold && state.status === "done") this.#showFold(state.analysis, view as PersonalView, fold);
     else this.unfold();
+  }
+
+  #foldReason(view: PersonalView | undefined): FoldReason | undefined {
+    if (folded.has(this.key)) return { kind: "manual" };
+    return revealed.has(this.key) ? undefined : view?.fold;
+  }
+
+  /** Folds this post: back to its automatic fold if it had one, by hand otherwise. */
+  #fold_(auto: boolean): void {
+    revealed.delete(this.key);
+    if (!auto) folded.add(this.key);
+    this.render();
+  }
+
+  #reveal(): void {
+    folded.delete(this.key);
+    revealed.add(this.key);
+    this.render();
   }
 
   /** Takes the fold bar away and lets the card show again. */
@@ -133,7 +156,9 @@ export class Badge {
         : h(
             "span",
             { class: "reason" },
-            `🙈 ${reason.kind === "category" ? CATEGORY_LABELS[reason.category].label : `“${reason.topic}”`}`,
+            reason.kind === "manual"
+              ? "Folded by you"
+              : `🙈 ${reason.kind === "category" ? CATEGORY_LABELS[reason.category].label : `“${reason.topic}”`}`,
           );
     const tropes =
       reason.kind === "fluff"
@@ -142,26 +167,27 @@ export class Badge {
             .slice(0, 2)
             .map((t) => TROPE_LABELS[t].label)
         : [];
-    const show = () => {
-      revealed.add(this.key);
-      this.render();
-    };
+    // The whole bar opens the post, not only the button.
+    const show = () => this.#reveal();
     shadow.replaceChildren(
       h("style", null, foldCss),
       h(
         "div",
         {
           class: "fold",
+          onclick: show,
           title:
             reason.kind === "fluff"
-              ? "Folded by Fluff Meter: too much fluff for you"
-              : "Folded by Fluff Meter: you fold these",
+              ? "Folded by Fluff Meter: too much fluff for you. Click to show."
+              : reason.kind === "manual"
+                ? "You folded this. Click to show."
+                : "Folded by Fluff Meter: you fold these. Click to show.",
         },
         cloud(),
         this.author && h("span", { class: "author" }, this.author),
         reasonPill,
         tropes.length > 0 && h("span", { class: "tropes" }, tropes.join(" · ")),
-        h("button", { class: "show", type: "button", onclick: show }, "Show"),
+        h("button", { class: "show", type: "button" }, "Show"),
       ),
     );
     // The bar goes right before the card, and the card itself collapses (see PAGE_CSS in
@@ -233,7 +259,9 @@ export class Badge {
       this.render();
     };
     const firstRender = !this.#counted;
-    const refold = view.fold && revealed.has(this.key);
+    const pct = (x: number) => `${Math.round(x * 100)}%`;
+    const category = CATEGORY_LABELS[analysis.category];
+    const categoryTitle = `Category · Jev is ${pct(analysis.categoryConfidence)} sure`;
 
     const row = h(
       "div",
@@ -271,24 +299,47 @@ export class Badge {
           ),
       legend && h("span", { class: "chip chip--legend" }, LEGEND_CHIP),
       // What the reader asked for comes first: it's the reason to read this one.
-      ...starred.map((label) =>
+      ...starred.map((label, i) =>
         h(
           "span",
-          { class: "chip chip--star", title: "You marked this as something you want" },
+          {
+            class: "chip chip--star",
+            title:
+              i === 0 && view.wantedCategory
+                ? `You want these · ${categoryTitle}`
+                : "You marked this as something you want",
+          },
           `⭐ ${label}`,
         ),
       ),
+      // The one good sign: real data or results.
+      !legend &&
+        analysis.insight &&
+        h(
+          "span",
+          { class: "chip chip--insight", title: INSIGHT_LABEL.hint },
+          `${INSIGHT_LABEL.emoji} ${INSIGHT_LABEL.label}`,
+        ),
+      // Words on the chips, numbers on hover: one number per post is enough.
       ...(legend
         ? []
         : parts.tropes.map((id) => {
             const t = TROPE_LABELS[id];
-            return h("span", { class: "chip chip--trope", title: t.hint }, `${t.emoji} ${t.label}`);
+            const sure = analysis.signals[TROPE_SIGNAL[id]] ?? 0;
+            return h(
+              "span",
+              { class: "chip chip--trope", title: `${t.hint} · ${pct(sure)} sure` },
+              `${t.emoji} ${t.label}`,
+            );
           })),
       !legend &&
         parts.ai &&
         h(
           "span",
-          { class: "chip chip--ai", title: "Reads like AI. A guess from style, not proof." },
+          {
+            class: "chip chip--ai",
+            title: `Reads like AI: ${aiLabel(analysis.ai.likelihood).percent}. A guess from style, not proof.`,
+          },
           aiLabel(analysis.ai.likelihood).label,
         ),
       // Neutral context, so plain text rather than a chip.
@@ -297,19 +348,19 @@ export class Badge {
         !view.wantedCategory &&
         h(
           "span",
-          { class: "category" },
-          `${CATEGORY_LABELS[analysis.category].emoji} ${CATEGORY_LABELS[analysis.category].label}`,
+          { class: "category", title: categoryTitle },
+          `${category.emoji} ${category.label}`,
         ),
-      refold &&
+      // Any post in the feed can be folded by hand; an automatic fold comes back the same way.
+      !legend &&
+        this.canFold() &&
         h(
           "button",
           {
-            class: "link refold",
+            class: "link fold-btn",
             type: "button",
-            onclick: () => {
-              revealed.delete(this.key);
-              this.render();
-            },
+            title: "Fold this post to one line",
+            onclick: () => this.#fold_(!!view.fold),
           },
           "Fold",
         ),
@@ -343,7 +394,12 @@ export class Badge {
     const category = CATEGORY_LABELS[analysis.category];
     const rows = (Object.keys(weights) as SignalId[])
       .filter((id) => weights[id] > 0)
-      .map((id) => ({ label: SIGNAL_LABELS[id], value: analysis.signals[id], impact: weights[id] }))
+      .map((id) => ({
+        id,
+        label: SIGNAL_LABELS[id],
+        value: analysis.signals[id],
+        impact: weights[id],
+      }))
       .sort((a, b) => b.impact * b.value - a.impact * a.value);
     const ai = aiLabel(analysis.ai.likelihood);
     const topics = prefs.topics.filter((t) => (analysis.topics?.[t.label] ?? 0) >= TOPIC_THRESHOLD);
@@ -361,10 +417,10 @@ export class Badge {
       h(
         "ul",
         { class: "signals" },
-        ...rows.map(({ label, value }) =>
+        ...rows.map(({ id, label, value }) =>
           h(
             "li",
-            null,
+            { title: SIGNAL_HINTS[id] },
             h("span", { class: "signal-label" }, label),
             h(
               "span",
@@ -383,6 +439,11 @@ export class Badge {
           "p",
           { class: "line" },
           h("strong", null, `${category.emoji} ${category.label}`),
+          h(
+            "span",
+            { class: "muted" },
+            ` · ${Math.round(analysis.categoryConfidence * 100)}% sure`,
+          ),
           prefs.categories[analysis.category] === "want"
             ? " · you want these"
             : prefs.categories[analysis.category] === "hide"
@@ -394,11 +455,17 @@ export class Badge {
         h(
           "p",
           { class: "line" },
-          h("strong", null, `${ai.emoji} ${ai.label}`),
+          h("strong", null, `${ai.emoji} ${ai.label} ${ai.percent}`),
           analysis.ai.tells.length
             ? ` · ${analysis.ai.tells.map((id) => AI_TELL_LABELS[id]).join(", ")}`
-            : " · no AI tells found",
-          h("span", { class: "muted" }, " · a guess from style, not proof"),
+            : " · judged by overall style, no specific tells",
+          h("span", { class: "muted" }, " · a guess, not proof"),
+        ),
+      !legend &&
+        h(
+          "p",
+          { class: "line muted" },
+          "Only the text is read: images, videos and text in them aren't.",
         ),
       h(
         "div",

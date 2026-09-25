@@ -1,8 +1,8 @@
 :root {
   color-scheme: light dark;
-  --bg: #f3f1ed;
+  --bg: #f6f4fb;
   --card: #ffffff;
-  --card-2: #f7f6f3;
+  --card-2: #f4f1fa;
   --text: #16181b;
   --muted: #6b6f76;
   --border: rgba(20, 22, 26, 0.09);
@@ -15,14 +15,16 @@
   --green: #2fbf71;
   --amber: #f2b134;
   --red: #e5484d;
-  --radius: 14px;
+  --radius: 22px;
+  --hero-1: #6a4fd8;
+  --hero-2: #8a6cf0;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0e1116;
-    --card: #171b21;
-    --card-2: #1e232a;
+    --bg: #110e19;
+    --card: #1b1726;
+    --card-2: #241f33;
     --text: #eceef1;
     --muted: #9097a1;
     --border: rgba(255, 255, 255, 0.08);
@@ -102,22 +104,22 @@ button {
 
 /* ── Hero ─────────────────────────────────────────────── */
 
+/* The header melts into the page instead of ending on a line: the gradient fades out and the
+   first card rides up over it. */
 .hero {
   position: relative;
   flex: none;
-  padding: 16px 16px 14px;
+  padding: 18px 18px 44px;
   color: #fff;
   background:
-    radial-gradient(90% 140% at 100% 0%, rgba(255, 160, 220, 0.35), transparent 60%),
-    linear-gradient(160deg, #6a4fd8, #3a2493);
-}
-
-.hero::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--green), var(--amber), var(--red));
+    radial-gradient(80% 120% at 100% 0%, rgba(255, 160, 220, 0.35), transparent 60%),
+    linear-gradient(
+      180deg,
+      var(--hero-1) 0%,
+      var(--hero-2) 55%,
+      color-mix(in srgb, var(--hero-2) 35%, var(--bg)) 80%,
+      var(--bg) 100%
+    );
 }
 
 .hero-row {
@@ -127,7 +129,7 @@ button {
 }
 
 .logo {
-  filter: drop-shadow(0 4px 10px rgba(20, 8, 60, 0.35));
+  filter: drop-shadow(0 4px 10px rgba(20, 8, 60, 0.3));
 }
 
 .brand {
@@ -179,11 +181,13 @@ button {
   overflow-y: auto;
   display: grid;
   gap: 10px;
-  padding: 12px;
+  margin-top: -30px;
+  padding: 0 12px 12px;
+  position: relative;
 }
 
 .card {
-  padding: 14px;
+  padding: 16px;
   border-radius: var(--radius);
   background: var(--card);
   border: 1px solid var(--border);
@@ -275,7 +279,7 @@ button {
 
 .icon-button {
   width: 36px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--card-2);
 }
@@ -289,8 +293,8 @@ input[type="password"],
 input[type="text"] {
   flex: 1;
   min-width: 0;
-  padding: 9px 11px;
-  border-radius: 10px;
+  padding: 9px 12px;
+  border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--card-2);
   color: var(--text);
@@ -588,7 +592,7 @@ input[type="checkbox"] {
   align-items: center;
   gap: 3px;
   padding: 8px 4px;
-  border-radius: 12px;
+  border-radius: 16px;
   border: 1px solid var(--border);
   background: var(--card-2);
   color: var(--text);

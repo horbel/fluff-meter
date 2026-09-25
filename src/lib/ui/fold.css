@@ -36,13 +36,18 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--bg);
+  cursor: pointer;
+  transition: border-color 120ms;
+}
+
+.fold:hover {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
 }
 
 .cloud {
   flex: none;
-  width: 28px;
-  height: 28px;
-  margin: 0 -2px 0 -4px;
+  width: 20px;
+  height: 20px;
 }
 
 .author {

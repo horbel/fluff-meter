@@ -72,6 +72,15 @@ describe("personalView", () => {
     expect(personalView(coin, prefs({ topics })).fold).toEqual({ kind: "topic", topic: "crypto" });
   });
 
+  it("never folds a post with real numbers for fluff", () => {
+    const data = { ...cliche, insight: true };
+    expect(personalView(data, prefs()).fold).toBeUndefined();
+    expect(personalView(data, prefs({ categories: { promo: "hide" } })).fold).toEqual({
+      kind: "category",
+      category: "promo",
+    });
+  });
+
   it("never folds a post about a tragedy or a legend", () => {
     const loss = post({ sensitive: 0.9, signals: { buzzwords: 1, fluff: 1, engagement_bait: 1 } });
     expect(loss.sensitive).toBe(true);

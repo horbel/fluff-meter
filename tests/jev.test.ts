@@ -39,6 +39,7 @@ function jevResponse(overrides: Record<string, unknown> = {}) {
       fake_candor: noul(0.05),
       human_details: noul(0.1),
       sensitive: noul(0.02),
+      insight: noul(0.03),
       ...overrides,
     },
     usage: { input_tokens: 1200, output_tokens: 90 },
@@ -120,6 +121,7 @@ describe("analyzeWithJev", () => {
     expect(a.signals.self_promotion).toBeCloseTo(0.5);
     expect(a.tropes.slice(0, 2)).toEqual(["engagement_bait", "humblebrag"]);
     expect(a.sensitive).toBe(false);
+    expect(a.insight).toBe(false);
     expect(a.topics).toEqual({});
     expect(a.index).toBeGreaterThan(70);
     expect(a.ai.likelihood).toBeGreaterThan(0.65);

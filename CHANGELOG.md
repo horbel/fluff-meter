@@ -27,7 +27,16 @@ what it is about, and only you know which ones you want.
 - A slimmer badge: one row, at most two clichés, the AI chip only when a post reads like AI, the
   category as plain text.
 - Presets: Default, Engineer, Recruiter, Job seeker.
-- New icon: a lilac cloud rolling its eyes. Popup in lilac.
+- 📊 Real numbers: a green chip for posts that share real data or results. They never fold for
+  fluff.
+- Hustle now means the whole grindset: overwork, 4am routines, no days off.
+- Chips are words only; how sure Jev is shows on hover and in the breakdown. The AI chip reads
+  "Reads like AI" instead of a percentage. "No substance" is now "Nothing concrete", and every row
+  of the breakdown explains itself on hover.
+- Fold any post in the feed by hand; click anywhere on a folded post to open it.
+- The breakdown says that images and videos aren't analyzed.
+- New icon: a lilac cloud rolling its eyes, with sparkles; the toolbar version is bigger. Popup in
+  lilac, with softer corners and a header that fades into the page.
 
 ## 0.2.2
 

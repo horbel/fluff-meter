@@ -22,6 +22,8 @@ export interface DayStats {
   tokens?: number;
   /** Posts folded for the reader. Optional: older days lack it. */
   folded?: number;
+  /** Posts with real data or results (the 📊 chip). Optional: older days lack it. */
+  insights?: number;
   categories: Partial<Record<CategoryId, number>>;
   tropes: Partial<Record<TropeId, number>>;
 }
@@ -90,6 +92,7 @@ export function recordAnalysis(
       ai: day.ai + (analysis.ai.likelihood >= AI_THRESHOLD ? 1 : 0),
       tokens: (day.tokens ?? 0) + (analysis.tokens ?? 0),
       folded: (day.folded ?? 0) + (folded ? 1 : 0),
+      insights: (day.insights ?? 0) + (analysis.insight ? 1 : 0),
       categories: bump(day.categories, [analysis.category]),
       tropes: bump(day.tropes, analysis.tropes),
     },
@@ -112,6 +115,8 @@ export interface Summary {
   /** Estimated spend in US dollars at Jev's list price. */
   cost: number;
   folded: number;
+  /** Fraction of posts with real data or results. */
+  insightShare: number;
   /** Estimated minutes not spent on folded posts. */
   minutesSaved: number;
   tropes: Share<TropeId>[];
@@ -140,6 +145,7 @@ function total(daily: DailyStats, keys: string[]): DayStats {
       ai: sum.ai + day.ai,
       tokens: (sum.tokens ?? 0) + (day.tokens ?? 0),
       folded: (sum.folded ?? 0) + (day.folded ?? 0),
+      insights: (sum.insights ?? 0) + (day.insights ?? 0),
       categories: merge(sum.categories, day.categories),
       tropes: merge(sum.tropes, day.tropes),
     };
@@ -172,6 +178,7 @@ export function summarize(daily: DailyStats, days: number, now = new Date()): Su
     tokens: current.tokens ?? 0,
     cost: (current.tokens ?? 0) * PRICE_PER_TOKEN,
     folded: current.folded ?? 0,
+    insightShare: current.posts ? (current.insights ?? 0) / current.posts : 0,
     minutesSaved: Math.round(((current.folded ?? 0) * SECONDS_PER_POST) / 60),
     tropes: shares(current.tropes, current.posts, TROPE_IDS),
     categories: shares(current.categories, current.posts, CATEGORY_IDS),

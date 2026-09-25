@@ -8,7 +8,9 @@ export const TOPIC_THRESHOLD = 0.6;
 export type FoldReason =
   | { kind: "fluff" }
   | { kind: "category"; category: CategoryId }
-  | { kind: "topic"; topic: string };
+  | { kind: "topic"; topic: string }
+  /** The reader folded it by hand. */
+  | { kind: "manual" };
 
 /** One post as this reader sees it. Computed at display time from the cached analysis. */
 export interface PersonalView {
@@ -39,7 +41,8 @@ export function matchedTopics(analysis: Analysis, prefs: DisplayPrefs, mode: "wa
  * 1. A post about a tragedy is never folded (and gets no badge at all, see badge.ts).
  * 2. A topic the reader hides folds the post.
  * 3. A category the reader hides folds it, unless it is also about a topic they want.
- * 4. Fluff at or above the reader's threshold folds it, whatever it is about.
+ * 4. Fluff at or above the reader's threshold folds it, whatever it is about, unless the post
+ *    shares real numbers: then it is worth a look however it's written.
  */
 export function personalView(analysis: Analysis, prefs: DisplayPrefs): PersonalView {
   const legend = analysis.source === "legend";
@@ -53,7 +56,8 @@ export function personalView(analysis: Analysis, prefs: DisplayPrefs): PersonalV
   else if (hiddenTopic) fold = { kind: "topic", topic: hiddenTopic };
   else if (categoryMode === "hide" && wantedTopics.length === 0)
     fold = { kind: "category", category: analysis.category };
-  else if (prefs.foldAt !== null && index >= prefs.foldAt) fold = { kind: "fluff" };
+  else if (prefs.foldAt !== null && index >= prefs.foldAt && !analysis.insight)
+    fold = { kind: "fluff" };
 
   return {
     index,

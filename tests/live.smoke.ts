@@ -41,6 +41,7 @@ for (const [provider, key] of Object.entries(keys)) {
               verdict: verdictFor(a.index).label,
               category: `${a.category} (${Math.round(a.categoryConfidence * 100)}%)`,
               tropes: a.tropes.join(", "),
+              insight: a.insight,
               ai: `${Math.round(a.ai.likelihood * 100)}% ${a.ai.tells.join(", ")}`,
               model: a.model,
             },
@@ -67,6 +68,8 @@ for (const [provider, key] of Object.entries(keys)) {
       expect(r.technical.category).toBe("know_how");
       expect(r.hiring.category).toBe("hiring");
       expect(r.cliche.tropes).toContain("engagement_bait");
+      expect(r.technical.insight).toBe(true);
+      expect(r.cliche.insight).toBe(false);
       expect(r.aiWritten.ai.likelihood).toBeGreaterThanOrEqual(0.65);
       expect(r.human.ai.likelihood).toBeLessThan(0.35);
       expect(r.technical.ai.likelihood).toBeLessThan(0.5);

@@ -10,7 +10,7 @@ model. Jev doesn't generate text: it answers typed questions (yes/no, pick one, 
 with calibrated probabilities. That makes it a good fit here: fast, cheap and it can't hallucinate
 a paragraph of snark.
 
-For each post the extension sends **one request** with eighteen questions, plus one per topic
+For each post the extension sends **one request** with nineteen questions, plus one per topic
 the reader added ([`rubric.ts`](../src/lib/analysis/rubric.ts), [`ai.ts`](../src/lib/analysis/ai.ts)):
 
 | Question type | Asked about |
@@ -19,6 +19,7 @@ the reader added ([`rubric.ts`](../src/lib/analysis/rubric.ts), [`ai.ts`](../src
 | Score (4 levels) | Buzzwords · concrete substance · self-promotion · reads like AI overall |
 | Noul (yes/no), clichés | Engagement bait · humblebrag · fable · truism · hustle |
 | Noul (yes/no), AI tells | AI vocabulary · "not X, but Y" · rule of three · punchy fragments · fake candor · human details |
+| Noul (yes/no) | Does it share real data or results? (the 📊 chip) |
 | Noul (yes/no) | Is it about a loss, a war or an illness? |
 | Noul (yes/no), per topic | Is this post mainly about "Rust"? |
 
@@ -46,7 +47,14 @@ The badge answers two different questions, and they never mix:
 
 A post is folded to one line when it is about a topic the reader folds, in a category they fold
 (unless it is also about a topic they want), or at or above their fluff threshold (Pure fluff by
-default). Posts about a loss, a war or an illness get no badge at all and are never folded.
+default), unless it shares real numbers. Any post in the feed can also be folded by hand. Posts
+about a loss, a war or an illness get no badge at all and are never folded.
+
+A repost is sent as two texts, the author's comment and the reshared post, so a one-line comment
+on a long post is judged on both. Images and videos are not analyzed.
+
+Chips show words, not numbers: the Fluff Index is the one number on a badge. How sure Jev is about
+each cliché, the category and the AI guess is in the tooltips and the breakdown.
 
 On the sample posts in [`tests/fixtures`](../tests/fixtures/sample-posts.ts) that gives:
 

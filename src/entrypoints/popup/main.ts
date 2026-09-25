@@ -203,7 +203,7 @@ function renderStats(settings: Settings, daily: DailyStats) {
       trend === null
         ? ""
         : `${trend > 0 ? `▲ ${trend}` : trend < 0 ? `▼ ${-trend}` : "Same"} ${period.versus} · `,
-      `${summary.posts} posts · 🤖 ${pct(summary.aiShare)} read like AI`,
+      `${summary.posts} posts · 📊 ${pct(summary.insightShare)} with real numbers · 🤖 ${pct(summary.aiShare)} read like AI`,
     ),
     ...(summary.folded > 0
       ? [

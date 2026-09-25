@@ -4,4 +4,4 @@
  *
  * Kept in its own module so the content script can read it without bundling the rubric.
  */
-export const RUBRIC_VERSION = 6;
+export const RUBRIC_VERSION = 7;
