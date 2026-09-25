@@ -89,4 +89,6 @@ Comment "GROWTH" and I'll send it to you.
 (Must be connected so I can DM you.)`,
 
   loss: `Last week we lost our colleague Tomasz. He built the first version of our billing system in 2016 and spent the next eight years answering everyone's questions about it with endless patience. We will miss him. If you worked with him, his family would be glad to read your memories.`,
+
+  thanks: `What a night! Huge thanks to Anna Kowalska, Piotr Zieliński and Marta Nowak for organising the Warsaw Product Meetup, and to everyone who came. Special shout-out to the Northwind team for the venue and the pizza. See you all next month!`,
 } as const;

@@ -27,11 +27,12 @@ export const PRESETS: readonly Preset[] = [
     id: "engineer",
     emoji: "🛠️",
     label: "Engineer",
-    blurb: "Know-how and news first. Job updates, events and promo folded.",
+    blurb: "Know-how and news first. Job updates, thank-yous, events and promo folded.",
     categories: {
       know_how: "want",
       news: "want",
       career_moves: "hide",
+      thanks: "hide",
       events: "hide",
       promo: "hide",
       job_hunt: "hide",

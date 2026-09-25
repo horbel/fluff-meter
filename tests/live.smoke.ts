@@ -74,29 +74,34 @@ for (const [provider, key] of Object.entries(keys)) {
 
     it("sorts categories, finds topics and stays quiet on a loss", async () => {
       const client = createClient(key as string);
-      const [routine, notable, lesson, magnet, loss, technical] = await Promise.all([
+      const [routine, notable, lesson, magnet, loss, technical, thanks] = await Promise.all([
         analyzeWithJev(client, { text: SAMPLE_POSTS.routineJob }),
         analyzeWithJev(client, { text: SAMPLE_POSTS.notableJob }),
         analyzeWithJev(client, { text: SAMPLE_POSTS.b2bLesson }),
         analyzeWithJev(client, { text: SAMPLE_POSTS.leadMagnet }),
         analyzeWithJev(client, { text: SAMPLE_POSTS.loss }),
         analyzeWithJev(client, { text: SAMPLE_POSTS.technical }, ["CI pipelines", "crypto"]),
+        analyzeWithJev(client, { text: SAMPLE_POSTS.thanks }),
       ]);
       console.table(
         Object.fromEntries(
-          Object.entries({ routine, notable, lesson, magnet, loss, technical }).map(([n, a]) => [
-            n,
-            {
-              index: a.index,
-              category: a.category,
-              tropes: a.tropes.join(", "),
-              sensitive: a.sensitive,
-              topics: JSON.stringify(a.topics),
-            },
-          ]),
+          Object.entries({ routine, notable, lesson, magnet, loss, technical, thanks }).map(
+            ([n, a]) => [
+              n,
+              {
+                index: a.index,
+                category: a.category,
+                tropes: a.tropes.join(", "),
+                sensitive: a.sensitive,
+                topics: JSON.stringify(a.topics),
+              },
+            ],
+          ),
         ),
       );
       expect(routine.category).toBe("career_moves");
+      expect(thanks.category).toBe("thanks");
+      expect(thanks.tropes).not.toContain("humblebrag");
       expect(lesson.category).toBe("stories");
       expect(magnet.tropes).toContain("engagement_bait");
       expect(loss.sensitive).toBe(true);

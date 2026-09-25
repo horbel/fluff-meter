@@ -61,7 +61,8 @@ On the sample posts in [`tests/fixtures`](../tests/fixtures/sample-posts.ts) tha
 | "After nine years at DeepMind… I'm joining Anthropic" | 19% Solid | Career moves | |
 | Meetup recap with a link to slides | 11% Solid | Events | |
 | "ok so the coffee machine has been broken for 3 weeks…" | 11% Solid | Stories & lessons | |
-| Job opening with stack and salary | 2% Solid | Hiring | |
+| "What a night! Huge thanks to Anna, Piotr and Marta…" | 5% Solid | Thank-yous | |
+| Job opening with stack and salary | 3% Solid | Hiring | |
 | "We cut our CI time from 18 to 6 minutes. What helped…" | 2% Solid | Know-how | |
 | "Last week we lost our colleague Tomasz…" | no badge | | |
 

@@ -39,6 +39,7 @@ export const CATEGORY_LABELS: Record<CategoryId, { label: string; emoji: string 
   opinion: { label: "Opinion", emoji: "💬" },
   stories: { label: "Stories & lessons", emoji: "📖" },
   career_moves: { label: "Career moves", emoji: "🎉" },
+  thanks: { label: "Thank-yous", emoji: "🙌" },
   hiring: { label: "Hiring", emoji: "📣" },
   job_hunt: { label: "Job hunt", emoji: "🔎" },
   events: { label: "Events", emoji: "🤝" },

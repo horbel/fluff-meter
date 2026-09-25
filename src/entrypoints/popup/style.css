@@ -707,6 +707,63 @@ input[type="checkbox"] {
   white-space: nowrap;
 }
 
+.mark-row[data-mode="hide"] .mark-label {
+  color: var(--muted);
+}
+
+.mark-row[data-mode="want"] .mark-label {
+  font-weight: 700;
+}
+
+.marks-toggle {
+  display: inline-flex;
+  flex: none;
+  gap: 4px;
+}
+
+.mark {
+  width: 30px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  font-size: 13px;
+  line-height: 1;
+  filter: grayscale(1);
+  opacity: 0.45;
+  transition:
+    opacity 120ms,
+    background 120ms,
+    border-color 120ms;
+}
+
+.mark:hover {
+  opacity: 0.8;
+}
+
+.mark[aria-pressed="true"] {
+  filter: none;
+  opacity: 1;
+}
+
+.mark--want[aria-pressed="true"] {
+  border-color: hsl(43 80% 60%);
+  background: hsl(46 100% 90%);
+}
+
+.mark--hide[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background: var(--lilac-soft);
+}
+
+@media (prefers-color-scheme: dark) {
+  .mark--want[aria-pressed="true"] {
+    border-color: hsl(43 45% 40%);
+    background: hsl(43 40% 18%);
+  }
+}
+
 .topics {
   display: grid;
   gap: 6px;

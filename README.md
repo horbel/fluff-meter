@@ -21,7 +21,7 @@ Scroll LinkedIn as usual. Every post gets a small badge that tells you:
 - **how much fluff it is**, from ☀️ *Solid* to ☁️ *Pure fluff*;
 - **which clichés it leans on**: engagement bait ("Agree? 👇", "comment GUIDE"), humblebrags,
   too-neat fables with a janitor in them, truisms, hustle, broetry;
-- **what it is about**: know-how, news, hiring, career moves, events, promo…
+- **what it is about**: know-how, news, hiring, career moves, thank-yous, events, promo…
 
 Pure fluff folds into one line, so you skip it in a second. One click opens it again. The popup
 shows how much of your feed was fluff and how many posts it folded for you.

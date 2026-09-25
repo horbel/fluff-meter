@@ -19,13 +19,17 @@
   <use href="#cloud" fill="url(#fill)"/>
   <!-- A soft highlight on the biggest lump. -->
   <ellipse cx="54" cy="36" rx="12" ry="6" fill="#fff" opacity="0.55" transform="rotate(-20 54 36)"/>
-  <!-- Half-closed, unimpressed eyes: lower half of a pupil under a flat lid. -->
-  <path d="M42 74 a8 8 0 0 0 16 0 Z" fill="#2e1d6b"/>
-  <path d="M70 74 a8 8 0 0 0 16 0 Z" fill="#2e1d6b"/>
-  <path d="M39 74 H61 M67 74 H89" stroke="#2e1d6b" stroke-width="4" stroke-linecap="round"/>
-  <!-- One raised brow: "sure, a janitor told you that". -->
-  <path d="M70 61 Q78 55 88 59" fill="none" stroke="#2e1d6b" stroke-width="4" stroke-linecap="round"/>
-  <path d="M58 92 Q65 95 72 90" fill="none" stroke="#2e1d6b" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Eyes rolled up to the sky: "and there was so much talk". -->
+  <clipPath id="eye-l"><ellipse cx="50" cy="75" rx="9.5" ry="7.5"/></clipPath>
+  <clipPath id="eye-r"><ellipse cx="79" cy="75" rx="9.5" ry="7.5"/></clipPath>
+  <ellipse cx="50" cy="75" rx="9.5" ry="7.5" fill="#fff"/>
+  <ellipse cx="79" cy="75" rx="9.5" ry="7.5" fill="#fff"/>
+  <circle cx="53" cy="68.5" r="5.5" fill="#2e1d6b" clip-path="url(#eye-l)"/>
+  <circle cx="82" cy="68.5" r="5.5" fill="#2e1d6b" clip-path="url(#eye-r)"/>
+  <!-- Heavy upper lids. -->
+  <path d="M40 73.5 Q50 64 60 73.5 M69 73.5 Q79 64 89 73.5" fill="none" stroke="#2e1d6b" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- A tired, flat mouth. -->
+  <path d="M59 92 Q65 90 71 92" fill="none" stroke="#2e1d6b" stroke-width="3.5" stroke-linecap="round"/>
   <ellipse cx="36" cy="88" rx="7" ry="4" fill="#ff8fc4" opacity="0.7"/>
   <ellipse cx="94" cy="88" rx="7" ry="4" fill="#ff8fc4" opacity="0.7"/>
 </svg>

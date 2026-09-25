@@ -22,6 +22,8 @@ const CATEGORY_CRITERIA = {
   stories:
     "A personal story, life lesson or motivational message, including 'what X taught me about Y'.",
   career_moves: "The author's own career update: new job, promotion, work anniversary, graduation.",
+  thanks:
+    "Mostly thanks or shout-outs to named people or teams, e.g. 'Thank you Anna, Piotr and the whole team for an amazing evening'.",
   hiring: "A job opening: the author or company is looking to hire someone.",
   job_hunt: "The author is looking for a job or new clients and asks for leads.",
   events:
@@ -73,7 +75,8 @@ export const QUESTIONS = {
     "Does the author mention their own achievement while presenting it as humility or gratitude?",
     {
       true: "e.g. 'Humbled to announce...', 'Thrilled and honored to share...', 'I never expected 10,000 followers...'.",
-      false: "No achievement is dressed up as humility.",
+      false:
+        "No achievement is dressed up as humility. Plain thanks to other people, with no achievement of the author's, is not a humblebrag.",
     },
   ),
 

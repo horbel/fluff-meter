@@ -9,17 +9,20 @@ what it is about, and only you know which ones you want.
 - Clichés: Bait (now with "comment GUIDE for the PDF"), Humblebrag, Fable (was Parable), Truism,
   Hustle, Broetry, and the AI chip. Switch any of them off and it neither shows nor counts.
   Routine and Pitch are gone: they were categories in disguise.
-- Categories, 11 instead of 13: Know-how, News, Opinion, Stories & lessons, Career moves, Hiring,
-  Job hunt, Events, Promo, Humor, Other. Mark each ⭐ want or 🙈 fold instead of a slider.
+- Categories, 12 instead of 13: Know-how, News, Opinion, Stories & lessons, Career moves,
+  Thank-yous, Hiring, Job hunt, Events, Promo, Humor, Other. Mark each ⭐ want or 🙈 fold, or
+  leave it unmarked. Plain "thanks X, Y and Z" posts are Thank-yous, not humblebrags.
 - Your topics: up to three of your own, like "Rust" or "crypto", to star or fold.
 - Folding: pure fluff (or fluffy too, or never) and hidden categories shrink to one line with a
   Show button. The popup counts folded posts and the time they saved.
+- Posts are scored further ahead, and each post that comes into range starts the next two, so
+  badges and folds are ready before you scroll to them.
 - Posts about a loss, a war or an illness get no badge and don't count in the stats.
 - Four levels instead of six: Solid, Light fluff, Fluffy, Pure fluff.
 - A slimmer badge: one row, at most two clichés, the AI chip only when a post reads like AI, the
   category as plain text.
 - Presets: Default, Engineer, Recruiter, Job seeker.
-- New icon: a lilac cloud that isn't buying it. Popup in lilac.
+- New icon: a lilac cloud rolling its eyes. Popup in lilac.
 
 ## 0.2.2
 

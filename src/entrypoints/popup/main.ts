@@ -278,6 +278,47 @@ function segmented<T>(
   return box;
 }
 
+/**
+ * Two toggles, ⭐ and 🙈. Neither pressed means neutral, which is where every category starts,
+ * so an untouched list looks untouched. `required` keeps one pressed (topics always have a mode).
+ */
+function marks(
+  label: string,
+  current: CategoryMode | undefined,
+  required: boolean,
+  onChange: (mode: CategoryMode | undefined) => void,
+): HTMLElement {
+  let mode = current;
+  const box = h("div", { class: "marks-toggle" });
+  const buttons = (
+    [
+      ["want", "⭐", `Want ${label}`],
+      ["hide", "🙈", `Fold ${label}`],
+    ] as const
+  ).map(([value, emoji, title]) => {
+    const button = h(
+      "button",
+      { type: "button", class: `mark mark--${value}`, title, "aria-label": title },
+      emoji,
+    );
+    button.addEventListener("click", () => {
+      const next = mode === value ? (required ? value : undefined) : value;
+      if (next === mode) return;
+      mode = next;
+      paint();
+      onChange(mode);
+    });
+    return [value, button] as const;
+  });
+  const paint = () => {
+    for (const [value, button] of buttons)
+      button.setAttribute("aria-pressed", String(mode === value));
+  };
+  box.append(...buttons.map(([, b]) => b));
+  paint();
+  return box;
+}
+
 const FOLD_OPTIONS = [
   { value: null, label: "Never", title: "Never fold on fluff alone" },
   ...VERDICTS.slice(0, 2).map((v, i) => ({
@@ -332,25 +373,19 @@ function renderDisplay(settings: Settings) {
   categoriesBox.replaceChildren(
     ...CATEGORY_IDS.map((id) => {
       const { emoji, label } = CATEGORY_LABELS[id];
-      return h(
+      const row = h(
         "div",
-        { class: "mark-row" },
+        { class: "mark-row", "data-mode": display.categories[id] ?? "" },
         h("span", { class: "mark-label" }, `${emoji} ${label}`),
-        segmented<CategoryMode | undefined>(
-          [
-            { value: "want", label: "⭐", title: `Want ${label}` },
-            { value: undefined, label: "·", title: `${label}: neutral` },
-            { value: "hide", label: "🙈", title: `Fold ${label}` },
-          ],
-          display.categories[id],
-          (mode) => {
-            const categories = { ...display.categories };
-            if (mode) categories[id] = mode;
-            else delete categories[id];
-            save({ categories });
-          },
-        ),
+        marks(label, display.categories[id], false, (mode) => {
+          row.dataset.mode = mode ?? "";
+          const categories = { ...display.categories };
+          if (mode) categories[id] = mode;
+          else delete categories[id];
+          save({ categories });
+        }),
       );
+      return row;
     }),
   );
 
@@ -435,17 +470,11 @@ function renderTopics(initial: Topic[], onSave: (topics: Topic[]) => void) {
           "div",
           { class: "topic-row" },
           input,
-          segmented<Topic["mode"]>(
-            [
-              { value: "want", label: "⭐", title: "Want posts about this" },
-              { value: "hide", label: "🙈", title: "Fold posts about this" },
-            ],
-            topic.mode,
-            (mode) => {
-              topic.mode = mode;
-              commit();
-            },
-          ),
+          marks("posts about this", topic.mode, true, (mode) => {
+            if (!mode) return;
+            topic.mode = mode;
+            commit();
+          }),
           remove,
         );
       }),

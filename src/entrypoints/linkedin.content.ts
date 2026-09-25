@@ -5,20 +5,25 @@ import { RemoteError, send } from "@/lib/messages";
 import { type PublicSettings, publicSettingsItem } from "@/lib/settings";
 import { BADGE_TAG, Badge, type BadgeState, FOLD_TAG, FOLDED_ATTR } from "@/lib/ui/badge";
 
-/** Posts are scored a little before they scroll into view, so the badge is ready on arrival. */
-const PRELOAD_MARGIN = "800px 0px";
+/**
+ * Posts are scored well before they scroll into view, mostly ahead of the reader, so the badge
+ * (or the fold) is ready on arrival instead of popping in while they read.
+ */
+const PRELOAD_MARGIN = "800px 0px 2000px 0px";
+/** On top of that, every post that comes into range also starts the next ones in the feed. */
+const LOOKAHEAD = 2;
 
 /**
- * A folded card keeps only our bar visible. The rest is squeezed to zero height rather than
- * `display: none`, so its text stays rendered and reads the same (same key, no new request).
+ * A folded card collapses to nothing and our bar, placed right before it, stands in for it.
+ * Squeezed to zero height rather than `display: none`, so its text stays rendered and reads the
+ * same (same key, no new request).
  */
-const PAGE_CSS = `[${FOLDED_ATTR}] > :not(${FOLD_TAG}) {
+const PAGE_CSS = `[${FOLDED_ATTR}] {
   max-height: 0 !important;
+  min-height: 0 !important;
   overflow: hidden !important;
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
   border: 0 !important;
   box-shadow: none !important;
 }`;
@@ -77,21 +82,32 @@ export default defineContentScript({
       badge.render(states.get(key));
     };
 
+    /** Post cards in feed order, as of the last scan. */
+    let order: Element[] = [];
+
+    /** Mounts the badge on a card waiting for it and starts scoring it. */
+    const activate = (root: Element) => {
+      io.unobserve(root);
+      const job = waiting.get(root);
+      waiting.delete(root);
+      // The card may have been recycled for another post since it was queued.
+      if (!job || root.querySelector(`${BADGE_TAG}[data-key="${job.key}"]`)) return;
+      const found = findPosts(root).find((p) => p.root === root && keyOf(p.post) === job.key);
+      if (!found) return;
+      mount(job.key, found);
+      if (!states.has(job.key)) void analyze(job.key, found.post);
+    };
+
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (!entry.isIntersecting || !settings.enabled) continue;
-          io.unobserve(entry.target);
-          const job = waiting.get(entry.target);
-          waiting.delete(entry.target);
-          // The card may have been recycled for another post since it was queued.
-          if (!job || entry.target.querySelector(`${BADGE_TAG}[data-key="${job.key}"]`)) continue;
-          const found = findPosts(entry.target).find(
-            (p) => p.root === entry.target && keyOf(p.post) === job.key,
-          );
-          if (!found) continue;
-          mount(job.key, found);
-          if (!states.has(job.key)) void analyze(job.key, found.post);
+          activate(entry.target);
+          const at = order.indexOf(entry.target);
+          if (at < 0) continue;
+          for (const next of order.slice(at + 1, at + 1 + LOOKAHEAD)) {
+            if (waiting.has(next)) activate(next);
+          }
         }
       },
       { rootMargin: PRELOAD_MARGIN },
@@ -103,9 +119,15 @@ export default defineContentScript({
         for (const badge of set) if (!badge.host.isConnected) set.delete(badge);
         if (!set.size) badges.delete(key);
       }
+      // A fold bar whose card LinkedIn replaced would otherwise hang on alone.
+      for (const bar of document.querySelectorAll(FOLD_TAG)) {
+        if (!bar.nextElementSibling?.hasAttribute(FOLDED_ATTR)) bar.remove();
+      }
       if (!settings.enabled) return;
 
-      for (const found of findPosts()) {
+      const posts = findPosts();
+      order = posts.map((p) => p.root);
+      for (const found of posts) {
         const { root, post, short } = found;
         const key = keyOf(post);
         const existing = root.querySelector<HTMLElement>(BADGE_TAG);
@@ -139,13 +161,15 @@ export default defineContentScript({
     };
 
     const unfoldCard = (card: Element) => {
-      for (const el of card.querySelectorAll(`:scope > ${FOLD_TAG}`)) el.remove();
+      const bar = card.previousElementSibling;
+      if (bar?.tagName.toLowerCase() === FOLD_TAG) bar.remove();
       card.removeAttribute(FOLDED_ATTR);
     };
 
     const removeAll = () => {
-      for (const el of document.querySelectorAll(BADGE_TAG)) el.remove();
-      for (const card of document.querySelectorAll(`[${FOLDED_ATTR}]`)) unfoldCard(card);
+      for (const el of document.querySelectorAll(`${BADGE_TAG}, ${FOLD_TAG}`)) el.remove();
+      for (const card of document.querySelectorAll(`[${FOLDED_ATTR}]`))
+        card.removeAttribute(FOLDED_ATTR);
       badges.clear();
     };
 

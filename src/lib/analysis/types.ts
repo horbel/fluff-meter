@@ -26,6 +26,7 @@ export const CATEGORY_IDS = [
   "opinion",
   "stories",
   "career_moves",
+  "thanks",
   "hiring",
   "job_hunt",
   "events",

@@ -37,7 +37,7 @@ export type BadgeState =
 /** Custom tags, so LinkedIn's CSS has nothing to match and we can find our own nodes. */
 export const BADGE_TAG = "fluff-meter-badge";
 export const FOLD_TAG = "fluff-meter-fold";
-/** Set on a post card while it is folded; the page stylesheet in linkedin.content.ts reads it. */
+/** Set on a post card while it is folded; the page stylesheet in linkedin.content.ts reads it. The fold bar sits right before that card. */
 export const FOLDED_ATTR = "data-fluff-folded";
 
 /** What a post of a few words gets instead of a score. */
@@ -101,13 +101,11 @@ export class Badge {
     else this.unfold();
   }
 
-  /** Takes the fold bar away and lets the card show again. Also used when the card is reused. */
+  /** Takes the fold bar away and lets the card show again. */
   unfold(): void {
     this.#fold?.host.remove();
     this.#fold = undefined;
-    if (this.card.querySelector(`:scope > ${FOLD_TAG}`) === null) {
-      this.card.removeAttribute(FOLDED_ATTR);
-    }
+    this.card.removeAttribute(FOLDED_ATTR);
   }
 
   #showFold(analysis: Analysis, view: PersonalView, reason: FoldReason): void {
@@ -156,7 +154,10 @@ export class Badge {
         h("button", { class: "show", type: "button", onclick: show }, "Show"),
       ),
     );
-    if (host.parentElement !== this.card) this.card.prepend(host);
+    // The bar goes right before the card, and the card itself collapses (see PAGE_CSS in
+    // linkedin.content.ts). LinkedIn's card is the white box; what's inside it is partly
+    // `display: contents`, which can't be squeezed.
+    if (host.nextElementSibling !== this.card) this.card.before(host);
     this.card.setAttribute(FOLDED_ATTR, "");
   }
 
