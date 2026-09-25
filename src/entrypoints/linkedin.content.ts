@@ -1,7 +1,7 @@
 import type { PostInput } from "@/lib/analysis/types";
 import { hashText } from "@/lib/hash";
-import { type FoundPost, findPosts } from "@/lib/linkedin/extract";
-import { isFeedPath } from "@/lib/linkedin/selectors";
+import { type FoundPost, findPosts, isShown } from "@/lib/linkedin/extract";
+import { isFeedPath, SELECTORS } from "@/lib/linkedin/selectors";
 import { RemoteError, send } from "@/lib/messages";
 import { type PublicSettings, publicSettingsItem } from "@/lib/settings";
 import { BADGE_TAG, Badge, type BadgeState, FOLD_TAG, FOLDED_ATTR } from "@/lib/ui/badge";
@@ -125,9 +125,14 @@ export default defineContentScript({
         for (const badge of set) if (!badge.host.isConnected) set.delete(badge);
         if (!set.size) badges.delete(key);
       }
-      // A fold bar whose card LinkedIn replaced would otherwise hang on alone.
+      // A fold bar whose card LinkedIn replaced, or hid itself, would otherwise hang on alone.
       for (const bar of document.querySelectorAll(FOLD_TAG)) {
-        if (!bar.nextElementSibling?.hasAttribute(FOLDED_ATTR)) bar.remove();
+        const card = bar.nextElementSibling;
+        const text = card?.querySelector(SELECTORS.postText);
+        if (!card?.hasAttribute(FOLDED_ATTR) || !text || !isShown(text, card)) {
+          bar.remove();
+          card?.removeAttribute(FOLDED_ATTR);
+        }
       }
       if (!settings.enabled) return;
 

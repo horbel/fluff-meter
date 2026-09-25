@@ -16,6 +16,8 @@ what it is about, and only you know which ones you want.
 - Folding: pure fluff (or fluffy too, or never) and hidden categories shrink to one line: the
   author, why it was folded and a Show button. Only in the feed; on a profile or a single post
   nothing folds. The popup counts folded posts and the time they saved.
+- Posts the page hides itself (promoted posts, for example, when an ad blocker is on) get no
+  badge and no fold, instead of a fold bar that opens onto nothing.
 - Posts are scored further ahead, and each post that comes into range starts the next two, so
   badges and folds are ready before you scroll to them.
 - Posts about a loss, a war or an illness get no badge and don't count in the stats.

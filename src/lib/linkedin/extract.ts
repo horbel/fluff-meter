@@ -60,6 +60,21 @@ function findAuthor(root: HTMLElement, text: HTMLElement): { id?: string; name?:
   return { ...(id ? { id } : {}), ...(name ? { name } : {}) };
 }
 
+/**
+ * Whether the page actually shows an element. LinkedIn (or an ad blocker) hides some posts,
+ * promoted ones especially, with `display: none` on a wrapper; those get no badge and no fold,
+ * or a fold bar would stand in for a post that isn't there. Our own fold only squeezes the card,
+ * so a folded post still counts as shown.
+ */
+export function isShown(el: Element, card: Element): boolean {
+  // Up to the card only: that's where LinkedIn's wrappers are, and it keeps a scan cheap.
+  for (let node: Element | null = el; node; node = node.parentElement) {
+    if (getComputedStyle(node).display === "none") return false;
+    if (node === card) break;
+  }
+  return true;
+}
+
 function depth(el: Element, root: Element): number {
   let d = 0;
   for (let node: Element | null = el; node && node !== root; node = node.parentElement) d++;
@@ -83,7 +98,7 @@ export function findPosts(scope: ParentNode = document): FoundPost[] {
   const posts: FoundPost[] = [];
   for (const [root, texts] of byRoot) {
     const [own, ...rest] = texts;
-    if (!own) continue;
+    if (!own || !isShown(own, root)) continue;
     // A repost renders the original post deeper in the card than the author's comment.
     const ownDepth = depth(own, root);
     const reshared = rest.find((el) => depth(el, root) > ownDepth);

@@ -83,6 +83,19 @@ describe("profileId", () => {
   });
 });
 
+describe("hidden posts", () => {
+  it("skips posts the page itself hides, like promoted posts behind display: none", () => {
+    document.body.innerHTML = fixture;
+    const before = findPosts().length;
+    const first = findPosts()[0];
+    const wrapper = first?.root.querySelector("[data-testid=expandable-text-box]")
+      ?.parentElement as HTMLElement;
+    wrapper.style.display = "none";
+    expect(findPosts()).toHaveLength(before - 1);
+    expect(findPosts().some((p) => p.root === first?.root)).toBe(false);
+  });
+});
+
 describe("isFeedPath", () => {
   it("folds in the feed only, not on profiles or single posts", () => {
     expect(isFeedPath("/feed/")).toBe(true);
