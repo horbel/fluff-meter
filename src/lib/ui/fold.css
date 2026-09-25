@@ -40,8 +40,9 @@
 
 .cloud {
   flex: none;
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
+  margin: 0 -2px 0 -4px;
 }
 
 .author {
