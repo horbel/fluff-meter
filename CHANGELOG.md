@@ -13,8 +13,9 @@ what it is about, and only you know which ones you want.
   Thank-yous, Hiring, Job hunt, Events, Promo, Humor, Other. Mark each ⭐ want or 🙈 fold, or
   leave it unmarked. Plain "thanks X, Y and Z" posts are Thank-yous, not humblebrags.
 - Your topics: up to three of your own, like "Rust" or "crypto", to star or fold.
-- Folding: pure fluff (or fluffy too, or never) and hidden categories shrink to one line with a
-  Show button. The popup counts folded posts and the time they saved.
+- Folding: pure fluff (or fluffy too, or never) and hidden categories shrink to one line: the
+  author, why it was folded and a Show button. Only in the feed; on a profile or a single post
+  nothing folds. The popup counts folded posts and the time they saved.
 - Posts are scored further ahead, and each post that comes into range starts the next two, so
   badges and folds are ready before you scroll to them.
 - Posts about a loss, a war or an illness get no badge and don't count in the stats.

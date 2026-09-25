@@ -38,3 +38,11 @@ export const SELECTORS = {
     '[role="dialog"]',
   ].join(","),
 } as const;
+
+/**
+ * Posts are folded in the feed only. On someone's profile or a single post (`/feed/update/…`)
+ * the reader came to see exactly that, so badges show but nothing folds.
+ */
+export function isFeedPath(path: string): boolean {
+  return path.startsWith("/feed") && !path.startsWith("/feed/update");
+}

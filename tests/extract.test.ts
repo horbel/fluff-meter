@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { cleanText, findPosts, profileId } from "@/lib/linkedin/extract";
+import { isFeedPath } from "@/lib/linkedin/selectors";
 import fixture from "./fixtures/feed.html?raw";
 
 describe("findPosts", () => {
@@ -79,5 +80,15 @@ describe("profileId", () => {
     expect(profileId("https://www.linkedin.com/in/Jane-Doe-1/?x=y")).toBe("in:jane-doe-1");
     expect(profileId("/company/acme/posts")).toBe("company:acme");
     expect(profileId("/feed/update/1")).toBeUndefined();
+  });
+});
+
+describe("isFeedPath", () => {
+  it("folds in the feed only, not on profiles or single posts", () => {
+    expect(isFeedPath("/feed/")).toBe(true);
+    expect(isFeedPath("/feed")).toBe(true);
+    expect(isFeedPath("/feed/update/urn:li:activity:123/")).toBe(false);
+    expect(isFeedPath("/in/jane-doe/recent-activity/all/")).toBe(false);
+    expect(isFeedPath("/in/jane-doe/")).toBe(false);
   });
 });

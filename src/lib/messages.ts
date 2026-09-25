@@ -2,7 +2,9 @@ import { browser } from "#imports";
 import type { Analysis, AnalysisErrorCode, PostInput } from "./analysis/types";
 
 /** Every message the background worker answers. Content scripts and the popup are the senders. */
-export type Request = { type: "analyze"; post: PostInput } | { type: "test-key"; apiKey: string };
+export type Request =
+  /** `foldable`: the post is in the feed, where folding applies (it counts in the stats). */
+  { type: "analyze"; post: PostInput; foldable?: boolean } | { type: "test-key"; apiKey: string };
 
 interface ResponseData {
   analyze: Analysis;

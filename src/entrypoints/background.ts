@@ -10,7 +10,7 @@ export default defineBackground(() => {
   async function handle(request: Request): Promise<unknown> {
     switch (request.type) {
       case "analyze":
-        return analyzer.analyze(request.post);
+        return analyzer.analyze(request.post, request.foldable ?? true);
       case "test-key":
         return pingJev(createClient(request.apiKey));
     }

@@ -24,7 +24,7 @@ export class Analyzer {
 
   constructor(private readonly getSettings: () => Promise<Settings>) {}
 
-  async analyze(post: PostInput): Promise<Analysis> {
+  async analyze(post: PostInput, foldable = true): Promise<Analysis> {
     if (isZeroFluff(post.author)) return legendAnalysis();
     const settings = await this.getSettings();
     const mode = modeOf(settings);
@@ -44,7 +44,7 @@ export class Analyzer {
       );
       await putCached(hash, analysis);
       // Posts about a tragedy get no badge, so they don't count towards the feed's fluff either.
-      if (!analysis.sensitive) await this.#recordStats(analysis, settings);
+      if (!analysis.sensitive) await this.#recordStats(analysis, settings, foldable);
       return analysis;
     })();
     this.#inflight.set(hash, job);
@@ -55,7 +55,7 @@ export class Analyzer {
     }
   }
 
-  #recordStats(analysis: Analysis, settings: Settings): Promise<void> {
+  #recordStats(analysis: Analysis, settings: Settings, foldable: boolean): Promise<void> {
     const view = personalView(analysis, settings.display);
     this.#statsWrite = this.#statsWrite
       .then(async () =>
@@ -65,7 +65,7 @@ export class Analyzer {
             analysis,
             new Date(),
             view.index,
-            !!view.fold,
+            foldable && !!view.fold,
           ),
         ),
       )

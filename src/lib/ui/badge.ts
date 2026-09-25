@@ -1,3 +1,4 @@
+import cloudSvg from "../../assets/icon.svg?raw";
 import {
   AI_TELL_LABELS,
   aiLabel,
@@ -73,6 +74,8 @@ export class Badge {
     private readonly author: string | undefined,
     private readonly onRetry: () => void,
     private readonly display: () => DisplayPrefs,
+    /** Folding only makes sense in the feed; on a profile or a single post the reader came to read. */
+    private readonly canFold: () => boolean = () => true,
   ) {
     this.host = createHost(BADGE_TAG);
     this.host.dataset.key = key;
@@ -96,7 +99,8 @@ export class Badge {
     this.host.dataset.theme = pageTheme();
     this.#shadow.replaceChildren(...(body ? [h("style", null, css), body] : []));
 
-    const fold = state.status === "done" && !revealed.has(this.key) ? view?.fold : undefined;
+    const fold =
+      state.status === "done" && !revealed.has(this.key) && this.canFold() ? view?.fold : undefined;
     if (fold && state.status === "done") this.#showFold(state.analysis, view as PersonalView, fold);
     else this.unfold();
   }
@@ -116,26 +120,27 @@ export class Badge {
     const { host, shadow } = this.#fold;
     host.dataset.theme = pageTheme();
     const verdict = verdictFor(view.index);
-    const why =
+    // Who first, then why: the reason is a pill, like the score on an open badge.
+    const reasonPill =
       reason.kind === "fluff"
-        ? [
-            h("span", { class: "score", style: `--hue:${verdict.hue}` }, `${view.index}%`),
-            h("span", { class: "label" }, verdict.label),
-            ...analysis.tropes
-              .filter((t) => !this.display().hiddenTropes.includes(t))
-              .slice(0, 2)
-              .map((t) => h("span", { class: "muted" }, `· ${TROPE_LABELS[t].label}`)),
-          ]
-        : [
-            h("span", { class: "label" }, "🙈"),
-            h(
-              "span",
-              { class: "label" },
-              reason.kind === "category"
-                ? CATEGORY_LABELS[reason.category].label
-                : `“${reason.topic}”`,
-            ),
-          ];
+        ? h(
+            "span",
+            { class: "reason reason--fluff", style: `--hue:${verdict.hue}` },
+            h("span", { class: "score" }, `${view.index}%`),
+            verdict.label,
+          )
+        : h(
+            "span",
+            { class: "reason" },
+            `🙈 ${reason.kind === "category" ? CATEGORY_LABELS[reason.category].label : `“${reason.topic}”`}`,
+          );
+    const tropes =
+      reason.kind === "fluff"
+        ? analysis.tropes
+            .filter((t) => !this.display().hiddenTropes.includes(t))
+            .slice(0, 2)
+            .map((t) => TROPE_LABELS[t].label)
+        : [];
     const show = () => {
       revealed.add(this.key);
       this.render();
@@ -147,10 +152,14 @@ export class Badge {
         {
           class: "fold",
           title:
-            reason.kind === "fluff" ? "Folded: too much fluff for you" : "Folded: you hide this",
+            reason.kind === "fluff"
+              ? "Folded by Fluff Meter: too much fluff for you"
+              : "Folded by Fluff Meter: you fold these",
         },
-        h("span", { class: "why" }, ...why),
+        cloud(),
         this.author && h("span", { class: "author" }, this.author),
+        reasonPill,
+        tropes.length > 0 && h("span", { class: "tropes" }, tropes.join(" · ")),
         h("button", { class: "show", type: "button", onclick: show }, "Show"),
       ),
     );
@@ -414,6 +423,15 @@ export class Badge {
       ),
     );
   }
+}
+
+/** The extension's icon, small, so a folded post says who folded it. */
+function cloud(): Element {
+  const svg = new DOMParser().parseFromString(cloudSvg, "image/svg+xml").documentElement;
+  svg.setAttribute("class", "cloud");
+  svg.setAttribute("aria-hidden", "true");
+  svg.querySelector("title")?.remove();
+  return document.importNode(svg, true);
 }
 
 /** A host element whose clicks never reach LinkedIn's handlers (they would open the post). */

@@ -1,6 +1,7 @@
-/* The one-line bar that replaces a folded post. Same palette as badge.css. */
+/* The one-line bar that stands in for a folded post. Same palette as badge.css. */
 :host {
   --bg: #ffffff;
+  --surface: #f4f2ee;
   --text: rgba(0, 0, 0, 0.9);
   --muted: rgba(0, 0, 0, 0.6);
   --border: rgba(0, 0, 0, 0.12);
@@ -18,6 +19,7 @@
 
 :host([data-theme="dark"]) {
   --bg: #1b1f23;
+  --surface: #2a2f34;
   --text: rgba(255, 255, 255, 0.9);
   --muted: rgba(255, 255, 255, 0.6);
   --border: rgba(255, 255, 255, 0.15);
@@ -27,47 +29,68 @@
 .fold {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 36px;
-  padding: 6px 12px 6px 14px;
+  gap: 8px;
+  min-height: 40px;
+  padding: 6px 10px 6px 12px;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--bg);
 }
 
-.why {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 5px;
+.cloud {
+  flex: none;
+  width: 22px;
+  height: 22px;
+}
+
+.author {
+  flex: 0 1 auto;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.reason {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 5px;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.reason--fluff {
+  border: 1px solid hsl(var(--hue) 55% 80%);
+  color: hsl(var(--hue) 55% 26%);
+  background: hsl(var(--hue) 85% 96%);
+}
+
+:host([data-theme="dark"]) .reason--fluff {
+  border-color: hsl(var(--hue) 35% 32%);
+  color: hsl(var(--hue) 60% 86%);
+  background: hsl(var(--hue) 30% 17%);
 }
 
 .score {
   font-weight: 800;
   font-variant-numeric: tabular-nums;
-  color: hsl(var(--hue) 70% 42%);
 }
 
-:host([data-theme="dark"]) .score {
-  color: hsl(var(--hue) 80% 66%);
-}
-
-.label {
-  font-weight: 600;
-}
-
-.muted,
-.author {
-  color: var(--muted);
-}
-
-.author {
-  flex: 1;
+.tropes {
+  flex: 0 3 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--muted);
 }
 
 .show {

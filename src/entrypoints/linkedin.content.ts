@@ -1,6 +1,7 @@
 import type { PostInput } from "@/lib/analysis/types";
 import { hashText } from "@/lib/hash";
 import { type FoundPost, findPosts } from "@/lib/linkedin/extract";
+import { isFeedPath } from "@/lib/linkedin/selectors";
 import { RemoteError, send } from "@/lib/messages";
 import { type PublicSettings, publicSettingsItem } from "@/lib/settings";
 import { BADGE_TAG, Badge, type BadgeState, FOLD_TAG, FOLDED_ATTR } from "@/lib/ui/badge";
@@ -58,7 +59,11 @@ export default defineContentScript({
     const analyze = async (key: string, post: PostInput) => {
       setState(key, { status: "loading" });
       try {
-        const analysis = await send({ type: "analyze", post });
+        const analysis = await send({
+          type: "analyze",
+          post,
+          foldable: isFeedPath(location.pathname),
+        });
         const provider = settings.mode.kind === "live" ? settings.mode.provider : undefined;
         setState(key, { status: "done", analysis, ...(provider ? { provider } : {}) });
       } catch (err) {
@@ -74,6 +79,7 @@ export default defineContentScript({
         authorName,
         () => void analyze(key, post),
         () => settings.display,
+        () => isFeedPath(location.pathname),
       );
       anchor.before(badge.host);
       const set = badges.get(key) ?? new Set();
