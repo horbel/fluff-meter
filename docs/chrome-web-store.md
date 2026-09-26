@@ -79,6 +79,11 @@ To ship an update:
    from this page and `store/`.
 4. Submit for review.
 
+Automatic updates: after every successful Release, the "Chrome Web Store" workflow uploads the
+zip and submits it for review, once the `CHROME_PUBLISHER_ID`,
+`CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL` and `CHROME_SERVICE_ACCOUNT_PRIVATE_KEY` repository secrets
+are set. It can also be run by hand for any tag. Listing texts and screenshots stay manual.
+
 The listing page can report visits to a Google Analytics property (Store listing → Google
 Analytics ID). That tracks people viewing the store page, not the extension: the extension itself
 still collects nothing.

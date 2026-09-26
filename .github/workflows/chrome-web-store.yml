@@ -1,0 +1,64 @@
+name: Chrome Web Store
+
+# Uploads the zip from a GitHub release to the Chrome Web Store and submits it for review.
+# Runs after every successful Release, or by hand for a given tag. The store listing (texts,
+# screenshots) is not touched: the API only updates the package.
+#
+# Needs repository secrets (Web Store API v2, service account):
+#   CHROME_PUBLISHER_ID, CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL, CHROME_SERVICE_ACCOUNT_PRIVATE_KEY
+# Without them the job only says so and stops.
+
+on:
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to submit, e.g. v0.3.1
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  submit:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.inputs.tag || github.event.workflow_run.head_branch }}
+      CHROME_API_VERSION: v2
+      CHROME_EXTENSION_ID: ijfddippbjffofanjhmnfikabkkeeckj
+      CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+      CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL: ${{ secrets.CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL }}
+      CHROME_SERVICE_ACCOUNT_PRIVATE_KEY: ${{ secrets.CHROME_SERVICE_ACCOUNT_PRIVATE_KEY }}
+    steps:
+      - name: Check the store secrets
+        id: secrets
+        run: |
+          if [ -z "$CHROME_SERVICE_ACCOUNT_PRIVATE_KEY" ] || [ -z "$CHROME_PUBLISHER_ID" ]; then
+            echo "::notice::Chrome Web Store secrets are not set; skipping the upload."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.secrets.outputs.ready == 'true'
+        with:
+          ref: ${{ env.TAG }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        if: steps.secrets.outputs.ready == 'true'
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - if: steps.secrets.outputs.ready == 'true'
+        run: npm ci
+      - name: Download the zip from the release
+        if: steps.secrets.outputs.ready == 'true'
+        run: gh release download "$TAG" --pattern '*-chrome.zip' --dir .output
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Upload and submit for review
+        if: steps.secrets.outputs.ready == 'true'
+        run: npx wxt submit --chrome-zip .output/*-chrome.zip

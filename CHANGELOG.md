@@ -5,7 +5,6 @@
 - The script that runs on LinkedIn no longer loads the settings that hold your API key, not even
   into its own memory. Only the popup and the background worker read the key.
 - README: install from the Chrome Web Store, a Share it section and a plainer privacy summary.
-- The main store screenshot no longer shows LinkedIn's logo.
 
 ## 0.3.0
 
