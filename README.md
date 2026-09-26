@@ -64,6 +64,16 @@ the posts you scroll past goes to the AI provider you picked. [Details](PRIVACY.
 
 <br clear="right" />
 
+## Meet the cloud
+
+The icon is a cloud of fluff that has read one post too many. The lilac and the attitude come from
+Lumpy Space Princess in *Adventure Time*. The pose comes from Ariadne in Guido Reni's *Bacchus and
+Ariadne*: head on her hand, eyes to the sky, clearly done with this conversation.
+
+<img src="docs/meme.jpg" width="420" alt="Guido Reni's Bacchus and Ariadne with the Fluff Meter cloud in place of Ariadne's head, a 99% Pure fluff badge across her chest and a LinkedIn logo as Bacchus's fig leaf" />
+
+<sub>After Guido Reni, <i>Bacchus and Ariadne</i> (c. 1619–20), LACMA. The painting is public domain.</sub>
+
 ## For developers
 
 - [How it works](docs/how-it-works.md): the model, the scoring and the code layout.
