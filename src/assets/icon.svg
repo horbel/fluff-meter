@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
   <title>Fluff Meter</title>
-  <!-- The cloud from cloud.svg, a little smaller, with sparkles around it. Keep the two in sync. -->
+  <!-- The eye-rolling cloud with sparkles, for 48px and up. cloud.svg is the small version: keep the two in sync. -->
   <defs>
     <linearGradient id="fill" gradientUnits="userSpaceOnUse" x1="0" y1="18" x2="0" y2="108">
       <stop offset="0" stop-color="#d9c8ff"/>
@@ -17,7 +17,7 @@
     <clipPath id="eye-l"><ellipse cx="51" cy="75" rx="9" ry="7.5"/></clipPath>
     <clipPath id="eye-r"><ellipse cx="77" cy="75" rx="9" ry="7.5"/></clipPath>
   </defs>
-  <g transform="translate(64 71) scale(0.86) translate(-64 -63)">
+  <g transform="translate(66 70) scale(0.84) translate(-64 -63)">
   <!-- Outline: the same lumps drawn fatter underneath, so only the outer edge shows. -->
   <use href="#lumps" fill="#4b2fa8" stroke="#4b2fa8" stroke-width="10" stroke-linejoin="round"/>
   <use href="#lumps" fill="url(#fill)"/>
@@ -35,7 +35,8 @@
   <ellipse cx="37" cy="88" rx="6.5" ry="4" fill="#ff8fc4" opacity="0.7"/>
   <ellipse cx="91" cy="88" rx="6.5" ry="4" fill="#ff8fc4" opacity="0.7"/>
   </g>
-  <path d="M19 13 Q21.2 21.8 30 24 Q21.2 26.2 19 35 Q16.8 26.2 8 24 Q16.8 21.8 19 13 Z" fill="#ffd24d" stroke="#4b2fa8" stroke-width="2.5" stroke-linejoin="round"/>
-  <path d="M110 12 Q111.6 18.4 118 20 Q111.6 21.6 110 28 Q108.4 21.6 102 20 Q108.4 18.4 110 12 Z" fill="#ffd24d" stroke="#4b2fa8" stroke-width="2.5" stroke-linejoin="round"/>
-  <path d="M119 45 Q120.0 49.0 124 50 Q120.0 51.0 119 55 Q118.0 51.0 114 50 Q118.0 49.0 119 45 Z" fill="#ffd24d" stroke="#4b2fa8" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Sparkles, scattered on purpose: big on the left, small top right, tiny low right. -->
+  <path transform="rotate(-10 15 62)" d="M15 51 Q17.42 59.58 26 62 Q17.42 64.42 15 73 Q12.58 64.42 4 62 Q12.58 59.58 15 51 Z" fill="#ffd24d" stroke="#4b2fa8" stroke-width="3.1" stroke-linejoin="round"/>
+  <path transform="rotate(12 104 17)" d="M104 9 Q105.76 15.24 112 17 Q105.76 18.76 104 25 Q102.24 18.76 96 17 Q102.24 15.24 104 9 Z" fill="#ffd24d" stroke="#4b2fa8" stroke-width="2.2" stroke-linejoin="round"/>
+  <path transform="rotate(0 121 80)" d="M121 75 Q122.1 78.9 126 80 Q122.1 81.1 121 85 Q119.9 81.1 116 80 Q119.9 78.9 121 75 Z" fill="#ffd24d" stroke="#4b2fa8" stroke-width="2.2" stroke-linejoin="round"/>
 </svg>
