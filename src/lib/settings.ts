@@ -58,7 +58,7 @@ export const DEFAULT_DISPLAY: DisplayPrefs = {
   foldAt: 85,
 };
 
-const DEFAULTS: Settings = { apiKey: "", enabled: true, display: DEFAULT_DISPLAY };
+export const DEFAULTS: Settings = { apiKey: "", enabled: true, display: DEFAULT_DISPLAY };
 
 /**
  * Every shape the settings ever had becomes the current one: known fields are kept, fields
@@ -93,22 +93,16 @@ function normalize<T extends { display?: Partial<DisplayPrefs> }>(old: T) {
   return { ...rest, display: normalizeDisplay(old.display) };
 }
 
-const VERSION = 7;
-const migrations = Object.fromEntries(
+export const VERSION = 7;
+export const migrations = Object.fromEntries(
   Array.from({ length: VERSION - 1 }, (_, i) => [i + 2, normalize]),
 );
 
 /**
- * `local:` on purpose: the key stays on this device and is never synced to the user's
- * Google account. Only the background worker and the popup read this item.
+ * A key-free mirror of the settings that content scripts watch. The real settings, key included,
+ * live in settings-private.ts, which the LinkedIn content script never imports: defining a
+ * storage item reads it (to migrate it), so importing it would pull the key into that script.
  */
-export const settingsItem = storage.defineItem<Settings>("local:settings", {
-  fallback: DEFAULTS,
-  version: VERSION,
-  migrations,
-});
-
-/** A key-free mirror of the settings that content scripts watch. */
 export const publicSettingsItem = storage.defineItem<PublicSettings>("local:public-settings", {
   fallback: toPublic(DEFAULTS),
   version: VERSION,
@@ -123,11 +117,4 @@ export function modeOf(settings: Settings): Mode {
 
 export function toPublic(settings: Settings): PublicSettings {
   return { enabled: settings.enabled, mode: modeOf(settings), display: settings.display };
-}
-
-export async function saveSettings(patch: Partial<Settings>): Promise<Settings> {
-  const next = { ...(await settingsItem.getValue()), ...patch };
-  await settingsItem.setValue(next);
-  await publicSettingsItem.setValue(toPublic(next));
-  return next;
 }

@@ -2,7 +2,8 @@ import { createClient, pingJev, toAnalysisError } from "@/lib/analysis/jev";
 import { Analyzer } from "@/lib/analyzer";
 import { pruneCache } from "@/lib/cache";
 import type { Request, Response } from "@/lib/messages";
-import { publicSettingsItem, settingsItem, toPublic } from "@/lib/settings";
+import { publicSettingsItem, toPublic } from "@/lib/settings";
+import { settingsItem } from "@/lib/settings-private";
 
 export default defineBackground(() => {
   const analyzer = new Analyzer(() => settingsItem.getValue());

@@ -27,8 +27,8 @@ Rates LinkedIn posts on a 0–100% Fluff Index, names the clichés and folds wha
 > about 12,000 posts for a dollar.
 >
 > It starts in demo mode with random numbers. For real scores, add your own TypeSafe or OpenRouter
-> API key. No servers, no tracking: only the text of the posts you scroll past goes to the AI
-> provider you picked.
+> API key. No servers, no tracking: only the text of the posts you scroll past, and your topics if
+> you added any, goes to the AI provider you picked.
 >
 > Open source: https://github.com/horbel/fluff-meter
 >
@@ -66,6 +66,19 @@ other purpose.
 
 ## Publishing
 
-1. Register at https://chrome.google.com/webstore/devconsole (one-time $5 fee).
-2. `npm run zip`, then upload `.output/fluff-meter-<version>-chrome.zip`.
-3. Fill in the sections above and submit for review.
+Live listing: https://chromewebstore.google.com/detail/fluff-meter-for-linkedin/ijfddippbjffofanjhmnfikabkkeeckj
+
+To ship an update:
+
+1. Bump the version in `package.json`, add a CHANGELOG entry and push a `vX.Y.Z` tag: the Release
+   workflow runs the checks, builds the zip and attaches it to a GitHub release.
+2. In the [developer dashboard](https://chrome.google.com/webstore/devconsole), open Fluff Meter,
+   go to **Package** and upload `.output/fluff-meter-<version>-chrome.zip` (or the zip from the
+   release).
+3. If the screenshots, texts or permissions changed, update **Store listing** and **Privacy**
+   from this page and `store/`.
+4. Submit for review.
+
+The listing page can report visits to a Google Analytics property (Store listing → Google
+Analytics ID). That tracks people viewing the store page, not the extension: the extension itself
+still collects nothing.

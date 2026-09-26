@@ -5,14 +5,8 @@ import { CATEGORY_IDS, type Topic, TROPE_IDS } from "@/lib/analysis/types";
 import { REPO_URL } from "@/lib/constants";
 import { RemoteError, send } from "@/lib/messages";
 import { activePreset, PRESETS } from "@/lib/presets";
-import {
-  type CategoryMode,
-  type DisplayPrefs,
-  modeOf,
-  type Settings,
-  saveSettings,
-  settingsItem,
-} from "@/lib/settings";
+import { type CategoryMode, type DisplayPrefs, modeOf, type Settings } from "@/lib/settings";
+import { saveSettings, settingsItem } from "@/lib/settings-private";
 import { type DailyStats, dailyStatsItem, summarize } from "@/lib/stats";
 import { h } from "@/lib/ui/dom";
 import { gauge } from "@/lib/ui/gauge";

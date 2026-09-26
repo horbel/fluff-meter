@@ -6,6 +6,8 @@
 
 **Rates every LinkedIn post on a 0–100% Fluff Index and folds what you don't want to read.**
 
+**[Add to Chrome](https://chromewebstore.google.com/detail/fluff-meter-for-linkedin/ijfddippbjffofanjhmnfikabkkeeckj)** · free · open source · collects nothing
+
 [![CI](https://github.com/horbel/fluff-meter/actions/workflows/ci.yml/badge.svg)](https://github.com/horbel/fluff-meter/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Buy me a coffee](https://img.shields.io/badge/☕-buy%20me%20a%20coffee-ffdd00)](https://buymeacoffee.com/horbel)
@@ -35,15 +37,24 @@ Posts about a loss, a war or an illness never get a score. It rates posts, not p
 
 ## Install
 
+**[Get it from the Chrome Web Store](https://chromewebstore.google.com/detail/fluff-meter-for-linkedin/ijfddippbjffofanjhmnfikabkkeeckj)**, then open LinkedIn. It works in Chrome, Edge,
+Brave, Arc and other Chromium browsers.
+
+It starts in **demo mode** with random numbers, so you can see how it looks. For real scores,
+click the extension icon and paste a [TypeSafe](https://console.typesafe.ai/keys) or
+[OpenRouter](https://openrouter.ai/settings/keys) API key. $1 covers about 12,000 posts.
+
+<details>
+<summary>Install from GitHub instead</summary>
+
 1. Download the zip from the [latest release](https://github.com/horbel/fluff-meter/releases/latest)
    and unzip it.
 2. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick the
    unzipped folder.
 3. Open LinkedIn.
 
-It starts in **demo mode** with random numbers, so you can see how it looks. For real scores,
-click the extension icon and paste a [TypeSafe](https://console.typesafe.ai/keys) or
-[OpenRouter](https://openrouter.ai/settings/keys) API key. $1 covers about 12,000 posts.
+This version doesn't update itself; the Web Store one does.
+</details>
 
 ## Make it yours
 
@@ -59,8 +70,16 @@ Clichés annoy everyone, so they set the score. What a post is about is your cal
 
 ## Privacy
 
-No servers, no tracking. Without a key nothing leaves your browser. With a key, only the text of
-the posts you scroll past goes to the AI provider you picked. [Details](PRIVACY.md).
+Fluff Meter collects nothing. There is no server of ours, no account and no analytics in the
+extension.
+
+- Your API key, settings and feed stats stay on your device, in Chrome's local storage. They are
+  never synced, and LinkedIn's page can't read them.
+- Without a key, nothing leaves your browser.
+- With a key, the text of the posts you scroll past (and your topics, if you added any) goes
+  straight to the AI provider you picked, and nowhere else.
+
+[Details](PRIVACY.md).
 
 <br clear="right" />
 
@@ -73,6 +92,16 @@ Ariadne*: head on her hand, eyes to the sky, clearly done with this conversation
 <img src="docs/meme.jpg" width="420" alt="Guido Reni's Bacchus and Ariadne with the Fluff Meter cloud in place of Ariadne's head, a 99% Pure fluff badge across her chest and a LinkedIn logo as Bacchus's fig leaf" />
 
 <sub>After Guido Reni, <i>Bacchus and Ariadne</i> (c. 1619–20), LACMA. The painting is public domain.</sub>
+
+## Share it
+
+Know someone whose feed needs this? Send them the Web Store link:
+
+```
+https://chromewebstore.google.com/detail/fluff-meter-for-linkedin/ijfddippbjffofanjhmnfikabkkeeckj
+```
+
+Developers can have the code instead: https://github.com/horbel/fluff-meter
 
 ## For developers
 
