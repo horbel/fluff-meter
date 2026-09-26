@@ -8,7 +8,7 @@ Everything the developer dashboard asks for, ready to paste.
 (set as `name` in `wxt.config.ts`; the store shows the manifest name)
 
 **Summary** (132 characters max):
-Rates LinkedIn posts on a 0–100% Fluff Index, names the clichés and folds what you don't want to read.
+Rates LinkedIn posts on a 0-100% Fluff Index, names the clichés and folds what you don't want to read.
 
 **Description:**
 

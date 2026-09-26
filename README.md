@@ -4,7 +4,7 @@
 
 # Fluff Meter
 
-**Rates every LinkedIn post on a 0–100% Fluff Index and folds what you don't want to read.**
+**Rates every LinkedIn post on a 0-100% Fluff Index and folds what you don't want to read.**
 
 **[Add to Chrome](https://chromewebstore.google.com/detail/fluff-meter-for-linkedin/ijfddippbjffofanjhmnfikabkkeeckj)** · free · open source · collects nothing
 
@@ -91,7 +91,7 @@ Ariadne*: head on her hand, eyes to the sky, clearly done with this conversation
 
 <img src="docs/meme.jpg" width="420" alt="Guido Reni's Bacchus and Ariadne with the Fluff Meter cloud in place of Ariadne's head, a 99% Pure fluff badge across her chest and a LinkedIn logo as Bacchus's fig leaf" />
 
-<sub>After Guido Reni, <i>Bacchus and Ariadne</i> (c. 1619–20), LACMA. The painting is public domain.</sub>
+<sub>After Guido Reni, <i>Bacchus and Ariadne</i> (c. 1619-20), LACMA. The painting is public domain.</sub>
 
 ## Share it
 

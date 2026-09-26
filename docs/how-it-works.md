@@ -62,7 +62,7 @@ On the sample posts in [`tests/fixtures`](../tests/fixtures/sample-posts.ts) tha
 | --- | --- | --- | --- |
 | "I got rejected from 47 jobs. Then a janitor told me…" | 99% Pure fluff | Stories & lessons | Bait, Humblebrag, Fable, Hustle, Truism |
 | "I proposed to my girlfriend… what it taught me about B2B sales" | 97% Pure fluff | Stories & lessons | Truism, Bait, Fable |
-| "𝗔𝗜 𝘄𝗼𝗻'𝘁 𝗿𝗲𝗽𝗹𝗮𝗰𝗲 𝘆𝗼𝘂. Here's the thing —…" | 97% Pure fluff · 🤖 99% | Opinion | Bait, Truism, Broetry |
+| "𝗔𝗜 𝘄𝗼𝗻'𝘁 𝗿𝗲𝗽𝗹𝗮𝗰𝗲 𝘆𝗼𝘂. Here's the thing -…" | 97% Pure fluff · 🤖 99% | Opinion | Bait, Truism, Broetry |
 | "In today's fast-paced world, leveraging synergies…" | 96% Pure fluff · 🤖 92% | Other | Truism |
 | "Comment GROWTH and I'll send you the playbook" | 86% Pure fluff | Promo | Bait |
 | "Starting a new position as Senior QA at Globex!" | 29% Solid | Career moves | |

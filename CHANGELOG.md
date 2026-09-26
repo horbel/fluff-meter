@@ -71,7 +71,7 @@ what it is about, and only you know which ones you want.
 
 First public release.
 
-- Fluff Index (0–100%) on every LinkedIn post, with a breakdown of what drove it.
+- Fluff Index (0-100%) on every LinkedIn post, with a breakdown of what drove it.
 - AI detector: ✍️ Human, 🤔 AI? or 🤖 AI, with the style tells it found.
 - Genres and tropes: bait, humblebrag, parable, truism, hustle, routine update, broetry, pitch.
 - Posts of a few words get a joke ("🦗 Crickets") instead of a score, with no API call.
