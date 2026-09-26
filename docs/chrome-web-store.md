@@ -13,22 +13,31 @@ Rates LinkedIn posts on a 0-100% Fluff Index, names the clichés and folds what 
 **Description:**
 
 > Scroll LinkedIn as usual. Every post gets a small badge: how much fluff it is, which clichés it
-> leans on (engagement bait, humblebrags, too-neat fables, broetry) and what it is about.
+> leans on (engagement bait, humblebrags, too-neat fables, truisms, broetry) and what it is about.
+> Posts that share real data or results get a 📊 Real numbers chip.
 >
-> Pure fluff folds into one line, so you skip it in a second. One click opens it again.
+> Pure fluff folds into one line, so you skip it in a second. Click the line to open it again, or
+> fold any post yourself.
 >
 > Make it yours: star the categories you want (know-how, hiring, news…) and fold the ones you
 > don't (promo, career moves, events…), or pick a preset: Engineer, Recruiter or Job seeker. Add
-> topics of your own, like "Rust" or "crypto", to star or fold them too.
+> topics of your own, like "Rust" or "crypto", to star or fold them too. Switch off any cliché you
+> don't mind.
 >
-> Posts about a loss, a war or an illness never get a score.
+> The popup shows how much of your feed was fluff today, this week or this month, and how many
+> posts it folded for you.
+>
+> Posts about a loss, a war or an illness never get a score. It reads the text only, not images.
 >
 > Scores come from Jev by TypeSafe, a fast model built for rating text: one quick call per post,
 > about 12,000 posts for a dollar.
 >
 > It starts in demo mode with random numbers. For real scores, add your own TypeSafe or OpenRouter
-> API key. No servers, no tracking: only the text of the posts you scroll past, and your topics if
-> you added any, goes to the AI provider you picked.
+> API key.
+>
+> Collects no data: no servers, no account, no analytics. Your key, settings and stats stay on
+> your device. Only the text of the posts you scroll past, and your topics if you added any, goes
+> to the AI provider you picked.
 >
 > Open source: https://github.com/horbel/fluff-meter
 >
