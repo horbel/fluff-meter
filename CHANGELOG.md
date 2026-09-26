@@ -35,8 +35,9 @@ what it is about, and only you know which ones you want.
   of the breakdown explains itself on hover.
 - Fold any post in the feed by hand; click anywhere on a folded post to open it.
 - The breakdown says that images and videos aren't analyzed.
-- New icon: a lilac cloud rolling its eyes, with sparkles; the toolbar version is bigger. Popup in
-  lilac, with softer corners and a header that fades into the page.
+- New icon: a lilac cloud with scattered sparkles, posed like Ariadne in the meme (head tilted,
+  eyes rolled up and to the right, lips parted). The toolbar version is bigger. Popup in lilac,
+  with softer corners and a header that fades into the page.
 
 ## 0.2.2
 

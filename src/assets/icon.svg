@@ -1,42 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
   <title>Fluff Meter</title>
-  <!-- The eye-rolling cloud with sparkles, for 48px and up. cloud.svg is the small version: keep the two in sync. -->
-  <defs>
-    <linearGradient id="fill" gradientUnits="userSpaceOnUse" x1="0" y1="18" x2="0" y2="108">
-      <stop offset="0" stop-color="#d9c8ff"/>
-      <stop offset="1" stop-color="#b294f7"/>
-    </linearGradient>
-    <g id="lumps">
-      <circle cx="40" cy="62" r="22"/>
-      <circle cx="64" cy="46" r="28"/>
-      <circle cx="89" cy="60" r="21"/>
-      <circle cx="98" cy="82" r="16"/>
-      <circle cx="30" cy="82" r="16"/>
-      <rect x="26" y="62" width="76" height="46" rx="22"/>
-    </g>
-    <clipPath id="eye-l"><ellipse cx="51" cy="75" rx="9" ry="7.5"/></clipPath>
-    <clipPath id="eye-r"><ellipse cx="77" cy="75" rx="9" ry="7.5"/></clipPath>
-  </defs>
-  <g transform="translate(66 70) scale(0.84) translate(-64 -63)">
-  <!-- Outline: the same lumps drawn fatter underneath, so only the outer edge shows. -->
-  <use href="#lumps" fill="#4b2fa8" stroke="#4b2fa8" stroke-width="10" stroke-linejoin="round"/>
-  <use href="#lumps" fill="url(#fill)"/>
-  <!-- A soft highlight on the biggest lump. -->
-  <ellipse cx="55" cy="33" rx="11" ry="5.5" fill="#fff" opacity="0.55" transform="rotate(-20 55 33)"/>
-  <!-- Eyes rolled up to the sky, as in "oh, come on". -->
-  <ellipse cx="51" cy="75" rx="9" ry="7.5" fill="#fff"/>
-  <ellipse cx="77" cy="75" rx="9" ry="7.5" fill="#fff"/>
-  <circle cx="54" cy="68.5" r="5.5" fill="#2e1d6b" clip-path="url(#eye-l)"/>
-  <circle cx="80" cy="68.5" r="5.5" fill="#2e1d6b" clip-path="url(#eye-r)"/>
-  <!-- Heavy upper lids. -->
-  <path d="M41.5 73.5 Q51 64 60.5 73.5 M67.5 73.5 Q77 64 86.5 73.5" fill="none" stroke="#2e1d6b" stroke-width="3.5" stroke-linecap="round"/>
-  <!-- A tired, flat mouth. -->
-  <path d="M58 92 Q64 90 70 92" fill="none" stroke="#2e1d6b" stroke-width="3.5" stroke-linecap="round"/>
-  <ellipse cx="37" cy="88" rx="6.5" ry="4" fill="#ff8fc4" opacity="0.7"/>
-  <ellipse cx="91" cy="88" rx="6.5" ry="4" fill="#ff8fc4" opacity="0.7"/>
+  <!-- The detailed icon, for 48px and up. cloud.svg is the small version: keep the two in sync. -->
+  <defs><linearGradient id="g" gradientUnits="userSpaceOnUse" x1="0" y1="18" x2="0" y2="108"><stop offset="0" stop-color="#d9c8ff"/><stop offset="1" stop-color="#b294f7"/></linearGradient></defs>
+  <!-- The cloud as Ariadne in the meme (Guido Reni, "Bacchus and Ariadne"): head tilted, eyes
+       rolled up and to the right, lips parted. -->
+  <g transform="translate(64 70) scale(0.82) translate(-64 -63)">
+  <g fill="#4b2fa8" stroke="#4b2fa8" stroke-width="10" stroke-linejoin="round"><circle cx="40" cy="62" r="22"/><circle cx="64" cy="46" r="28"/><circle cx="89" cy="60" r="21"/>
+<circle cx="98" cy="82" r="16"/><circle cx="30" cy="82" r="16"/><rect x="26" y="62" width="76" height="46" rx="22"/></g><g fill="url(#g)"><circle cx="40" cy="62" r="22"/><circle cx="64" cy="46" r="28"/><circle cx="89" cy="60" r="21"/>
+<circle cx="98" cy="82" r="16"/><circle cx="30" cy="82" r="16"/><rect x="26" y="62" width="76" height="46" rx="22"/></g><ellipse cx="55" cy="33" rx="11" ry="5.5" fill="#fff" opacity="0.55" transform="rotate(-20 55 33)"/><g transform="rotate(8 64 82)">
+<clipPath id="el"><ellipse cx="51" cy="76" rx="9.5" ry="8"/></clipPath><clipPath id="er"><ellipse cx="78" cy="76" rx="9.5" ry="8"/></clipPath>
+<ellipse cx="51" cy="76" rx="9.5" ry="8" fill="#fff"/><ellipse cx="78" cy="76" rx="9.5" ry="8" fill="#fff"/>
+<circle cx="55.5" cy="69.5" r="5.6" fill="#2e1d6b" clip-path="url(#el)"/><circle cx="82.5" cy="69.5" r="5.6" fill="#2e1d6b" clip-path="url(#er)"/>
+<circle cx="57.0" cy="67.5" r="1.6" fill="#fff" clip-path="url(#el)"/><circle cx="84.0" cy="67.5" r="1.6" fill="#fff" clip-path="url(#er)"/>
+<path d="M41 74.5 Q51 65.5 61 74.5 M68 74.5 Q78 65.5 88 74.5" fill="none" stroke="#2e1d6b" stroke-width="3.6" stroke-linecap="round"/>
+<path d="M42 64 Q50 61 58 63.5 M70 63.5 Q78 60 86 63" fill="none" stroke="#2e1d6b" stroke-width="2.6" stroke-linecap="round" opacity="0.8"/>
+<ellipse cx="66" cy="93" rx="3.6" ry="4.4" fill="#2e1d6b"/>
+<ellipse cx="38" cy="89" rx="6.5" ry="4" fill="#ff8fc4" opacity="0.7"/><ellipse cx="90" cy="89" rx="6.5" ry="4" fill="#ff8fc4" opacity="0.7"/>
+</g>
   </g>
-  <!-- Sparkles, scattered on purpose: big on the left, small top right, tiny low right. -->
-  <path transform="rotate(-10 15 62)" d="M15 51 Q17.42 59.58 26 62 Q17.42 64.42 15 73 Q12.58 64.42 4 62 Q12.58 59.58 15 51 Z" fill="#ffd24d" stroke="#4b2fa8" stroke-width="3.1" stroke-linejoin="round"/>
-  <path transform="rotate(12 104 17)" d="M104 9 Q105.76 15.24 112 17 Q105.76 18.76 104 25 Q102.24 18.76 96 17 Q102.24 15.24 104 9 Z" fill="#ffd24d" stroke="#4b2fa8" stroke-width="2.2" stroke-linejoin="round"/>
-  <path transform="rotate(0 121 80)" d="M121 75 Q122.1 78.9 126 80 Q122.1 81.1 121 85 Q119.9 81.1 116 80 Q119.9 78.9 121 75 Z" fill="#ffd24d" stroke="#4b2fa8" stroke-width="2.2" stroke-linejoin="round"/>
+  <!-- Sparkles, scattered on purpose: big on the left, smaller top right. -->
+  <path transform="rotate(-10 15 62)" d="M15 51 Q17.42 59.58 26 62 Q17.42 64.42 15 73 Q12.58 64.42 4 62 Q12.58 59.58 15 51 Z" fill="#ffd24d" stroke="#4b2fa8" stroke-width="3.0" stroke-linejoin="round"/>
+  <path transform="rotate(12 104 17)" d="M104 9 Q105.76 15.24 112 17 Q105.76 18.76 104 25 Q102.24 18.76 96 17 Q102.24 15.24 104 9 Z" fill="#ffd24d" stroke="#4b2fa8" stroke-width="3.0" stroke-linejoin="round"/>
+  <path transform="rotate(0 121 80)" d="M121 75 Q122.1 78.9 126 80 Q122.1 81.1 121 85 Q119.9 81.1 116 80 Q119.9 78.9 121 75 Z" fill="#ffd24d" stroke="#4b2fa8" stroke-width="2.4" stroke-linejoin="round"/>
 </svg>
