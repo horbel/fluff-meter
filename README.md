@@ -10,9 +10,9 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Buy me a coffee](https://img.shields.io/badge/☕-buy%20me%20a%20coffee-ffdd00)](https://buymeacoffee.com/horbel)
 
-<img src="docs/screenshot.png" width="860" alt="Two LinkedIn posts side by side: a janitor fable by Chaz Hustleton scored 99%, Pure fluff, and a latency fix by Mira Oyelaran-Holt scored 3%, Solid" />
+<img src="docs/screenshot.png" width="860" alt="A LinkedIn feed with Fluff Meter: a latency fix scored 3% Solid with Know-how and Real numbers chips, and three posts folded to one line each: 99% Pure fluff, a Promo post and a post about crypto" />
 
-<sub>The same feed, two posts: a janitor parable and a real fix with numbers.</sub>
+<sub>A feed with Fluff Meter on: the fix with real numbers stays open, fluff, promo and crypto fold to one line each. Every post and person but the author's own profile is made up.</sub>
 
 </div>
 

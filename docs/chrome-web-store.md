@@ -39,8 +39,8 @@ Rates LinkedIn posts on a 0–100% Fluff Index, names the clichés and folds wha
 
 **Assets** (all in [`store/`](../store)):
 - Icon: `icon-128.png`
-- Screenshots, 1280×800: `screenshot-1.png` (fluff vs substance), `screenshot-2.png` (folded
-  posts), `screenshot-3.png` (categories and presets), `screenshot-4.png` (the breakdown),
+- Screenshots, 1280×800: `screenshot-1.png` (a feed with folded posts), `screenshot-2.png` (fluff
+  vs substance), `screenshot-3.png` (categories and presets), `screenshot-4.png` (the breakdown),
   `screenshot-5.png` (feed stats)
 - Small promo tile, 440×280: `promo-small-440x280.png`
 - Marquee, 1400×560: `marquee-1400x560.png`
