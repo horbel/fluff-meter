@@ -12,9 +12,9 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Buy me a coffee](https://img.shields.io/badge/☕-buy%20me%20a%20coffee-ffdd00)](https://buymeacoffee.com/horbel)
 
-<img src="docs/screenshot.png" width="860" alt="A LinkedIn feed with Fluff Meter: a latency fix scored 3% Solid with Know-how and Real numbers chips, and three posts folded to one line each: 99% Pure fluff, a Promo post and a post about crypto" />
+<img src="docs/screenshot.png" width="860" alt="A LinkedIn feed with Fluff Meter: a latency fix scored 3% Solid with a starred Know-how chip and green Real numbers and Real take chips, and four posts folded to one line each: 99% Pure fluff, a Promo post, a post about crypto and a post with engagement bait" />
 
-<sub>A feed with Fluff Meter on: the fix with real numbers stays open, fluff, promo and crypto fold to one line each. Every post and person but the author's own profile is made up.</sub>
+<sub>A feed with Fluff Meter on: the fix with real numbers stays open; fluff, promo, crypto and bait fold to one line each. Every post and person but the author's own profile is made up.</sub>
 
 </div>
 
