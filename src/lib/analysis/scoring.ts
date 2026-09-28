@@ -1,101 +1,55 @@
 import { contrast } from "./curve";
 import { broetry, type TextStats } from "./heuristics";
-import type {
-  AiVerdict,
-  Analysis,
-  AnalysisSource,
-  CategoryId,
-  SignalId,
-  Signals,
-  TropeId,
+import {
+  type AiVerdict,
+  type Analysis,
+  type AnalysisSource,
+  type CategoryId,
+  GOOD_SIGN_IDS,
+  type GoodSignId,
+  type SignalId,
+  type Signals,
+  type TropeId,
 } from "./types";
 import { RUBRIC_VERSION } from "./version";
 
 /**
- * The Fluff Index measures how a post is written, the same way for everyone. What a post is
- * about (its category) never enters it: that is the reader's call, see lib/personal.ts.
+ * The Fluff Index answers one question: how much of the post is empty words instead of facts.
+ * Two signals only: nothing concrete (no numbers, names, steps, examples) and buzzwords.
  *
- * 1. Core: how empty the language is. A weighted average of buzzwords, missing substance and
- *    self-promotion, which on its own can reach at most CORE_SHARE of the scale.
- * 2. Tropes: each cliché pushes the index the rest of the way towards 100, independently, so a
- *    post that hits five of them ends up near the top instead of being averaged down.
+ * Everything else is a tag, not a score. Clichés, the AI guess and 📊 Real numbers show as
+ * chips, and the reader decides what to do with them; what a post is about (its category)
+ * is the reader's call too, see lib/personal.ts. So a solid post with one "humbled to share"
+ * stays solid and gets a 🙏 chip.
  *
- * raw = 1 − (1 − CORE_SHARE × core) × Π (1 − weight × trope)
- * index = 100 × contrast(raw), an S-curve that spreads the middle (see curve.ts).
+ * index = 100 × contrast(weighted average), an S-curve that spreads the middle (see curve.ts).
  */
-export const CORE_WEIGHTS = { buzzwords: 0.4, fluff: 0.4, self_promotion: 0.2 } as const;
-export const CORE_SHARE = 0.7;
+export const CORE_WEIGHTS = { fluff: 0.7, buzzwords: 0.3 } as const;
+export type CoreSignal = keyof typeof CORE_WEIGHTS;
+export const CORE_SIGNALS = Object.keys(CORE_WEIGHTS) as CoreSignal[];
 
-type CoreSignal = keyof typeof CORE_WEIGHTS;
-export type TropeSignal = Exclude<SignalId, CoreSignal>;
+/** Tuned on the sample posts; see the table in docs/how-it-works.md. */
+const CONTRAST_MID = 0.42;
+const CONTRAST_STEEPNESS = 9;
 
-/** How far each cliché can push the index. A reader can switch any of them off, never retune. */
-export const TROPE_WEIGHTS: Record<TropeSignal, number> = {
-  engagement_bait: 0.4,
-  humblebrag: 0.35,
-  parable: 0.35,
-  truism: 0.3,
-  ai: 0.3,
-  hustle: 0.25,
-  formatting: 0.2,
-};
-
-/** Tuned on a real feed: raw scores of 0.14 / 0.4 / 0.54 / 0.69 become 8 / 48 / 75 / 91. */
-const CONTRAST_MID = 0.4;
-const CONTRAST_STEEPNESS = 8;
-
-/** Yes/no answers below this are treated as "no", so faint maybes don't add up. */
-const DEAD_ZONE = 0.15;
-
-/** A trope chip appears when Jev says "yes" with at least this probability. */
+/** A cliché chip appears when Jev says "yes" with at least this probability. */
 export const TROPE_THRESHOLD = 0.6;
 /** Same bar for "this post is about a tragedy, stay quiet". */
 export const SENSITIVE_THRESHOLD = 0.6;
-/** And for "this post has real numbers". */
-export const INSIGHT_THRESHOLD = 0.6;
+/** And for every good sign. */
+export const GOOD_THRESHOLD = 0.6;
 const BROETRY_THRESHOLD = 0.5;
 
 const clamp01 = (x: number) => (Number.isFinite(x) ? Math.min(1, Math.max(0, x)) : 0);
-const beyondDeadZone = (x: number) => Math.max(0, (clamp01(x) - DEAD_ZONE) / (1 - DEAD_ZONE));
 
-/** How much each signal can move the index; used to rank the breakdown. */
-export function impact(off: ReadonlySet<TropeSignal> = new Set()): Record<SignalId, number> {
-  const core = Object.fromEntries(
-    Object.entries(CORE_WEIGHTS).map(([id, w]) => [id, w * CORE_SHARE]),
-  ) as Record<CoreSignal, number>;
-  const tropes = Object.fromEntries(
-    (Object.keys(TROPE_WEIGHTS) as TropeSignal[]).map((id) => [
-      id,
-      off.has(id) ? 0 : TROPE_WEIGHTS[id],
-    ]),
-  ) as Record<TropeSignal, number>;
-  return { ...core, ...tropes };
+export function fluffIndex(signals: Signals): number {
+  let raw = 0;
+  for (const id of CORE_SIGNALS) raw += CORE_WEIGHTS[id] * clamp01(signals[id]);
+  return Math.round(contrast(raw, CONTRAST_MID, CONTRAST_STEEPNESS) * 100);
 }
 
-/** `off` lists the clichés the reader switched off: they neither show nor count. */
-export function fluffIndex(signals: Signals, off: ReadonlySet<TropeSignal> = new Set()): number {
-  let core = 0;
-  for (const [id, weight] of Object.entries(CORE_WEIGHTS) as [CoreSignal, number][]) {
-    core += weight * clamp01(signals[id]);
-  }
-  let clean = 1 - CORE_SHARE * core;
-  for (const [id, weight] of Object.entries(TROPE_WEIGHTS) as [TropeSignal, number][]) {
-    if (!off.has(id)) clean *= 1 - weight * beyondDeadZone(signals[id]);
-  }
-  return Math.round(contrast(1 - clean, CONTRAST_MID, CONTRAST_STEEPNESS) * 100);
-}
-
-/** Which signal each trope chip is driven by. Broetry is part of the formatting signal. */
-export const TROPE_SIGNAL: Record<TropeId, TropeSignal> = {
-  engagement_bait: "engagement_bait",
-  humblebrag: "humblebrag",
-  parable: "parable",
-  truism: "truism",
-  hustle: "hustle",
-  broetry: "formatting",
-};
-
-const TROPE_SIGNALS = [
+/** Clichés Jev judges; the signal of the same name is how sure it is. Broetry is measured in code. */
+export const TROPE_SIGNALS = [
   "engagement_bait",
   "humblebrag",
   "parable",
@@ -122,8 +76,8 @@ export function buildAnalysis(input: {
   categoryConfidence: number;
   /** Probability that the post is about a tragedy. */
   sensitive?: number;
-  /** Probability that the post shares real data or results. */
-  insight?: number;
+  /** Probability of each good sign; missing ones count as 0. */
+  good?: Partial<Record<GoodSignId, number>>;
   topics?: Record<string, number>;
   source: AnalysisSource;
   model?: string;
@@ -143,9 +97,15 @@ export function buildAnalysis(input: {
     categoryConfidence: clamp01(input.categoryConfidence),
     signals,
     tropes: detectTropes(signals, input.stats),
+    lines: {
+      count: input.stats.paragraphs,
+      avgChars: Math.round(input.stats.avgParagraph),
+    },
     ai,
     sensitive: clamp01(input.sensitive ?? 0) >= SENSITIVE_THRESHOLD,
-    insight: clamp01(input.insight ?? 0) >= INSIGHT_THRESHOLD,
+    good: Object.fromEntries(
+      GOOD_SIGN_IDS.map((id) => [id, clamp01(input.good?.[id] ?? 0)]),
+    ) as Record<GoodSignId, number>,
     topics,
     source: input.source,
     ...(input.model ? { model: input.model } : {}),

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { textStats } from "@/lib/analysis/heuristics";
 import { VERDICTS, verdictFor } from "@/lib/analysis/labels";
-import { buildAnalysis, detectTropes, fluffIndex } from "@/lib/analysis/scoring";
+import { buildAnalysis, CORE_SIGNALS, detectTropes, fluffIndex } from "@/lib/analysis/scoring";
 import { SIGNAL_IDS, type Signals } from "@/lib/analysis/types";
 
 const all = (value: number) => Object.fromEntries(SIGNAL_IDS.map((id) => [id, value])) as Signals;
@@ -13,37 +13,18 @@ describe("fluffIndex", () => {
     expect(fluffIndex(all(1))).toBeLessThanOrEqual(100);
   });
 
-  it("goes up with every signal", () => {
-    for (const id of SIGNAL_IDS) {
+  it("goes up with buzzwords and with missing substance", () => {
+    for (const id of CORE_SIGNALS) {
       expect(fluffIndex({ ...all(0.3), [id]: 0.9 })).toBeGreaterThan(fluffIndex(all(0.3)));
     }
   });
 
-  it("ignores faint maybes, so a clean post stays clean", () => {
-    const noisy = { ...all(0.1), buzzwords: 0, fluff: 0, self_promotion: 0 };
-    expect(fluffIndex(noisy)).toBe(0);
-  });
-
-  it("lets several strong tropes push a post near the top", () => {
-    const cliche = {
-      ...all(0),
-      buzzwords: 0.4,
-      fluff: 0.6,
-      self_promotion: 0.8,
-      engagement_bait: 1,
-      humblebrag: 1,
-      parable: 1,
-      truism: 1,
-    };
-    expect(fluffIndex(cliche)).toBeGreaterThanOrEqual(85);
-  });
-
-  it("leaves switched-off clichés out entirely", () => {
-    const bait = { ...all(0), buzzwords: 0.3, fluff: 0.3, engagement_bait: 1, ai: 1 };
-    expect(fluffIndex(bait, new Set(["engagement_bait", "ai"]))).toBe(
-      fluffIndex({ ...all(0), buzzwords: 0.3, fluff: 0.3 }),
-    );
-    expect(fluffIndex(bait, new Set(["engagement_bait"]))).toBeLessThan(fluffIndex(bait));
+  it("never moves with clichés or the AI guess: those are tags", () => {
+    const solid = { ...all(0), buzzwords: 0.2, fluff: 0.1 };
+    const tags = SIGNAL_IDS.filter((id) => !(CORE_SIGNALS as string[]).includes(id));
+    const everything = { ...solid, ...Object.fromEntries(tags.map((id) => [id, 1])) };
+    expect(fluffIndex(everything)).toBe(fluffIndex(solid));
+    expect(fluffIndex(solid)).toBeLessThan(30);
   });
 
   it("clamps out-of-range and non-finite values instead of trusting them", () => {

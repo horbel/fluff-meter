@@ -3,32 +3,44 @@ import { detectProvider, type ProviderId } from "./analysis/providers";
 import {
   CATEGORY_IDS,
   type CategoryId,
+  CLICHE_IDS,
+  type ClicheId,
+  GOOD_SIGN_IDS,
+  type GoodSignId,
   type Topic,
   TROPE_IDS,
-  type TropeId,
 } from "./analysis/types";
 
 export type CategoryMode = "want" | "hide";
 
 /**
- * What a badge shows and what gets folded. Two separate things, on purpose:
- * - tropes are clichés that annoy everyone; one switched off neither shows nor counts;
- * - categories are what a post is about; the reader marks the ones they want or want folded.
+ * The Fluff Index is the same for everyone. Everything else comes down to two verbs:
+ * - 🙈 fold: too much fluff, a category or topic, a cliché;
+ * - ⭐ always show: a category or topic, a good sign. It always wins over a fold.
+ * Plus what the badge shows.
  */
 export interface DisplayPrefs {
+  /** What the badge shows. */
   showIndex: boolean;
-  /** The 🤖 chip. Off also takes AI style out of the index. */
-  showAi: boolean;
-  /** The category next to the score. */
+  showCliches: boolean;
+  showGood: boolean;
   showCategory: boolean;
-  /** Stored as "off" rather than "on", so tropes added later start on. */
-  hiddenTropes: TropeId[];
+  /** Fold posts at or above this Fluff Index. `null` never folds on fluff alone. */
+  foldAt: number | null;
   /** Only categories the reader marked; everything else is neutral. */
   categories: Partial<Record<CategoryId, CategoryMode>>;
   /** The reader's own categories, asked about in the same request. */
   topics: Topic[];
-  /** Fold posts at or above this Fluff Index. `null` never folds on fluff alone. */
-  foldAt: number | null;
+  /** Clichés whose posts get folded. Empty by default. */
+  foldTropes: ClicheId[];
+  /** Good signs whose posts get a star and never fold. */
+  wantGood: GoodSignId[];
+}
+
+/** Fields of earlier versions, read once when settings are migrated. */
+interface LegacyPrefs {
+  showAi?: boolean;
+  hiddenTropes?: string[];
 }
 
 export interface Settings {
@@ -50,12 +62,14 @@ export interface PublicSettings {
 
 export const DEFAULT_DISPLAY: DisplayPrefs = {
   showIndex: true,
-  showAi: true,
+  showCliches: true,
+  showGood: true,
   showCategory: true,
-  hiddenTropes: [],
+  foldAt: 85,
   categories: {},
   topics: [],
-  foldAt: 85,
+  foldTropes: [],
+  wantGood: [...GOOD_SIGN_IDS],
 };
 
 export const DEFAULTS: Settings = { apiKey: "", enabled: true, display: DEFAULT_DISPLAY };
@@ -65,7 +79,9 @@ export const DEFAULTS: Settings = { apiKey: "", enabled: true, display: DEFAULT_
  * from older versions (genre sliders, trope weights, a custom rule) are dropped, and ids that
  * no longer exist are filtered out.
  */
-export function normalizeDisplay(old: Partial<DisplayPrefs> | undefined): DisplayPrefs {
+export function normalizeDisplay(
+  old: (Partial<DisplayPrefs> & LegacyPrefs) | undefined,
+): DisplayPrefs {
   const d = { ...DEFAULT_DISPLAY, ...(old ?? {}) };
   const categories: DisplayPrefs["categories"] = {};
   for (const [id, mode] of Object.entries(d.categories ?? {})) {
@@ -73,18 +89,23 @@ export function normalizeDisplay(old: Partial<DisplayPrefs> | undefined): Displa
       categories[id as CategoryId] = mode;
     }
   }
+  // In 0.3 each cliché chip had its own switch: all of them off means "no cliché chips".
+  const allClichesOff =
+    d.showAi === false && TROPE_IDS.every((id) => (d.hiddenTropes ?? []).includes(id));
   return {
     showIndex: d.showIndex !== false,
-    showAi: d.showAi !== false,
+    showCliches: old?.showCliches ?? !allClichesOff,
+    showGood: d.showGood !== false,
     showCategory: d.showCategory !== false,
-    hiddenTropes: (d.hiddenTropes ?? []).filter((id) => TROPE_IDS.includes(id)),
+    foldAt: typeof d.foldAt === "number" || d.foldAt === null ? d.foldAt : DEFAULT_DISPLAY.foldAt,
     categories,
     topics: Array.isArray(d.topics)
       ? d.topics.filter(
           (t) => typeof t?.label === "string" && (t.mode === "want" || t.mode === "hide"),
         )
       : [],
-    foldAt: typeof d.foldAt === "number" || d.foldAt === null ? d.foldAt : DEFAULT_DISPLAY.foldAt,
+    foldTropes: (d.foldTropes ?? []).filter((id) => CLICHE_IDS.includes(id)),
+    wantGood: (d.wantGood ?? DEFAULT_DISPLAY.wantGood).filter((id) => GOOD_SIGN_IDS.includes(id)),
   };
 }
 
@@ -93,7 +114,7 @@ function normalize<T extends { display?: Partial<DisplayPrefs> }>(old: T) {
   return { ...rest, display: normalizeDisplay(old.display) };
 }
 
-export const VERSION = 7;
+export const VERSION = 9;
 export const migrations = Object.fromEntries(
   Array.from({ length: VERSION - 1 }, (_, i) => [i + 2, normalize]),
 );

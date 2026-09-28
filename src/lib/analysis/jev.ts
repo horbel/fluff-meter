@@ -7,7 +7,7 @@ import {
 } from "@typesafe-ai/sdk";
 import { REPO_URL } from "../constants";
 import { aiVerdict } from "./ai";
-import { formattingSignal, textStats } from "./heuristics";
+import { textStats } from "./heuristics";
 import { detectProvider, PROVIDERS, type ProviderId } from "./providers";
 import { QUESTIONS, topicQuestions } from "./rubric";
 import { buildAnalysis, normaliseScore } from "./scoring";
@@ -120,23 +120,22 @@ export async function analyzeWithJev(
       ),
       fluff:
         1 - normaliseScore(finite(a.substance?.score, "substance"), levels(QUESTIONS.substance)),
-      self_promotion: normaliseScore(
-        finite(a.self_promotion?.score, "self_promotion"),
-        levels(QUESTIONS.self_promotion),
-      ),
       engagement_bait: finite(a.engagement_bait?.noul, "engagement_bait"),
       humblebrag: finite(a.humblebrag?.noul, "humblebrag"),
       parable: finite(a.parable?.noul, "parable"),
       truism: finite(a.truism?.noul, "truism"),
       hustle: finite(a.hustle?.noul, "hustle"),
-      formatting: formattingSignal(stats),
     },
     ai,
     stats,
     category: a.category.choice,
     categoryConfidence: finite(a.category.confidence, "category.confidence"),
     sensitive: finite(a.sensitive?.noul, "sensitive"),
-    insight: finite(a.insight?.noul, "insight"),
+    good: {
+      insight: finite(a.insight?.noul, "insight"),
+      real_take: finite(a.real_take?.noul, "real_take"),
+      owns_mistake: finite(a.owns_mistake?.noul, "owns_mistake"),
+    },
     topics: Object.fromEntries(
       topics.map((label, i) => {
         const answer = (a as Record<string, { noul?: unknown } | undefined>)[`topic_${i}`];

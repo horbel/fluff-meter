@@ -1,35 +1,29 @@
-import { describe, expect, it, vi } from "vitest";
-import { isZeroFluff, legendAnalysis, ZERO_FLUFF_AUTHORS } from "@/lib/analysis/easter-egg";
+import { describe, expect, it } from "vitest";
+import { isLegend, LEGENDS } from "@/lib/analysis/easter-egg";
 import { Analyzer } from "@/lib/analyzer";
 import { DEFAULT_DISPLAY } from "@/lib/settings";
 
-const [someone] = [...ZERO_FLUFF_AUTHORS];
+const [someone] = [...LEGENDS];
 
-describe("the zero-fluff list", () => {
+describe("the legends list", () => {
   it("matches listed profiles, case-insensitively", () => {
     expect(someone).toBeDefined();
-    expect(isZeroFluff(someone)).toBe(true);
-    expect(isZeroFluff(someone?.toUpperCase())).toBe(true);
-    expect(isZeroFluff("in:someone-else")).toBe(false);
-    expect(isZeroFluff(undefined)).toBe(false);
+    expect(isLegend(someone)).toBe(true);
+    expect(isLegend(someone?.toUpperCase())).toBe(true);
+    expect(isLegend("in:someone-else")).toBe(false);
+    expect(isLegend(undefined)).toBe(false);
   });
 
-  it("scores exactly zero with no tropes", () => {
-    const a = legendAnalysis();
-    expect(a.index).toBe(0);
-    expect(a.tropes).toEqual([]);
-    expect(a.source).toBe("legend");
-  });
-
-  it("never calls the API for listed authors", async () => {
-    const fetch = vi.spyOn(globalThis, "fetch");
+  it("scores a legend's post like anyone else's, with the chip on top", async () => {
     const analyzer = new Analyzer(async () => ({
-      apiKey: "ts_live_key",
+      apiKey: "",
       enabled: true,
       display: DEFAULT_DISPLAY,
     }));
-    const a = await analyzer.analyze({ text: "Agree? 👇", author: someone as string });
-    expect(a.source).toBe("legend");
-    expect(fetch).not.toHaveBeenCalled();
+    const text = "Agree? 👇 Comment YES and I'll send you the playbook.";
+    const plain = await analyzer.analyze({ text, author: "in:someone-else" });
+    const legend = await analyzer.analyze({ text, author: someone as string });
+    expect(plain.legend).toBeUndefined();
+    expect(legend).toEqual({ ...plain, legend: true });
   });
 });

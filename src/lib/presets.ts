@@ -1,5 +1,5 @@
-import { CATEGORY_IDS } from "./analysis/types";
-import type { DisplayPrefs } from "./settings";
+import { CATEGORY_IDS, GOOD_SIGN_IDS } from "./analysis/types";
+import { DEFAULT_DISPLAY, type DisplayPrefs } from "./settings";
 
 export interface Preset {
   id: string;
@@ -12,22 +12,23 @@ export interface Preset {
 }
 
 /**
- * One-click starting points for the category marks. Presets only touch categories: clichés
- * annoy everyone the same way, so they stay as the reader left them.
+ * One-click starting points. A preset starts the rules over: its categories, every good sign
+ * always shown, pure fluff folded, no cliché folded. The reader's own topics stay, since they
+ * took typing.
  */
 export const PRESETS: readonly Preset[] = [
   {
     id: "default",
     emoji: "⚖️",
     label: "Default",
-    blurb: "Every category is neutral. Only pure fluff gets folded.",
+    blurb: "Only pure fluff folds. Posts with a good sign always show.",
     categories: {},
   },
   {
     id: "engineer",
     emoji: "🛠️",
     label: "Engineer",
-    blurb: "Know-how and news first. Job updates, thank-yous, events and promo folded.",
+    blurb: "Know-how and news always show. Job updates, thank-yous, events and promo fold.",
     categories: {
       know_how: "want",
       news: "want",
@@ -42,21 +43,39 @@ export const PRESETS: readonly Preset[] = [
     id: "recruiter",
     emoji: "🤝",
     label: "Recruiter",
-    blurb: "Hiring, job hunts and career moves first. Promo folded.",
+    blurb: "Hiring, job hunts and career moves always show. Promo folds.",
     categories: { hiring: "want", job_hunt: "want", career_moves: "want", promo: "hide" },
   },
   {
     id: "job-seeker",
     emoji: "🔎",
     label: "Job seeker",
-    blurb: "Openings and know-how first. Promo and life lessons folded.",
+    blurb: "Openings and know-how always show. Promo and life lessons fold.",
     categories: { hiring: "want", know_how: "want", promo: "hide", stories: "hide" },
   },
 ];
 
-/** The preset the category marks match exactly, if any. */
-export function activePreset(categories: DisplayPrefs["categories"]): Preset | undefined {
-  return PRESETS.find((preset) =>
-    CATEGORY_IDS.every((id) => preset.categories[id] === categories[id]),
-  );
+export function applyPreset(prefs: DisplayPrefs, preset: Preset): DisplayPrefs {
+  return {
+    ...prefs,
+    categories: { ...preset.categories },
+    wantGood: [...GOOD_SIGN_IDS],
+    foldTropes: [],
+    foldAt: DEFAULT_DISPLAY.foldAt,
+  };
+}
+
+/** The preset the reader's rules match exactly, if any. Topics don't count. */
+export function activePreset(
+  prefs: Pick<DisplayPrefs, "categories" | "wantGood" | "foldTropes" | "foldAt">,
+): Preset | undefined {
+  const untouched =
+    prefs.foldAt === DEFAULT_DISPLAY.foldAt &&
+    prefs.foldTropes.length === 0 &&
+    GOOD_SIGN_IDS.every((id) => prefs.wantGood.includes(id));
+  return untouched
+    ? PRESETS.find((preset) =>
+        CATEGORY_IDS.every((id) => preset.categories[id] === prefs.categories[id]),
+      )
+    : undefined;
 }

@@ -1,31 +1,31 @@
-import { aiLabel } from "../analysis/labels";
-import type { Analysis, CategoryId, TropeId } from "../analysis/types";
+import type { Analysis, CategoryId, ClicheId, GoodSignId } from "../analysis/types";
+import { clichesOf, goodSignsOf } from "../personal";
 import type { DisplayPrefs } from "../settings";
 
-/** Clichés on one post, strongest first. More than two turns the row into a wall. */
-export const MAX_TROPES = 2;
+/** Chips of one kind on one post, strongest first. More turns the row into a wall. */
+export const MAX_CHIPS = 2;
 
 export interface VisibleParts {
   index: boolean;
-  /** Only when the post clearly reads like AI: a "✍️ Human" chip on every post is noise. */
-  ai: boolean;
+  /** Clichés to show, the 🤖 chip last (only when the post clearly reads like AI). */
+  cliches: ClicheId[];
+  good: GoodSignId[];
   category?: CategoryId;
-  tropes: TropeId[];
 }
 
-/** Applies the reader's display preferences and the label cap to one result. */
+/** Applies the reader's display preferences and the chip caps to one result. */
 export function visibleParts(analysis: Analysis, prefs: DisplayPrefs): VisibleParts {
-  const tropes = analysis.tropes
-    .filter((t) => !prefs.hiddenTropes.includes(t))
-    .slice(0, MAX_TROPES);
+  const all = clichesOf(analysis);
+  const tropes = all.filter((id) => id !== "ai").slice(0, MAX_CHIPS);
+  const ai = all.includes("ai") ? (["ai"] as const) : [];
   return {
     index: prefs.showIndex,
-    ai: prefs.showAi && aiLabel(analysis.ai.likelihood).level === "ai",
+    cliches: prefs.showCliches ? [...tropes, ...ai] : [],
+    good: prefs.showGood ? goodSignsOf(analysis).slice(0, MAX_CHIPS) : [],
     ...(prefs.showCategory ? { category: analysis.category } : {}),
-    tropes,
   };
 }
 
 export function isEmpty(parts: VisibleParts): boolean {
-  return !parts.index && !parts.ai && !parts.category && parts.tropes.length === 0;
+  return !parts.index && !parts.category && parts.cliches.length + parts.good.length === 0;
 }

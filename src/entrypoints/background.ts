@@ -2,8 +2,9 @@ import { createClient, pingJev, toAnalysisError } from "@/lib/analysis/jev";
 import { Analyzer } from "@/lib/analyzer";
 import { pruneCache } from "@/lib/cache";
 import type { Request, Response } from "@/lib/messages";
+import { withoutRule, withRule } from "@/lib/rules";
 import { publicSettingsItem, toPublic } from "@/lib/settings";
-import { settingsItem } from "@/lib/settings-private";
+import { saveSettings, settingsItem } from "@/lib/settings-private";
 
 export default defineBackground(() => {
   const analyzer = new Analyzer(() => settingsItem.getValue());
@@ -14,6 +15,17 @@ export default defineBackground(() => {
         return analyzer.analyze(request.post, request.foldable ?? true, request.urgent ?? true);
       case "test-key":
         return pingJev(createClient(request.apiKey));
+      case "rule": {
+        // Applied to the stored settings, not the content script's copy, which may be stale.
+        const { display } = await settingsItem.getValue();
+        await saveSettings({
+          display:
+            request.action === "add"
+              ? withRule(display, request.verb, request.rule)
+              : withoutRule(display, request.rule),
+        });
+        return null;
+      }
     }
   }
 

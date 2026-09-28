@@ -12,17 +12,20 @@ Rates LinkedIn posts on a 0-100% Fluff Index, names the clichés and folds what 
 
 **Description:**
 
-> Scroll LinkedIn as usual. Every post gets a small badge: how much fluff it is, which clichés it
-> leans on (engagement bait, humblebrags, too-neat fables, truisms, broetry) and what it is about.
-> Posts that share real data or results get a 📊 Real numbers chip.
+> Scroll LinkedIn as usual. Every post gets a small badge: how much fluff it is (empty words
+> instead of facts), which clichés it leans on (engagement bait, humblebrags, too-neat fables,
+> truisms, broetry) and what it is about. Posts that share real data or results get a 📊 Real
+> numbers chip, and 🥊 Real take and 🌿 Owns a mistake mark the other good signs. Clichés
+> and good signs are tags: they never change the score.
 >
 > Pure fluff folds into one line, so you skip it in a second. Click the line to open it again, or
 > fold any post yourself.
 >
-> Make it yours: star the categories you want (know-how, hiring, news…) and fold the ones you
-> don't (promo, career moves, events…), or pick a preset: Engineer, Recruiter or Job seeker. Add
-> topics of your own, like "Rust" or "crypto", to star or fold them too. Switch off any cliché you
-> don't mind.
+> Make it yours with two short lists. Fold: too much fluff, categories you skip (promo, career
+> moves, events…), clichés you can't stand, topics of your own like "crypto". Always show:
+> categories you want (know-how, hiring, news…), topics like "Rust", posts with a good sign.
+> Click any chip on a post to see what it means and fold or always show posts like it. Or pick a
+> preset: Engineer, Recruiter or Job seeker.
 >
 > The popup shows how much of your feed was fluff today, this week or this month, and how many
 > posts it folded for you.
@@ -30,7 +33,7 @@ Rates LinkedIn posts on a 0-100% Fluff Index, names the clichés and folds what 
 > Posts about a loss, a war or an illness never get a score. It reads the text only, not images.
 >
 > Scores come from Jev by TypeSafe, a fast model built for rating text: one quick call per post,
-> about 12,000 posts for a dollar.
+> about 10,000 posts for a dollar.
 >
 > It starts in demo mode with random numbers. For real scores, add your own TypeSafe or OpenRouter
 > API key.

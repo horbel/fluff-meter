@@ -1,5 +1,6 @@
 import { browser } from "#imports";
 import type { Analysis, AnalysisErrorCode, PostInput } from "./analysis/types";
+import type { Rule, Verb } from "./rules";
 
 /** Every message the background worker answers. Content scripts and the popup are the senders. */
 export type Request =
@@ -8,11 +9,14 @@ export type Request =
    * `urgent`: on screen now, so it goes ahead of posts scored in advance.
    */
   | { type: "analyze"; post: PostInput; foldable?: boolean; urgent?: boolean }
-  | { type: "test-key"; apiKey: string };
+  | { type: "test-key"; apiKey: string }
+  /** From a chip on a post: fold or star posts like this one, or stop. */
+  | { type: "rule"; action: "add" | "remove"; verb: Verb; rule: Rule };
 
 interface ResponseData {
   analyze: Analysis;
   "test-key": { model: string };
+  rule: null;
 }
 
 export interface SerializedError {

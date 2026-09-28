@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { CATEGORY_IDS } from "@/lib/analysis/types";
-import { activePreset, PRESETS } from "@/lib/presets";
+import { CATEGORY_IDS, GOOD_SIGN_IDS } from "@/lib/analysis/types";
+import { activePreset, applyPreset, PRESETS } from "@/lib/presets";
+import { DEFAULT_DISPLAY } from "@/lib/settings";
 
 describe("presets", () => {
   it("only mark known categories", () => {
@@ -12,14 +13,34 @@ describe("presets", () => {
     }
   });
 
-  it("recognise the preset the marks are on", () => {
-    expect(activePreset({})?.id).toBe("default");
-    for (const p of PRESETS) expect(activePreset({ ...p.categories })?.id).toBe(p.id);
+  it("start from the defaults: all good signs always show", () => {
+    expect(activePreset(DEFAULT_DISPLAY)?.id).toBe("default");
+    expect(DEFAULT_DISPLAY.wantGood).toEqual([...GOOD_SIGN_IDS]);
   });
 
-  it("stop matching once a mark changes", () => {
+  it("start the rules over but keep the reader's topics", () => {
+    const messy = {
+      ...DEFAULT_DISPLAY,
+      foldAt: 60,
+      foldTropes: ["engagement_bait" as const],
+      wantGood: [],
+      topics: [{ label: "Rust", mode: "want" as const }],
+    };
+    for (const p of PRESETS) {
+      const next = applyPreset(messy, p);
+      expect(activePreset(next)?.id).toBe(p.id);
+      expect(next.topics).toEqual(messy.topics);
+    }
+  });
+
+  it("stop matching once a rule changes", () => {
     const engineer = PRESETS.find((p) => p.id === "engineer");
     if (!engineer) throw new Error("engineer preset is missing");
-    expect(activePreset({ ...engineer.categories, humor: "hide" })).toBeUndefined();
+    const base = applyPreset(DEFAULT_DISPLAY, engineer);
+    expect(
+      activePreset({ ...base, categories: { ...base.categories, humor: "hide" } }),
+    ).toBeUndefined();
+    expect(activePreset({ ...base, foldTropes: ["hustle"] })).toBeUndefined();
+    expect(activePreset({ ...base, wantGood: [] })).toBeUndefined();
   });
 });

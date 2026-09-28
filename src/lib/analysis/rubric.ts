@@ -56,13 +56,6 @@ export const QUESTIONS = {
     ],
   ),
 
-  self_promotion: score("How much is the post about making the author look impressive?", [
-    "Not at all: the post is about the topic, not the author.",
-    "Slightly: the author mentions their own role or work in passing.",
-    "Clearly: the post highlights the author's achievements or status.",
-    "Entirely: the post exists to show off the author.",
-  ]),
-
   engagement_bait: noul(
     "Does the post ask readers to like, comment, repost, follow, tag someone, or type a word in the comments?",
     {
@@ -107,6 +100,27 @@ export const QUESTIONS = {
       true: "e.g. 'we cut p99 latency from 1.2s to 180ms', 'our survey of 2,000 engineers found', 'churn fell from 8% to 5% after'.",
       false:
         "No real numbers, or only vanity numbers like follower counts, likes or 'I got rejected from 47 jobs'.",
+    },
+  ),
+
+  // Good signs. Wording tuned on 39 posts with hard near-misses (hot takes without reasons,
+  // humblebrag "failures", "lessons learned" with no mistake): 38-39 of 39 right at 0.6.
+  // Steps and instructions are the Know-how category, not a good sign of their own.
+  real_take: noul(
+    "Does the author argue for a debatable position and support it with specific facts from what happened, such as numbers, names, examples or concrete consequences?",
+    {
+      true: "A claim some experienced people would reject, plus concrete support: e.g. 'We banned standups; cycle time went from 5 to 4 days, and here is what we do instead'.",
+      false:
+        "No debatable claim (a truism, a news update, a how-to), or the claim rests only on feelings or vague experience such as 'I learned this the hard way', 'trust me', 'it made me a leader'.",
+    },
+  ),
+
+  owns_mistake: noul(
+    "Does the author admit a specific mistake of their own and say what they changed because of it?",
+    {
+      true: "e.g. 'I waited 7 months to act on a bad hire, one engineer quit; now I set a 30-day plan with clear goals'.",
+      false:
+        "No mistake, a vague 'I learned a lot', a failure that is really a brag ('rejected 47 times, now I'm CEO', 'my weakness is caring too much'), or someone else's mistake.",
     },
   ),
 

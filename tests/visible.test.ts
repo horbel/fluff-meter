@@ -1,46 +1,39 @@
 import { describe, expect, it } from "vitest";
 import { demoAnalysis } from "@/lib/analysis/demo";
-import { TROPE_IDS } from "@/lib/analysis/types";
+import { GOOD_SIGN_IDS, TROPE_IDS } from "@/lib/analysis/types";
 import { DEFAULT_DISPLAY } from "@/lib/settings";
-import { isEmpty, MAX_TROPES, visibleParts } from "@/lib/ui/visible";
+import { isEmpty, MAX_CHIPS, visibleParts } from "@/lib/ui/visible";
 
+const demo = demoAnalysis({ text: "x" });
 const everything = {
-  ...demoAnalysis({ text: "x" }),
+  ...demo,
   category: "stories" as const,
   tropes: [...TROPE_IDS],
   ai: { likelihood: 0.9, tells: [] },
+  good: { insight: 0.95, real_take: 0.8, owns_mistake: 0.7 },
 };
 
 describe("visibleParts", () => {
-  it("shows the category and at most two clichés", () => {
+  it("shows the category, at most two clichés plus the AI chip, and two good signs", () => {
     const parts = visibleParts(everything, DEFAULT_DISPLAY);
     expect(parts.index).toBe(true);
     expect(parts.category).toBe("stories");
-    expect(parts.tropes).toEqual(TROPE_IDS.slice(0, MAX_TROPES));
-  });
-
-  it("skips switched-off clichés and moves the next ones up", () => {
-    const parts = visibleParts(everything, {
-      ...DEFAULT_DISPLAY,
-      hiddenTropes: ["engagement_bait", "humblebrag"],
-    });
-    expect(parts.tropes).toEqual(["parable", "truism"]);
+    expect(parts.cliches).toEqual([...TROPE_IDS.slice(0, MAX_CHIPS), "ai"]);
+    expect(parts.good).toEqual(GOOD_SIGN_IDS.slice(0, MAX_CHIPS));
   });
 
   it("shows the AI chip only when the post clearly reads like AI", () => {
-    expect(visibleParts(everything, DEFAULT_DISPLAY).ai).toBe(true);
     const human = { ...everything, ai: { likelihood: 0.1, tells: [] } };
-    expect(visibleParts(human, DEFAULT_DISPLAY).ai).toBe(false);
-    expect(visibleParts(everything, { ...DEFAULT_DISPLAY, showAi: false }).ai).toBe(false);
+    expect(visibleParts(human, DEFAULT_DISPLAY).cliches).not.toContain("ai");
   });
 
   it("is empty when the reader switched everything off", () => {
     const parts = visibleParts(everything, {
       ...DEFAULT_DISPLAY,
       showIndex: false,
-      showAi: false,
+      showCliches: false,
+      showGood: false,
       showCategory: false,
-      hiddenTropes: [...TROPE_IDS],
     });
     expect(isEmpty(parts)).toBe(true);
   });

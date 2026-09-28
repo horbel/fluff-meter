@@ -2,7 +2,6 @@
 export const SIGNAL_IDS = [
   "buzzwords",
   "fluff",
-  "self_promotion",
   "engagement_bait",
   "humblebrag",
   "parable",
@@ -10,7 +9,6 @@ export const SIGNAL_IDS = [
   "hustle",
   /** How much the post reads like AI output; see ai.ts. */
   "ai",
-  "formatting",
 ] as const;
 export type SignalId = (typeof SIGNAL_IDS)[number];
 export type Signals = Record<SignalId, number>;
@@ -36,7 +34,10 @@ export const CATEGORY_IDS = [
 ] as const;
 export type CategoryId = (typeof CATEGORY_IDS)[number];
 
-/** Clichés that annoy everyone. They drive the index; the reader can switch any of them off. */
+/**
+ * Clichés: how a post is written. Tags only, they never change the index; the reader can hide
+ * any of them or fold the posts that have it.
+ */
 export const TROPE_IDS = [
   "engagement_bait",
   "humblebrag",
@@ -46,6 +47,17 @@ export const TROPE_IDS = [
   "broetry",
 ] as const;
 export type TropeId = (typeof TROPE_IDS)[number];
+
+/**
+ * Good signs: the opposite of clichés, something worth reading for. Tags too: they never change
+ * the index. A post with any of them never folds for fluff, and the reader can star them.
+ */
+export const GOOD_SIGN_IDS = ["insight", "real_take", "owns_mistake"] as const;
+export type GoodSignId = (typeof GOOD_SIGN_IDS)[number];
+
+/** The clichés plus the AI guess, which the reader treats the same way. */
+export const CLICHE_IDS = [...TROPE_IDS, "ai"] as const;
+export type ClicheId = (typeof CLICHE_IDS)[number];
 
 /** Style tells of AI writing. The model judges the first five, code measures the rest. */
 export const AI_TELL_IDS = [
@@ -68,8 +80,7 @@ export interface AiVerdict {
   tells: AiTellId[];
 }
 
-/** `legend` is the easter egg: see easter-egg.ts. */
-export type AnalysisSource = "jev" | "demo" | "legend";
+export type AnalysisSource = "jev" | "demo";
 
 export interface Analysis {
   /** Fluff Index, integer 0..100. */
@@ -85,14 +96,15 @@ export interface Analysis {
    * labels at all: judging them would be cruel, whatever the writing.
    */
   sensitive: boolean;
-  /**
-   * The post shares real data or results: metrics, benchmarks, outcomes. The opposite of a
-   * cliché: it gets a chip of its own and never folds for fluff. Optional in older results.
-   */
-  insight?: boolean;
+  /** How likely the post has each good sign, 0..1. See goodSignsOf() for the ones it has. */
+  good: Record<GoodSignId, number>;
+  /** How the text is laid out, measured in code. Backs the 🪶 Broetry chip. */
+  lines?: { count: number; avgChars: number };
   /** The reader's own topics (see settings.ts) and how likely the post is about each, 0..1. */
   topics: Record<string, number>;
   source: AnalysisSource;
+  /** The author is on the legends list (see easter-egg.ts). Added per author, never cached. */
+  legend?: boolean;
   /** Versioned model id that answered, e.g. "jev-1.13.0". Absent in demo mode. */
   model?: string;
   /** Input tokens the request cost. Absent in demo mode and for cached results. */
@@ -107,7 +119,7 @@ export interface PostInput {
   reshared?: string;
   /**
    * Profile of whoever wrote `text`, e.g. "in:jane-doe-123" or "company:acme". Used only for
-   * the easter egg; it is never sent to the API.
+   * the ✨ Legend chip; it is never sent to the API.
    */
   author?: string;
 }

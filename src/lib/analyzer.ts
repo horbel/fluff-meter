@@ -1,6 +1,6 @@
 import type { TypeSafeClient } from "@typesafe-ai/sdk";
 import { demoAnalysis } from "./analysis/demo";
-import { isZeroFluff, legendAnalysis } from "./analysis/easter-egg";
+import { isLegend } from "./analysis/easter-egg";
 import { analyzeWithJev, createClient } from "./analysis/jev";
 import { cleanTopics } from "./analysis/rubric";
 import type { Analysis, PostInput } from "./analysis/types";
@@ -25,7 +25,12 @@ export class Analyzer {
   constructor(private readonly getSettings: () => Promise<Settings>) {}
 
   async analyze(post: PostInput, foldable = true, urgent = true): Promise<Analysis> {
-    if (isZeroFluff(post.author)) return legendAnalysis();
+    const analysis = await this.#analyze(post, foldable, urgent);
+    // The cache is keyed by text alone, so the chip goes on after it.
+    return isLegend(post.author) ? { ...analysis, legend: true } : analysis;
+  }
+
+  async #analyze(post: PostInput, foldable: boolean, urgent: boolean): Promise<Analysis> {
     const settings = await this.getSettings();
     const mode = modeOf(settings);
     const topics = cleanTopics(settings.display.topics.map((t) => t.label));

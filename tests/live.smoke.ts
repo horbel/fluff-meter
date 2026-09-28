@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import { analyzeWithJev, createClient } from "@/lib/analysis/jev";
 import { verdictFor } from "@/lib/analysis/labels";
 import type { Analysis } from "@/lib/analysis/types";
+import { goodSignsOf } from "@/lib/personal";
 import { SAMPLE_POSTS } from "./fixtures/sample-posts";
 
 const keys = {
@@ -41,7 +42,7 @@ for (const [provider, key] of Object.entries(keys)) {
               verdict: verdictFor(a.index).label,
               category: `${a.category} (${Math.round(a.categoryConfidence * 100)}%)`,
               tropes: a.tropes.join(", "),
-              insight: a.insight,
+              good: goodSignsOf(a).join(", "),
               ai: `${Math.round(a.ai.likelihood * 100)}% ${a.ai.tells.join(", ")}`,
               model: a.model,
             },
@@ -61,15 +62,17 @@ for (const [provider, key] of Object.entries(keys)) {
       console.log(`Average input tokens per post: ${avg}`);
 
       const r = results as Record<keyof typeof SAMPLE_POSTS, Analysis>;
-      expect(r.cliche.index).toBeGreaterThanOrEqual(80);
+      // Clichés are tags now: the index only says how empty the language is.
+      expect(r.cliche.index).toBeGreaterThanOrEqual(60);
+      expect(r.corporate.index).toBeGreaterThanOrEqual(85);
       expect(r.technical.index).toBeLessThan(20);
       expect(r.cliche.index).toBeGreaterThan(r.technical.index + 50);
       expect(r.corporate.index).toBeGreaterThan(r.hiring.index);
       expect(r.technical.category).toBe("know_how");
       expect(r.hiring.category).toBe("hiring");
       expect(r.cliche.tropes).toContain("engagement_bait");
-      expect(r.technical.insight).toBe(true);
-      expect(r.cliche.insight).toBe(false);
+      expect(goodSignsOf(r.technical)).toContain("insight");
+      expect(goodSignsOf(r.cliche)).toEqual([]);
       expect(r.aiWritten.ai.likelihood).toBeGreaterThanOrEqual(0.65);
       expect(r.human.ai.likelihood).toBeLessThan(0.35);
       expect(r.technical.ai.likelihood).toBeLessThan(0.5);

@@ -1,11 +1,23 @@
-import { CATEGORY_LABELS, TROPE_LABELS, VERDICTS, verdictFor } from "@/lib/analysis/labels";
+import { CATEGORY_LABELS, TROPE_LABELS, tagTooltip, verdictFor } from "@/lib/analysis/labels";
 import { detectProvider, PROVIDERS } from "@/lib/analysis/providers";
 import { MAX_TOPIC_CHARS, MAX_TOPICS } from "@/lib/analysis/rubric";
-import { CATEGORY_IDS, type Topic, TROPE_IDS } from "@/lib/analysis/types";
+import { CATEGORY_IDS, CLICHE_IDS, GOOD_SIGN_IDS } from "@/lib/analysis/types";
 import { REPO_URL } from "@/lib/constants";
 import { RemoteError, send } from "@/lib/messages";
-import { activePreset, PRESETS } from "@/lib/presets";
-import { type CategoryMode, type DisplayPrefs, modeOf, type Settings } from "@/lib/settings";
+import { activePreset, applyPreset, PRESETS } from "@/lib/presets";
+import {
+  FLUFF_LEVELS,
+  type Rule,
+  ruleLabel,
+  ruleSentence,
+  rulesOf,
+  ruleTag,
+  type Verb,
+  verbFor,
+  withoutRule,
+  withRule,
+} from "@/lib/rules";
+import { type DisplayPrefs, modeOf, type Settings } from "@/lib/settings";
 import { saveSettings, settingsItem } from "@/lib/settings-private";
 import { type DailyStats, dailyStatsItem, summarize } from "@/lib/stats";
 import { h } from "@/lib/ui/dom";
@@ -27,15 +39,15 @@ const keyLabel = $("key-label");
 const keyChange = $<HTMLButtonElement>("key-change");
 const statsCard = $("stats");
 const showIndex = $<HTMLInputElement>("show-index");
+const showCliches = $<HTMLInputElement>("show-cliches");
+const showGood = $<HTMLInputElement>("show-good");
 const showCategory = $<HTMLInputElement>("show-category");
+const anatomy = $<HTMLDetailsElement>("anatomy");
 const presetsBox = $("presets");
-const presetName = $("preset-name");
-const presetBlurb = $("preset-blurb");
-const foldBox = $("fold");
-const categoriesBox = $("categories");
-const topicsBox = $("topics");
-const addTopic = $<HTMLButtonElement>("add-topic");
-const tropesBox = $("tropes");
+const lists = {
+  fold: { rules: $("fold-rules"), sheet: $("fold-sheet"), add: $<HTMLButtonElement>("fold-add") },
+  star: { rules: $("star-rules"), sheet: $("star-sheet"), add: $<HTMLButtonElement>("star-add") },
+};
 
 function setStatus(text: string, tone: "info" | "ok" | "error" = "info") {
   status.textContent = text;
@@ -165,7 +177,7 @@ function renderStats(settings: Settings, daily: DailyStats) {
       .map(({ id, share }) => `${pct(share)} ${TROPE_LABELS[id].label.toLowerCase()}`);
     const genre = topGenres[0] ? CATEGORY_LABELS[topGenres[0].id] : undefined;
     // "as a 🛠️ Engineer": the preset is part of the joke, and of the invite to compare.
-    const preset = activePreset(settings.display.categories);
+    const preset = activePreset(settings.display);
     const lens = preset && preset.id !== "default" ? ` (as a ${preset.emoji} ${preset.label})` : "";
     const parts = [
       `${summary.avgIndex}% fluff ${verdict.emoji}`,
@@ -243,244 +255,218 @@ function renderStats(settings: Settings, daily: DailyStats) {
   );
 }
 
-/** A row of toggle buttons where exactly one is pressed. */
-function segmented<T>(
-  options: { value: T; label: string; title: string }[],
-  current: T,
-  onPick: (value: T) => void,
-  className = "segmented",
-): HTMLElement {
-  const box = h("div", { class: className, role: "radiogroup" });
-  const paint = (value: T) => {
-    for (const [i, button] of [...box.children].entries()) {
-      button.setAttribute("aria-checked", String(options[i]?.value === value));
-    }
-  };
-  for (const option of options) {
-    const button = h(
-      "button",
-      { type: "button", role: "radio", title: option.title, "aria-label": option.title },
-      option.label,
-    );
-    button.addEventListener("click", () => {
-      paint(option.value);
-      onPick(option.value);
-    });
-    box.append(button);
+interface Offer {
+  rule: Rule;
+  label: string;
+  kind: "fluff" | "about" | "cliche" | "good";
+}
+
+/** What "+ Add" offers for a verb, in groups, minus what that verb already has. */
+function offers(display: DisplayPrefs, verb: Verb): { title: string; items: Offer[] }[] {
+  const fresh = (rule: Rule) => verbFor(display, rule) !== verb;
+  const about: Offer[] = CATEGORY_IDS.map((id) => ({ kind: "category", id }) as const)
+    .filter(fresh)
+    .map((rule) => ({
+      rule,
+      label: ruleLabel(rule),
+      kind: "about",
+    }));
+  if (verb === "fold") {
+    // One rule with a level, picked on its row; here it can only be switched back on.
+    const rule = { kind: "fluff", at: FLUFF_LEVELS[0]?.at ?? 85 } as const;
+    const fluff: Offer[] =
+      display.foldAt === null ? [{ rule, label: ruleLabel(rule), kind: "fluff" }] : [];
+    const cliches: Offer[] = CLICHE_IDS.map((id) => ({ kind: "cliche", id }) as const)
+      .filter(fresh)
+      .map((rule) => ({
+        rule,
+        label: ruleLabel(rule),
+        kind: "cliche",
+      }));
+    return [
+      { title: "Fluff", items: fluff },
+      { title: "Categories", items: about },
+      { title: "Clichés", items: cliches },
+    ];
   }
-  paint(current);
-  return box;
+  const good: Offer[] = GOOD_SIGN_IDS.map((id) => ({ kind: "good", id }) as const)
+    .filter(fresh)
+    .map((rule) => ({
+      rule,
+      label: ruleLabel(rule),
+      kind: "good",
+    }));
+  return [
+    { title: "Categories", items: about },
+    { title: "Good signs", items: good },
+  ];
 }
-
-/**
- * Two toggles, ⭐ and 🙈. Neither pressed means neutral, which is where every category starts,
- * so an untouched list looks untouched. `required` keeps one pressed (topics always have a mode).
- */
-function marks(
-  label: string,
-  current: CategoryMode | undefined,
-  required: boolean,
-  onChange: (mode: CategoryMode | undefined) => void,
-): HTMLElement {
-  let mode = current;
-  const box = h("div", { class: "marks-toggle" });
-  const buttons = (
-    [
-      ["want", "⭐", `Want ${label}`],
-      ["hide", "🙈", `Fold ${label}`],
-    ] as const
-  ).map(([value, emoji, title]) => {
-    const button = h(
-      "button",
-      { type: "button", class: `mark mark--${value}`, title, "aria-label": title },
-      emoji,
-    );
-    button.addEventListener("click", () => {
-      const next = mode === value ? (required ? value : undefined) : value;
-      if (next === mode) return;
-      mode = next;
-      paint();
-      onChange(mode);
-    });
-    return [value, button] as const;
-  });
-  const paint = () => {
-    for (const [value, button] of buttons)
-      button.setAttribute("aria-pressed", String(mode === value));
-  };
-  box.append(...buttons.map(([, b]) => b));
-  paint();
-  return box;
-}
-
-const FOLD_OPTIONS = [
-  { value: null, label: "Never", title: "Never fold on fluff alone" },
-  ...VERDICTS.slice(0, 2).map((v, i) => ({
-    value: v.min,
-    label: i === 0 ? `${v.emoji} ${v.label}` : `${v.emoji} ${v.label} too`,
-    title: `Fold posts at ${v.min}% fluff and above`,
-  })),
-];
 
 function renderDisplay(settings: Settings) {
   let display = settings.display;
-  const save = (patch: Partial<DisplayPrefs>) => {
-    display = { ...display, ...patch };
+  const open: Record<Verb, boolean> = { fold: false, star: false };
+  const save = (next: DisplayPrefs) => {
+    display = next;
     void saveSettings({ display });
-    if ("categories" in patch) paintPreset();
-  };
-  const paintPreset = () => {
-    const active = activePreset(display.categories);
-    presetName.textContent = active ? `· ${active.emoji} ${active.label}` : "· Custom";
-    presetBlurb.textContent = active?.blurb ?? "Your own mix. Pick a preset to start over.";
-    for (const [i, button] of [...presetsBox.children].entries()) {
-      button.setAttribute("aria-pressed", String(PRESETS[i] === active));
-    }
+    paint();
   };
 
-  presetsBox.replaceChildren(
-    ...PRESETS.map((preset) => {
-      const button = h(
-        "button",
-        { type: "button", class: "preset", title: preset.blurb },
-        h("span", { class: "preset-emoji", "aria-hidden": "true" }, preset.emoji),
-        preset.label,
-      );
-      button.addEventListener("click", () => {
-        save({ categories: { ...preset.categories } });
-        renderDisplay({ ...settings, display });
-      });
-      return button;
-    }),
-  );
-  paintPreset();
+  // First time here, with random demo numbers, the badge needs explaining; later it's in the way.
+  anatomy.open = modeOf(settings).kind === "demo";
 
-  foldBox.replaceChildren(
-    segmented(
-      FOLD_OPTIONS,
-      display.foldAt,
-      (foldAt) => save({ foldAt }),
-      "segmented segmented--wide",
-    ),
-  );
-
-  categoriesBox.replaceChildren(
-    ...CATEGORY_IDS.map((id) => {
-      const { emoji, label } = CATEGORY_LABELS[id];
-      const row = h(
-        "div",
-        { class: "mark-row", "data-mode": display.categories[id] ?? "" },
-        h("span", { class: "mark-label" }, `${emoji} ${label}`),
-        marks(label, display.categories[id], false, (mode) => {
-          row.dataset.mode = mode ?? "";
-          const categories = { ...display.categories };
-          if (mode) categories[id] = mode;
-          else delete categories[id];
-          save({ categories });
-        }),
-      );
-      return row;
-    }),
-  );
-
-  renderTopics(display.topics, (topics) => save({ topics }));
-
-  tropesBox.replaceChildren(
-    ...TROPE_IDS.map((id) => {
-      const t = TROPE_LABELS[id];
-      return check(`${t.emoji} ${t.label}`, t.hint, !display.hiddenTropes.includes(id), (on) =>
-        save({
-          hiddenTropes: on
-            ? display.hiddenTropes.filter((x) => x !== id)
-            : [...new Set([...display.hiddenTropes, id])],
-        }),
-      );
-    }),
-    check(
-      "🤖 Reads like AI",
-      "Em dashes, stock phrases, template structure",
-      display.showAi,
-      (on) => save({ showAi: on }),
-    ),
-  );
-
-  showIndex.checked = display.showIndex;
-  showIndex.onchange = () => save({ showIndex: showIndex.checked });
-  showCategory.checked = display.showCategory;
-  showCategory.onchange = () => save({ showCategory: showCategory.checked });
-}
-
-function check(label: string, hint: string, on: boolean, onChange: (on: boolean) => void) {
-  const input = h("input", { type: "checkbox" });
-  input.checked = on;
-  input.addEventListener("change", () => onChange(input.checked));
-  return h(
-    "label",
-    { class: "check", title: hint },
-    input,
-    h("span", null, label),
-    h("span", { class: "check-hint muted" }, hint),
-  );
-}
-
-/**
- * Topic rows. Saved on "change" (blur or Enter), not on every keystroke: each save re-scores
- * the posts on screen.
- */
-function renderTopics(initial: Topic[], onSave: (topics: Topic[]) => void) {
-  let topics = initial.map((t) => ({ ...t }));
-  const commit = () => {
-    const clean = topics
-      .map((t) => ({ ...t, label: t.label.replace(/\s+/g, " ").trim() }))
-      .filter((t) => t.label);
-    onSave(clean);
+  const row = (verb: Verb, rule: Rule) => {
+    const tag = ruleTag(rule);
+    const remove = h(
+      "button",
+      { type: "button", class: "rule-x", "aria-label": `Stop: ${ruleSentence(verb, rule)}` },
+      "×",
+    );
+    remove.addEventListener("click", () => save(withoutRule(display, rule)));
+    return h(
+      "li",
+      { class: `rule rule--${rule.kind}` },
+      h(
+        "span",
+        { class: "rule-label", title: tag ? tagTooltip(tag) : ruleSentence(verb, rule) },
+        ruleLabel(rule),
+      ),
+      rule.kind === "fluff" && level(rule.at),
+      rule.kind === "topic" && h("span", { class: "rule-note" }, "your topic"),
+      remove,
+    );
   };
-  const draw = () => {
-    topicsBox.replaceChildren(
-      ...topics.map((topic, i) => {
-        const input = h("input", {
-          type: "text",
-          class: "topic-input",
-          maxlength: MAX_TOPIC_CHARS,
-          placeholder: "e.g. Rust",
-          value: topic.label,
-          "aria-label": "Topic",
-        });
-        input.addEventListener("change", () => {
-          topic.label = input.value;
-          commit();
-        });
-        const remove = h(
-          "button",
-          { type: "button", class: "icon-button small-icon", "aria-label": "Remove topic" },
-          "✕",
+
+  /** How much is too much: a plain select, the one control everyone knows. */
+  const level = (at: number) => {
+    const select = h(
+      "select",
+      { class: "rule-level", "aria-label": "How much fluff folds a post" },
+      ...FLUFF_LEVELS.map((l) => h("option", { value: String(l.at) }, l.label)),
+    ) as HTMLSelectElement;
+    select.value = String(at);
+    select.addEventListener("change", () =>
+      save(withRule(display, "fold", { kind: "fluff", at: Number(select.value) })),
+    );
+    return select;
+  };
+
+  const sheet = (verb: Verb) => {
+    const groups = offers(display, verb)
+      .filter((g) => g.items.length > 0)
+      .map((g) => {
+        // One line under the group that explains whichever chip is pointed at.
+        const about = h(
+          "p",
+          { class: "offer-about" },
+          h("span", { class: "muted" }, "Point at one to see what it means."),
         );
-        remove.addEventListener("click", () => {
-          topics = topics.filter((_, j) => j !== i);
-          commit();
-          draw();
-        });
         return h(
           "div",
-          { class: "topic-row" },
-          input,
-          marks("posts about this", topic.mode, true, (mode) => {
-            if (!mode) return;
-            topic.mode = mode;
-            commit();
-          }),
-          remove,
+          { class: "offer-group" },
+          h("p", { class: "offer-title" }, g.title),
+          h(
+            "div",
+            { class: "offers" },
+            ...g.items.map((o) => {
+              const b = h("button", { type: "button", class: `offer offer--${o.kind}` }, o.label);
+              b.addEventListener("click", () => save(withRule(display, verb, o.rule)));
+              // Clichés and good signs are jargon: say what one means as soon as it's pointed at.
+              const tag = ruleTag(o.rule);
+              if (tag) {
+                const explain = () => {
+                  about.hidden = false;
+                  about.replaceChildren(
+                    h("strong", null, o.label),
+                    ` · ${tag.hint}`,
+                    h("span", { class: "muted" }, ` · e.g. ${tag.example}`),
+                  );
+                };
+                b.addEventListener("mouseenter", explain);
+                b.addEventListener("focus", explain);
+              }
+              return b;
+            }),
+          ),
+          g.items.some((o) => ruleTag(o.rule)) && about,
         );
+      });
+    const input = h("input", {
+      type: "text",
+      maxlength: MAX_TOPIC_CHARS,
+      placeholder: verb === "fold" ? "e.g. crypto" : "e.g. Rust",
+      "aria-label": "Your own topic",
+    });
+    const addTopic = () => {
+      const label = input.value.replace(/\s+/g, " ").trim();
+      if (label) save(withRule(display, verb, { kind: "topic", label }));
+    };
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") addTopic();
+    });
+    const full = display.topics.length >= MAX_TOPICS;
+    return [
+      ...groups,
+      h(
+        "div",
+        { class: "offer-group" },
+        h("p", { class: "offer-title" }, "Your own topic"),
+        full
+          ? h("p", { class: "hint muted" }, `Up to ${MAX_TOPICS}. Remove one to add another.`)
+          : h(
+              "div",
+              { class: "topic-add" },
+              input,
+              h("button", { type: "button", class: "secondary small", onclick: addTopic }, "Add"),
+            ),
+      ),
+    ];
+  };
+
+  const paint = () => {
+    for (const verb of ["fold", "star"] as const) {
+      const { rules, sheet: box, add } = lists[verb];
+      const current = rulesOf(display, verb);
+      rules.replaceChildren(
+        ...(current.length
+          ? current.map((rule) => row(verb, rule))
+          : [
+              h("li", { class: "rule-empty" }, verb === "fold" ? "Nothing folds." : "Nothing yet."),
+            ]),
+      );
+      box.hidden = !open[verb];
+      box.replaceChildren(...(open[verb] ? sheet(verb) : []));
+      add.textContent = open[verb] ? "Done" : "+ Add";
+      add.onclick = () => {
+        open[verb] = !open[verb];
+        paint();
+      };
+    }
+
+    const active = activePreset(display);
+    presetsBox.replaceChildren(
+      ...PRESETS.map((preset) => {
+        const button = h(
+          "button",
+          { type: "button", class: "preset", title: preset.blurb },
+          `${preset.emoji} ${preset.label}`,
+        );
+        button.setAttribute("aria-pressed", String(preset === active));
+        button.addEventListener("click", () => save(applyPreset(display, preset)));
+        return button;
       }),
     );
-    addTopic.hidden = topics.length >= MAX_TOPICS;
+
+    for (const [input, key] of [
+      [showIndex, "showIndex"],
+      [showCliches, "showCliches"],
+      [showGood, "showGood"],
+      [showCategory, "showCategory"],
+    ] as const) {
+      input.checked = display[key];
+      input.onchange = () => save({ ...display, [key]: input.checked });
+    }
   };
-  addTopic.onclick = () => {
-    topics = [...topics, { label: "", mode: "want" }];
-    draw();
-    topicsBox.querySelector<HTMLInputElement>(".topic-row:last-child input")?.focus();
-  };
-  draw();
+  paint();
 }
 
 async function refresh() {

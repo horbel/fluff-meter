@@ -20,11 +20,14 @@
 
 Scroll LinkedIn as usual. Every post gets a small badge that tells you:
 
-- **how much fluff it is**, from ☀️ *Solid* to ☁️ *Pure fluff*;
+- **how much fluff it is**, from ☀️ *Solid* to ☁️ *Pure fluff*: how much of the post is empty
+  words instead of facts. This is the only number;
 - **which clichés it leans on**: engagement bait ("Agree? 👇", "comment GUIDE"), humblebrags,
-  too-neat fables with a janitor in them, truisms, hustle, broetry;
+  too-neat fables with a janitor in them, truisms, hustle, broetry, AI style. Tags only: a solid
+  post with one "humbled to share" stays solid;
+- **good signs**: 📊 real numbers, 🥊 a real take backed by facts, 🌿 a mistake the author
+  owns. Posts with one never fold for fluff;
 - **what it is about**: know-how, news, hiring, career moves, thank-yous, events, promo…
-- **whether it has 📊 real numbers**: metrics, benchmarks, results. Those never fold for fluff.
 
 Pure fluff folds into one line, so you skip it in a second. Click the line to open it again, or
 fold any post yourself with **Fold**. The popup shows how much of your feed was fluff and how many
@@ -42,7 +45,7 @@ Brave, Arc and other Chromium browsers.
 
 It starts in **demo mode** with random numbers, so you can see how it looks. For real scores,
 click the extension icon and paste a [TypeSafe](https://console.typesafe.ai/keys) or
-[OpenRouter](https://openrouter.ai/settings/keys) API key. $1 covers about 12,000 posts.
+[OpenRouter](https://openrouter.ai/settings/keys) API key. $1 covers about 10,000 posts.
 
 <details>
 <summary>Install from GitHub instead</summary>
@@ -60,13 +63,16 @@ This version doesn't update itself; the Web Store one does.
 
 <img src="docs/popup.png" width="300" align="right" alt="The extension popup" />
 
-Clichés annoy everyone, so they set the score. What a post is about is your call:
+The fluff score is the same for everyone. The rest is two short lists:
 
-- **Categories:** mark each one ⭐ *want* or 🙈 *fold*. Starred posts get a ⭐ chip, folded ones
-  shrink to one line. Or pick a preset: **Engineer**, **Recruiter** or **Job seeker**.
-- **Your topics:** add up to three of your own, like *Rust* or *crypto*, and star or fold them.
-- **Clichés:** switch any of them off and it no longer shows or counts.
-- **Folding:** pure fluff only (the default), fluffy posts too, or never.
+- **🙈 Fold**: too much fluff (pure fluff by default), a category or a topic of your own
+  (*promo*, *crypto*), a cliché (*bait*, *reads like AI*).
+- **⭐ Always show**: a category or topic (*know-how*, *Rust*), a good sign. Posts with real
+  numbers, a real take or a mistake owned always show by default. Always show wins over Fold.
+
+The quickest way to add a rule is right on a post: click any chip, see what it means, and
+**Fold posts like this** or **Always show** them. Or start from a preset: **Engineer**,
+**Recruiter** or **Job seeker**.
 
 ## Privacy
 

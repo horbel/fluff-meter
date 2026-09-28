@@ -1,4 +1,5 @@
 import { storage } from "#imports";
+import { GOOD_THRESHOLD } from "./analysis/scoring";
 import {
   type Analysis,
   CATEGORY_IDS,
@@ -92,7 +93,7 @@ export function recordAnalysis(
       ai: day.ai + (analysis.ai.likelihood >= AI_THRESHOLD ? 1 : 0),
       tokens: (day.tokens ?? 0) + (analysis.tokens ?? 0),
       folded: (day.folded ?? 0) + (folded ? 1 : 0),
-      insights: (day.insights ?? 0) + (analysis.insight ? 1 : 0),
+      insights: (day.insights ?? 0) + ((analysis.good?.insight ?? 0) >= GOOD_THRESHOLD ? 1 : 0),
       categories: bump(day.categories, [analysis.category]),
       tropes: bump(day.tropes, analysis.tropes),
     },

@@ -42,11 +42,3 @@ export function broetry(s: TextStats): number {
   const shortLines = clamp01((120 - s.avgParagraph) / 80);
   return manyLines * shortLines;
 }
-
-/** Emoji bullets, hashtag walls and broetry combined into one 0..1 signal. */
-export function formattingSignal(s: TextStats): number {
-  const emojiPer100 = s.chars ? (s.emojis / s.chars) * 100 : 0;
-  return clamp01(
-    0.5 * broetry(s) + 0.3 * clamp01(emojiPer100 / 1.5) + 0.2 * clamp01((s.hashtags - 3) / 7),
-  );
-}

@@ -217,17 +217,30 @@ button:focus-visible {
   white-space: nowrap;
 }
 
-.chip--insight {
+/* Colors mean the same everywhere, in the popup too: clichés orange, good signs green. */
+.chip--good {
   border-color: hsl(145 45% 70%);
   color: hsl(150 60% 22%);
   background: hsl(140 60% 93%);
   font-weight: 600;
 }
 
-:host([data-theme="dark"]) .chip--insight {
+:host([data-theme="dark"]) .chip--good {
   border-color: hsl(145 30% 32%);
   color: hsl(140 55% 78%);
   background: hsl(145 30% 15%);
+}
+
+.chip--cliche {
+  border-color: hsl(30 85% 78%);
+  color: hsl(24 70% 30%);
+  background: hsl(36 100% 94%);
+}
+
+:host([data-theme="dark"]) .chip--cliche {
+  border-color: hsl(28 40% 34%);
+  color: hsl(34 85% 78%);
+  background: hsl(28 35% 16%);
 }
 
 .link.fold-btn {
@@ -247,13 +260,6 @@ button:focus-visible {
   color: #fff;
   font-weight: 700;
   background: linear-gradient(90deg, #7b5cff, #d65cff, #ff8a5c);
-}
-
-.chip--ai {
-  border-color: transparent;
-  color: #fff;
-  background: #6a4fd8;
-  font-variant-numeric: tabular-nums;
 }
 
 .chip--star {
@@ -317,6 +323,20 @@ button:focus-visible {
   background: var(--bg);
   border: 1px dashed var(--border);
   color: var(--text);
+}
+
+.section + .section {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.section-title {
+  margin: 0 0 6px;
+}
+
+.section .line {
+  margin: 4px 0 0;
 }
 
 .signals {
@@ -394,4 +414,124 @@ button:focus-visible {
   .gauge-needle {
     transition: none;
   }
+}
+
+/* Chips are buttons: a click opens the card below the row. */
+button.chip,
+button.category {
+  font: inherit;
+  font-size: 10.5px;
+  cursor: pointer;
+}
+
+button.chip:hover,
+button.category:hover {
+  filter: brightness(0.96);
+  text-decoration: underline dotted;
+}
+
+button.chip[aria-expanded="true"],
+button.category[aria-expanded="true"] {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+button.category {
+  border: 0;
+  background: none;
+}
+
+.card {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  max-width: 460px;
+}
+
+.card-title {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  margin: 0 0 4px;
+}
+
+.card-x {
+  margin-left: auto;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.card-line {
+  margin: 2px 0 0;
+}
+
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.card-subject {
+  font-weight: 600;
+}
+
+/* Fold · Show · Always show: one pressed, like a radio. */
+.seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+}
+
+.seg button {
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.seg button:hover {
+  color: var(--text);
+}
+
+.seg button[aria-checked="true"] {
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+.seg .seg-fold[aria-checked="true"] {
+  background: hsl(262 80% 95%);
+  color: hsl(262 50% 35%);
+}
+
+.seg .seg-star[aria-checked="true"] {
+  background: hsl(46 100% 90%);
+  color: hsl(35 80% 24%);
+}
+
+:host([data-theme="dark"]) .seg .seg-fold[aria-checked="true"] {
+  background: hsl(262 30% 24%);
+  color: hsl(262 80% 88%);
+}
+
+:host([data-theme="dark"]) .seg .seg-star[aria-checked="true"] {
+  background: hsl(43 40% 18%);
+  color: hsl(46 90% 80%);
+}
+
+.card-note {
+  margin-top: 6px;
+  color: var(--muted);
 }

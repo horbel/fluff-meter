@@ -1,5 +1,47 @@
 # Changelog
 
+## 0.4.0
+
+One number, the rest are tags, and settings you can read at a glance.
+
+### Scoring
+
+- The Fluff Index now measures one thing: how much of a post is empty words instead of facts
+  (nothing concrete, 70%; corporate jargon, 30%). Clichés, the AI guess and self-promotion no
+  longer move it, so a solid post with one "humbled to share" stays solid and gets a 🙏 chip.
+- Good signs, the opposite of clichés: 📊 Real numbers, plus two new ones, 🥊 Real take (a
+  position you could argue with, backed by facts) and 🌿 Owns a mistake (a specific mistake and
+  what changed). Their questions were tuned on 39 posts full of near-misses. A post with a good
+  sign never folds for fluff.
+- Self-promotion is no longer asked about. A post costs about 2,250 tokens, roughly 10,000 posts
+  per dollar.
+- Results from 0.3 are scored again.
+
+### Settings
+
+- Two short lists of rules instead of a page of switches: 🙈 **Fold** and ⭐ **Always show**, each
+  with × to remove a rule and "+ Add" for the full list. Pointing at a cliché or good sign there
+  explains it with an example.
+- Too much fluff is one rule with a level: Pure fluff (85%+) or Fluffy too (60%+).
+- Clichés, AI style included, can fold every post that has them (off by default).
+- Always show wins over Fold. By default every good sign always shows.
+- Presets start the rules over; your own topics stay.
+- "Show on badges": the fluff score, clichés, good signs and the category, each on or off.
+- Settings from 0.3 carry over. Cliché chips can no longer be hidden one by one: if you had hidden
+  all of them, they stay hidden; otherwise they all show again.
+
+### On the badge
+
+- Every chip is a button. Its card says what the chip means, gives an example, and has a
+  Fold / Show / Always show switch for posts like it. When a post stays open despite a rule, the
+  card says why ("⭐ Real take always shows").
+- A post folded by a rule made a moment ago offers Undo on its fold bar.
+- Clichés are orange and good signs green, on the badge and in the popup.
+- The breakdown has four labelled blocks: Fluff, Clichés, Good signs, Category.
+- 🪶 Broetry shows what was measured ("18 lines, 40 characters each on average") instead of a
+  percentage from a different signal. "Buzzwords" is now "Corporate jargon".
+- The author's own posts are scored like everyone else's, with a ✨ Legend chip on top.
+
 ## 0.3.1
 
 - The script that runs on LinkedIn no longer loads the settings that hold your API key, not even

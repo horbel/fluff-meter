@@ -121,3 +121,15 @@
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* Right after the reader made the rule that folded this post. */
+.undo {
+  flex: none;
+  padding: 3px 10px;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}

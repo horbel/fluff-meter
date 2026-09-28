@@ -1,7 +1,14 @@
 import { hashText, seededRandom } from "../hash";
-import { formattingSignal, textStats } from "./heuristics";
+import { textStats } from "./heuristics";
 import { buildAnalysis } from "./scoring";
-import { AI_TELL_IDS, type Analysis, CATEGORY_IDS, type PostInput, type Signals } from "./types";
+import {
+  AI_TELL_IDS,
+  type Analysis,
+  CATEGORY_IDS,
+  GOOD_SIGN_IDS,
+  type PostInput,
+  type Signals,
+} from "./types";
 
 /**
  * Demo mode: no API key, no network. Numbers are random, but seeded by the post text so a
@@ -20,13 +27,11 @@ export function demoAnalysis(post: PostInput, topics: readonly string[] = []): A
   const signals: Omit<Signals, "ai"> = {
     buzzwords: signal(),
     fluff: signal(),
-    self_promotion: signal(),
     engagement_bait: noul(),
     humblebrag: noul(),
     parable: noul(),
     truism: noul(),
     hustle: noul(),
-    formatting: formattingSignal(stats),
   };
   const category = CATEGORY_IDS[Math.floor(rand() * CATEGORY_IDS.length)] ?? "other";
   const aiLikelihood = rand();
@@ -39,7 +44,10 @@ export function demoAnalysis(post: PostInput, topics: readonly string[] = []): A
     categoryConfidence: rand(),
     // Never random: a demo badge must not go quiet on a post for no visible reason.
     sensitive: 0,
-    insight: mood < 0.3 && rand() < 0.6 ? 0.9 : 0.1,
+    // Good signs show up on the less fluffy posts, like in a real feed.
+    good: Object.fromEntries(
+      GOOD_SIGN_IDS.map((id) => [id, mood < 0.35 && rand() < 0.4 ? 0.9 : 0.1]),
+    ),
     topics: Object.fromEntries(topics.map((label) => [label, rand() < 0.15 ? 0.9 : 0.05])),
     source: "demo",
   });

@@ -1,4 +1,4 @@
-import type { AiTellId, CategoryId, SignalId, TropeId } from "./types";
+import type { AiTellId, CategoryId, ClicheId, GoodSignId, SignalId, TropeId } from "./types";
 
 /**
  * Every user-facing label lives here, so copy tweaks never touch logic.
@@ -29,8 +29,7 @@ export function verdictFor(index: number): Verdict {
   return VERDICTS.find((v) => index >= v.min) ?? (VERDICTS.at(-1) as Verdict);
 }
 
-/** The easter egg's verdict. Off the green → red scale on purpose. */
-export const LEGEND_VERDICT: Verdict = { min: 0, label: "Zero fluff", emoji: "🦄", hue: 275 };
+/** The easter egg's chip, see easter-egg.ts. */
 export const LEGEND_CHIP = "✨ Legend";
 
 export const CATEGORY_LABELS: Record<CategoryId, { label: string; emoji: string }> = {
@@ -48,41 +47,112 @@ export const CATEGORY_LABELS: Record<CategoryId, { label: string; emoji: string 
   other: { label: "Other", emoji: "🌀" },
 };
 
-export const TROPE_LABELS: Record<TropeId, { label: string; emoji: string; hint: string }> = {
+/** A cliché or a good sign: a chip on the badge and a row in the popup. */
+export interface TagLabel {
+  label: string;
+  emoji: string;
+  hint: string;
+  /** What it looks like in a post, for the tooltip. */
+  example: string;
+}
+
+/** Hint and example on two lines, then anything else (how sure Jev is, say). */
+export function tagTooltip(tag: TagLabel, ...more: string[]): string {
+  return [tag.hint, `e.g. ${tag.example}`, ...more].join("\n");
+}
+
+export const TROPE_LABELS: Record<TropeId, TagLabel> = {
   engagement_bait: {
     label: "Bait",
     emoji: "🎣",
-    hint: "Begs for likes, comments or reposts, or 'comment GUIDE for the PDF'",
+    hint: "Begs for likes, comments or reposts",
+    example: "“Agree? 👇” · “Comment GUIDE and I'll DM you the PDF”",
   },
-  humblebrag: { label: "Humblebrag", emoji: "🙏", hint: "A brag dressed up as humility" },
-  parable: { label: "Fable", emoji: "📜", hint: "A too-neat story with a business moral" },
-  truism: { label: "Truism", emoji: "💡", hint: "An obvious idea sold as insight" },
+  humblebrag: {
+    label: "Humblebrag",
+    emoji: "🙏",
+    hint: "A brag dressed up as humility",
+    example: "“Humbled to announce…” · “Never expected to hit 10,000 followers”",
+  },
+  parable: {
+    label: "Fable",
+    emoji: "📜",
+    hint: "A too-neat story with a business moral",
+    example: "“A janitor told me one thing that changed how I lead…”",
+  },
+  truism: {
+    label: "Truism",
+    emoji: "💡",
+    hint: "An obvious idea sold as insight",
+    example: "“Consistency beats talent.” · “Your network is your net worth.”",
+  },
   hustle: {
     label: "Hustle",
     emoji: "⏰",
     hint: "The grind as a virtue: overwork, 4am, no days off",
+    example: "“5am. No weekends. No excuses.”",
   },
-  broetry: { label: "Broetry", emoji: "🪶", hint: "One sentence per line" },
+  broetry: {
+    label: "Broetry",
+    emoji: "🪶",
+    hint: "One short sentence per line, again and again",
+    example: "“I got fired. / I cried. / Then I learned.”",
+  },
 };
 
+/** Clichés as the reader sees them: the tropes plus the AI guess. */
+export const CLICHE_LABELS: Record<ClicheId, TagLabel> = {
+  ...TROPE_LABELS,
+  ai: {
+    label: "Reads like AI",
+    emoji: "🤖",
+    hint: "Em dashes, stock phrases, template structure. A guess from style, not proof",
+    example: "“It's not X — it's Y.” · “Here's the thing:” · 𝗯𝗼𝗹𝗱 letters",
+  },
+};
+
+/**
+ * The three kinds of thing a badge shows, in the words the popup and the breakdown use. Only
+ * the first one is a number.
+ */
+export const SECTIONS = {
+  fluff: { title: "Fluff", hint: "How much of the post is empty words instead of facts" },
+  cliches: { title: "Clichés", hint: "How it's written. Tags only: they never change the score" },
+  good: { title: "Good signs", hint: "Worth a look. Tags only, like clichés" },
+  about: { title: "Category", hint: "What it's about. You decide what you want" },
+} as const;
+
 /** The one positive chip: the post shares real data or results. */
-export const INSIGHT_LABEL = {
-  label: "Real numbers",
-  emoji: "📊",
-  hint: "Shares real data or results: metrics, benchmarks, outcomes",
+export const GOOD_LABELS: Record<GoodSignId, TagLabel> = {
+  insight: {
+    label: "Real numbers",
+    emoji: "📊",
+    hint: "Shares real data or results: metrics, benchmarks, outcomes",
+    example: "“We cut p99 latency from 1.2s to 180ms” · “churn fell from 8% to 5%”",
+  },
+  real_take: {
+    label: "Real take",
+    emoji: "🥊",
+    hint: "An opinion you could argue with, backed by facts",
+    example: "“We banned standups: cycle time went from 5 to 4 days, here's why”",
+  },
+  owns_mistake: {
+    label: "Owns a mistake",
+    emoji: "🌿",
+    hint: "The author admits a specific mistake and what they changed",
+    example: "“I waited 7 months on a bad hire and one engineer quit. Now I…”",
+  },
 };
 
 export const SIGNAL_LABELS: Record<SignalId, string> = {
-  buzzwords: "Buzzwords",
+  buzzwords: "Corporate jargon",
   fluff: "Nothing concrete",
-  self_promotion: "Self-promo",
   engagement_bait: "Bait",
   humblebrag: "Humblebrag",
   parable: "Fable",
   truism: "Truisms",
   hustle: "Hustle",
   ai: "AI style",
-  formatting: "Emoji & broetry",
 };
 
 /**
@@ -107,14 +177,12 @@ export function aiLabel(likelihood: number): {
 export const SIGNAL_HINTS: Record<SignalId, string> = {
   buzzwords: "Corporate jargon instead of plain words",
   fluff: "No numbers, names, steps, code or examples",
-  self_promotion: "About making the author look impressive",
   engagement_bait: "Asks for likes, comments, reposts or a keyword",
   humblebrag: "An achievement dressed up as humility or gratitude",
   parable: "A too-neat story that ends with a moral",
   truism: "An obvious idea presented as a deep insight",
   hustle: "Glorifies the grind: overwork, 4am, no days off",
   ai: "Reads like an AI assistant wrote it",
-  formatting: "One-line paragraphs, emoji bullets, hashtag walls",
 };
 
 export const AI_TELL_LABELS: Record<AiTellId, string> = {

@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { legendAnalysis } from "@/lib/analysis/easter-egg";
 import { textStats } from "@/lib/analysis/heuristics";
 import { buildAnalysis } from "@/lib/analysis/scoring";
 import { SIGNAL_IDS, type Signals } from "@/lib/analysis/types";
@@ -27,7 +26,6 @@ const cliche = post({
   signals: {
     buzzwords: 1,
     fluff: 1,
-    self_promotion: 1,
     engagement_bait: 1,
     humblebrag: 1,
     parable: 1,
@@ -50,12 +48,32 @@ describe("personalView", () => {
     expect(wanted.wantedCategory).toBe(true);
   });
 
-  it("drops switched-off clichés from the score", () => {
-    const off = personalView(
-      cliche,
-      prefs({ hiddenTropes: ["engagement_bait", "humblebrag", "parable"] }),
-    );
-    expect(off.index).toBeLessThan(personalView(cliche, prefs()).index);
+  it("folds a cliché only when the reader asks for it", () => {
+    const bait = post({ signals: { engagement_bait: 0.9 } });
+    expect(personalView(bait, prefs()).fold).toBeUndefined();
+    expect(personalView(bait, prefs({ foldTropes: ["engagement_bait"] })).fold).toEqual({
+      kind: "cliche",
+      cliche: "engagement_bait",
+    });
+    const ai = post({ signals: { ai: 0.9 } });
+    expect(personalView(ai, prefs({ foldTropes: ["ai"] })).fold).toEqual({
+      kind: "cliche",
+      cliche: "ai",
+    });
+  });
+
+  it("keeps anything starred open", () => {
+    const bait = post({ signals: { engagement_bait: 0.9 } });
+    const data = { ...bait, good: { ...bait.good, real_take: 0.9 } };
+    const folding = {
+      foldTropes: ["engagement_bait" as const],
+      categories: { promo: "hide" as const },
+      wantGood: [],
+    };
+    expect(personalView(data, prefs(folding)).fold).toBeDefined();
+    const view = personalView(data, prefs({ ...folding, wantGood: ["real_take"] }));
+    expect(view.fold).toBeUndefined();
+    expect(view.wantedGood).toEqual(["real_take"]);
   });
 
   it("folds hidden topics, and a wanted topic beats a hidden category", () => {
@@ -72,20 +90,20 @@ describe("personalView", () => {
     expect(personalView(coin, prefs({ topics })).fold).toEqual({ kind: "topic", topic: "crypto" });
   });
 
-  it("never folds a post with real numbers for fluff", () => {
-    const data = { ...cliche, insight: true };
+  it("never folds a post with a good sign for fluff", () => {
+    const data = { ...cliche, good: { ...cliche.good, insight: 0.9 } };
     expect(personalView(data, prefs()).fold).toBeUndefined();
-    expect(personalView(data, prefs({ categories: { promo: "hide" } })).fold).toEqual({
-      kind: "category",
-      category: "promo",
-    });
+    // Good signs always show by default; without that star, a folded category still folds.
+    expect(personalView(data, prefs({ categories: { promo: "hide" } })).fold).toBeUndefined();
+    expect(personalView(data, prefs({ categories: { promo: "hide" }, wantGood: [] })).fold).toEqual(
+      { kind: "category", category: "promo" },
+    );
   });
 
-  it("never folds a post about a tragedy or a legend", () => {
+  it("never folds a post about a tragedy", () => {
     const loss = post({ sensitive: 0.9, signals: { buzzwords: 1, fluff: 1, engagement_bait: 1 } });
     expect(loss.sensitive).toBe(true);
     expect(personalView(loss, prefs({ foldAt: 0 })).fold).toBeUndefined();
-    expect(personalView(legendAnalysis(), prefs({ foldAt: 0 })).fold).toBeUndefined();
   });
 });
 
@@ -99,10 +117,18 @@ describe("normalizeDisplay", () => {
       tropeWeights: { routine: 0.8 },
       categoryWeights: { event: 1 },
     } as unknown as Partial<DisplayPrefs>;
-    expect(normalizeDisplay(old)).toEqual({
-      ...DEFAULT_DISPLAY,
+    expect(normalizeDisplay(old)).toEqual(DEFAULT_DISPLAY);
+  });
+
+  it("keeps a 0.3 reader's cliché chips off, and shows good signs by default", () => {
+    const allOff = {
       showAi: false,
-      hiddenTropes: ["hustle"],
+      hiddenTropes: ["engagement_bait", "humblebrag", "parable", "truism", "hustle", "broetry"],
+    } as unknown as Partial<DisplayPrefs>;
+    expect(normalizeDisplay(allOff)).toMatchObject({
+      showCliches: false,
+      showGood: true,
+      wantGood: DEFAULT_DISPLAY.wantGood,
     });
   });
 

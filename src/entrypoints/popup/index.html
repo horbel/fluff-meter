@@ -58,60 +58,67 @@
             <a href="https://console.typesafe.ai/keys" target="_blank" rel="noreferrer">TypeSafe</a>
             or
             <a href="https://openrouter.ai/settings/keys" target="_blank" rel="noreferrer">OpenRouter</a>.
-            About 12,000 posts per dollar.
+            About 10,000 posts per dollar.
           </p>
         </form>
       </section>
 
-      <details class="card prefs" open>
-        <summary>
-          <h2>🎛️ Make it yours</h2>
-          <span id="preset-name" class="muted"></span>
-        </summary>
+      <section class="card rules" data-verb="fold">
+        <div class="rules-head">
+          <h2>🙈 Fold</h2>
+          <span class="muted">shrinks a post to one line</span>
+        </div>
+        <ul id="fold-rules" class="rule-list"></ul>
+        <div id="fold-sheet" class="sheet" hidden></div>
+        <button id="fold-add" type="button" class="add-rule">+ Add</button>
+      </section>
+
+      <section class="card rules" data-verb="star">
+        <div class="rules-head">
+          <h2>⭐ Always show</h2>
+          <span class="muted">never folded, marked with a star</span>
+        </div>
+        <ul id="star-rules" class="rule-list"></ul>
+        <div id="star-sheet" class="sheet" hidden></div>
+        <button id="star-add" type="button" class="add-rule">+ Add</button>
+      </section>
+
+      <p class="tip">💡 Or click any chip on a post to fold or always show posts like it.</p>
+
+      <div class="quick-start">
+        <span class="muted">Start as</span>
         <div id="presets" class="presets"></div>
-        <p id="preset-blurb" class="hint muted"></p>
+      </div>
 
-        <fieldset>
-          <legend><span>Fold posts</span></legend>
-          <div id="fold"></div>
-          <p class="hint muted">A folded post shrinks to one line. One click opens it.</p>
-        </fieldset>
+      <details id="anatomy" class="card more">
+        <summary>How to read a badge</summary>
+        <dl class="anatomy">
+          <dt><span class="sample sample--index">☀️ 12% Solid</span></dt>
+          <dd>
+            <strong>Fluff</strong>: how much of the post is empty words instead of facts. The only
+            number.
+          </dd>
+          <dt><span class="sample sample--cliche">🙏 Humblebrag</span></dt>
+          <dd><strong>Clichés</strong>, in orange: how it's written.</dd>
+          <dt><span class="sample sample--good">📊 Real numbers</span></dt>
+          <dd><strong>Good signs</strong>, in green: worth reading for.</dd>
+          <dt><span class="sample sample--category">🛠️ Know-how</span></dt>
+          <dd><strong>Category</strong>, in grey: what it's about.</dd>
+        </dl>
+        <p class="hint muted">
+          Chips never change the number. Click one to see what it means and to fold or always show
+          posts like it.
+        </p>
+      </details>
 
-        <fieldset>
-          <legend>
-            <span>Categories</span>
-            <span class="legend-hint">⭐ want · 🙈 fold</span>
-          </legend>
-          <div id="categories" class="marks"></div>
-          <p class="hint muted">Unmarked categories are neutral: shown, no star.</p>
-        </fieldset>
-
-        <fieldset>
-          <legend>
-            <span>Your topics</span>
-            <span class="legend-hint">⭐ want · 🙈 fold</span>
-          </legend>
-          <div id="topics" class="topics"></div>
-          <button id="add-topic" type="button" class="secondary small">+ Add a topic</button>
-          <p class="hint muted">
-            A few words each, like <em>Rust</em>, <em>crypto</em> or <em>AI agents</em>. Posts on
-            screen get scored again when topics change.
-          </p>
-        </fieldset>
-
-        <fieldset>
-          <legend><span>Clichés</span></legend>
-          <div id="tropes" class="checks"></div>
-          <p class="hint muted">Switched off: not shown and not counted in the score.</p>
-        </fieldset>
-
-        <fieldset>
-          <legend><span>On the badge</span></legend>
-          <div class="checks">
-            <label class="check"><input id="show-index" type="checkbox" /><span>Fluff Index</span></label>
-            <label class="check"><input id="show-category" type="checkbox" /><span>Category</span></label>
-          </div>
-        </fieldset>
+      <details class="card more">
+        <summary>Show on badges</summary>
+        <div class="checks">
+          <label class="check"><input id="show-index" type="checkbox" /><span>Fluff score</span></label>
+          <label class="check"><input id="show-cliches" type="checkbox" /><span>Clichés</span></label>
+          <label class="check"><input id="show-good" type="checkbox" /><span>Good signs</span></label>
+          <label class="check"><input id="show-category" type="checkbox" /><span>Category</span></label>
+        </div>
       </details>
     </main>
 

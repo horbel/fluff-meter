@@ -1,5 +1,12 @@
-import { fluffIndex, TROPE_SIGNAL, type TropeSignal } from "./analysis/scoring";
-import type { Analysis, CategoryId } from "./analysis/types";
+import { aiLabel } from "./analysis/labels";
+import { GOOD_THRESHOLD } from "./analysis/scoring";
+import {
+  type Analysis,
+  type CategoryId,
+  type ClicheId,
+  GOOD_SIGN_IDS,
+  type GoodSignId,
+} from "./analysis/types";
 import type { DisplayPrefs } from "./settings";
 
 /** A topic counts as matched from this probability on. */
@@ -9,6 +16,7 @@ export type FoldReason =
   | { kind: "fluff" }
   | { kind: "category"; category: CategoryId }
   | { kind: "topic"; topic: string }
+  | { kind: "cliche"; cliche: ClicheId }
   /** The reader folded it by hand. */
   | { kind: "manual" };
 
@@ -21,13 +29,21 @@ export interface PersonalView {
   wantedCategory: boolean;
   /** The reader's wanted topics this post is about. */
   wantedTopics: string[];
+  /** Good signs the post has and the reader stars. */
+  wantedGood: GoodSignId[];
 }
 
-/** The clichés the reader switched off. Off means not shown and not counted. */
-export function offSignals(prefs: DisplayPrefs): Set<TropeSignal> {
-  const off = new Set<TropeSignal>(prefs.hiddenTropes.map((id) => TROPE_SIGNAL[id]));
-  if (!prefs.showAi) off.add("ai");
-  return off;
+/** Every cliché the post has, the AI guess included, strongest first. */
+export function clichesOf(analysis: Analysis): ClicheId[] {
+  const ai = aiLabel(analysis.ai.likelihood).level === "ai";
+  return [...analysis.tropes, ...(ai ? (["ai"] as const) : [])];
+}
+
+/** Every good sign the post has, strongest first. */
+export function goodSignsOf(analysis: Analysis): GoodSignId[] {
+  return GOOD_SIGN_IDS.filter((id) => (analysis.good?.[id] ?? 0) >= GOOD_THRESHOLD).sort(
+    (a, b) => analysis.good[b] - analysis.good[a],
+  );
 }
 
 export function matchedTopics(analysis: Analysis, prefs: DisplayPrefs, mode: "want" | "hide") {
@@ -40,29 +56,36 @@ export function matchedTopics(analysis: Analysis, prefs: DisplayPrefs, mode: "wa
  * Rules, in order:
  * 1. A post about a tragedy is never folded (and gets no badge at all, see badge.ts).
  * 2. A topic the reader hides folds the post.
- * 3. A category the reader hides folds it, unless it is also about a topic they want.
- * 4. Fluff at or above the reader's threshold folds it, whatever it is about, unless the post
- *    shares real numbers: then it is worth a look however it's written.
+ * 3. Anything the reader stars (a category, a topic, a good sign) keeps it open.
+ * 4. A category the reader hides folds it.
+ * 5. So does a cliché the reader folds.
+ * 6. Fluff at or above the reader's threshold folds it, unless the post has a good sign: then
+ *    it is worth a look however it's written.
  */
 export function personalView(analysis: Analysis, prefs: DisplayPrefs): PersonalView {
-  const legend = analysis.source === "legend";
-  const index = legend ? 0 : fluffIndex(analysis.signals, offSignals(prefs));
   const wantedTopics = matchedTopics(analysis, prefs, "want");
   const hiddenTopic = matchedTopics(analysis, prefs, "hide")[0];
   const categoryMode = prefs.categories[analysis.category];
+  const wantedCategory = categoryMode === "want";
+  const good = goodSignsOf(analysis);
+  const wantedGood = good.filter((id) => prefs.wantGood.includes(id));
+  const starred = wantedCategory || wantedTopics.length > 0 || wantedGood.length > 0;
+  const foldedCliche = clichesOf(analysis).find((id) => prefs.foldTropes.includes(id));
 
   let fold: FoldReason | undefined;
-  if (legend || analysis.sensitive) fold = undefined;
+  if (analysis.sensitive) fold = undefined;
   else if (hiddenTopic) fold = { kind: "topic", topic: hiddenTopic };
-  else if (categoryMode === "hide" && wantedTopics.length === 0)
-    fold = { kind: "category", category: analysis.category };
-  else if (prefs.foldAt !== null && index >= prefs.foldAt && !analysis.insight)
+  else if (starred) fold = undefined;
+  else if (categoryMode === "hide") fold = { kind: "category", category: analysis.category };
+  else if (foldedCliche) fold = { kind: "cliche", cliche: foldedCliche };
+  else if (prefs.foldAt !== null && analysis.index >= prefs.foldAt && good.length === 0)
     fold = { kind: "fluff" };
 
   return {
-    index,
+    index: analysis.index,
     ...(fold ? { fold } : {}),
-    wantedCategory: categoryMode === "want",
+    wantedCategory,
     wantedTopics,
+    wantedGood,
   };
 }

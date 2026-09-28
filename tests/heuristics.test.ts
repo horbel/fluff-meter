@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { broetry, formattingSignal, textStats } from "@/lib/analysis/heuristics";
+import { broetry, textStats } from "@/lib/analysis/heuristics";
 
 describe("textStats", () => {
   it("counts emojis, hashtags and paragraphs exactly", () => {
@@ -14,13 +14,12 @@ describe("textStats", () => {
   });
 });
 
-describe("broetry and formatting", () => {
+describe("broetry", () => {
   const prose =
     "We migrated our billing service from a monolith to three services over six months. The hardest part was the data model, not the code. Here is what we learned about idempotency keys and retries.";
 
   it("is zero for normal prose", () => {
     expect(broetry(textStats(prose))).toBe(0);
-    expect(formattingSignal(textStats(prose))).toBe(0);
   });
 
   it("is high for one-liners separated by blank lines", () => {

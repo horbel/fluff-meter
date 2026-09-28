@@ -16,10 +16,10 @@ the reader added ([`rubric.ts`](../src/lib/analysis/rubric.ts), [`ai.ts`](../src
 | Question type | Asked about |
 | --- | --- |
 | Choice | Which category is this post? |
-| Score (4 levels) | Buzzwords · concrete substance · self-promotion · reads like AI overall |
+| Score (4 levels) | Buzzwords · concrete substance · reads like AI overall |
 | Noul (yes/no), clichés | Engagement bait · humblebrag · fable · truism · hustle |
 | Noul (yes/no), AI tells | AI vocabulary · "not X, but Y" · rule of three · punchy fragments · fake candor · human details |
-| Noul (yes/no) | Does it share real data or results? (the 📊 chip) |
+| Noul (yes/no), good signs | Real data or results · a debatable position backed by facts · a mistake the author owns |
 | Noul (yes/no) | Is it about a loss, a war or an illness? |
 | Noul (yes/no), per topic | Is this post mainly about "Rust"? |
 
@@ -33,50 +33,72 @@ Formatting (broetry, emoji bullets, hashtag walls, em dashes, 𝗯𝗼𝗹𝗱 U
 measured in code, because models are bad at counting. On LinkedIn a spaced em dash is a strong
 tell, so it counts even when the rest of the post sounds human.
 
-## Two axes
+## One number, the rest are tags
 
-The badge answers two different questions, and they never mix:
+The badge answers separate questions, and they never mix:
 
-- **How is it written?** The Fluff Index. [`scoring.ts`](../src/lib/analysis/scoring.ts) combines
-  empty language (buzzwords, no substance, self-promo) into a base, and each cliché pushes the rest
-  of the way towards 100. An S-curve spreads the middle so a real feed uses the whole scale. It is
-  the same for everyone; a reader can only switch clichés off, and then they neither show nor count.
-- **What is it about?** The category, and the reader's own topics. Neutral: a category never makes
-  a post fluffier. The reader marks categories and topics ⭐ want or 🙈 fold
-  ([`personal.ts`](../src/lib/personal.ts)).
+- **How much is empty words?** The Fluff Index, the only number.
+  [`scoring.ts`](../src/lib/analysis/scoring.ts) takes two answers: how little concrete
+  information the post has (numbers, names, steps, examples) and how much of it is buzzwords, 70/30.
+  An S-curve spreads the middle so a real feed uses the whole scale. It is the same for everyone.
+- **How is it written?** Clichés (bait, humblebrag, fable, truism, hustle, broetry) and the AI
+  guess. Tags only: they never change the number, so a solid post with one "humbled to share"
+  stays solid and gets a 🙏 chip. The reader can fold every post that has a given cliché (off by
+  default) or hide cliché chips altogether.
+- **Is there something good?** Good signs, the opposite of clichés: 📊 Real numbers,
+  🥊 Real take (a position you could argue with, backed by facts) and 🌿 Owns a mistake. Their
+  questions were tuned on 39 posts full of near-misses (hot takes without reasons, humblebrag
+  "failures", "lessons learned" with no mistake): 38 or 39 answered right. Steps and
+  instructions are the Know-how category, not a good sign. A post with a good sign never folds for
+  fluff, and by default it always shows.
+- **What is it about?** The category, and the reader's own topics. Neutral until the reader
+  decides.
 
-A post is folded to one line when it is about a topic the reader folds, in a category they fold
-(unless it is also about a topic they want), or at or above their fluff threshold (Pure fluff by
-default), unless it shares real numbers. Any post in the feed can also be folded by hand. Posts
-about a loss, a war or an illness get no badge at all and are never folded.
+The reader's choices are two lists of rules ([`rules.ts`](../src/lib/rules.ts),
+[`personal.ts`](../src/lib/personal.ts)):
+
+- **🙈 Fold**: too much fluff (Pure fluff by default, or Fluffy too), a category, a topic of
+  their own, a cliché. A folded post shrinks to one line with the reason and a Show button.
+- **⭐ Always show**: a category, a topic, a good sign. Such a post gets a star and never folds.
+  Always show wins over Fold; a topic the reader folds wins over both.
+
+Rules are made in the popup ("+ Add") or right on a post: every chip opens a card with what it
+means, an example and a Fold / Show / Always show switch. Any post in the feed can also be folded
+by hand. Posts about a loss, a war or an illness get no badge at all and are never folded.
 
 A repost is sent as two texts, the author's comment and the reshared post, so a one-line comment
 on a long post is judged on both. Images and videos are not analyzed.
 
 Chips show words, not numbers: the Fluff Index is the one number on a badge. How sure Jev is about
-each cliché, the category and the AI guess is in the tooltips and the breakdown.
+each chip is on its card and in the breakdown.
 
 On the sample posts in [`tests/fixtures`](../tests/fixtures/sample-posts.ts) that gives:
 
 | Post | Index | Category | Clichés |
 | --- | --- | --- | --- |
-| "I got rejected from 47 jobs. Then a janitor told me…" | 99% Pure fluff | Stories & lessons | Bait, Humblebrag, Fable, Hustle, Truism |
-| "I proposed to my girlfriend… what it taught me about B2B sales" | 97% Pure fluff | Stories & lessons | Truism, Bait, Fable |
-| "𝗔𝗜 𝘄𝗼𝗻'𝘁 𝗿𝗲𝗽𝗹𝗮𝗰𝗲 𝘆𝗼𝘂. Here's the thing -…" | 97% Pure fluff · 🤖 99% | Opinion | Bait, Truism, Broetry |
-| "In today's fast-paced world, leveraging synergies…" | 96% Pure fluff · 🤖 92% | Other | Truism |
-| "Comment GROWTH and I'll send you the playbook" | 86% Pure fluff | Promo | Bait |
-| "Starting a new position as Senior QA at Globex!" | 29% Solid | Career moves | |
-| "After nine years at DeepMind… I'm joining Anthropic" | 19% Solid | Career moves | |
-| Meetup recap with a link to slides | 11% Solid | Events | |
-| "ok so the coffee machine has been broken for 3 weeks…" | 11% Solid | Stories & lessons | |
-| "What a night! Huge thanks to Anna, Piotr and Marta…" | 5% Solid | Thank-yous | |
-| Job opening with stack and salary | 3% Solid | Hiring | |
-| "We cut our CI time from 18 to 6 minutes. What helped…" | 2% Solid | Know-how | |
+| "In today's fast-paced world, leveraging synergies…" | 100% Pure fluff · 🤖 92% | Other | Truism |
+| "𝗔𝗜 𝘄𝗼𝗻'𝘁 𝗿𝗲𝗽𝗹𝗮𝗰𝗲 𝘆𝗼𝘂. Here's the thing -…" | 99% Pure fluff · 🤖 99% | Opinion | Bait, Truism, Broetry |
+| "I proposed to my girlfriend… what it taught me about B2B sales" | 88% Pure fluff | Stories & lessons | Truism, Bait, Fable |
+| "I got rejected from 47 jobs. Then a janitor told me…" | 74% Fluffy | Stories & lessons | Bait, Humblebrag, Fable, Truism, Hustle |
+| "Comment GROWTH and I'll send you the playbook" | 69% Fluffy | Promo | Bait |
+| "Starting a new position as Senior QA at Globex!" | 28% Solid | Career moves | |
 | "Last week we lost our colleague Tomasz…" | no badge | | |
+| Meetup recap with a link to slides | 20% Solid | Events | |
+| "What a night! Huge thanks to Anna, Piotr and Marta…" | 18% Solid | Thank-yous | |
+| "After nine years at DeepMind… I'm joining Anthropic" | 16% Solid | Career moves | |
+| "ok so the coffee machine has been broken for 3 weeks…" | 16% Solid | Stories & lessons | |
+| "We cut our CI time from 18 to 6 minutes. What helped…" | 1% Solid | Know-how | |
+| Job opening with stack and salary | 1% Solid | Hiring | |
+
+The janitor post is the one to look at: it names numbers and people, so it isn't the emptiest post
+here, and its five cliché chips say the rest.
 
 Posts are scored only when they scroll near the viewport, each at most once, and results are cached
-locally. A post costs about 1,800 input tokens, which at Jev's
-[$0.042 per million](https://docs.typesafe.ai/models) is about **12,000 posts per dollar**.
+locally. A post costs about 2,250 input tokens, which at Jev's
+[$0.042 per million](https://docs.typesafe.ai/models) is about **10,000 posts per dollar**.
+
+Posts by the author of this extension get a ✨ Legend chip
+([`easter-egg.ts`](../src/lib/analysis/easter-egg.ts)). They are scored like everyone else's.
 
 ## Keys and providers
 
@@ -110,7 +132,7 @@ src/
 ├── entrypoints/
 │   ├── background.ts          # the only place that holds the key and calls the API
 │   ├── linkedin.content.ts    # finds posts, draws badges
-│   └── popup/                 # key, on/off switch, feed report
+│   └── popup/                 # key, on/off switch, feed report, Fold / Always show rules
 └── lib/
     ├── analysis/
     │   ├── rubric.ts          # the questions Jev answers
@@ -122,9 +144,10 @@ src/
     ├── linkedin/
     │   ├── selectors.ts       # every LinkedIn DOM assumption, in one file
     │   └── extract.ts         # post text, reposts, where the badge goes
-    ├── personal.ts            # the reader's view: index without switched-off clichés, folding
+    ├── personal.ts            # the reader's view of a post: what folds, what gets a star
+    ├── rules.ts               # Fold / Always show rules: list, add, remove, describe
     ├── presets.ts             # Default, Engineer, Recruiter, Job seeker
-    └── ui/badge.ts            # the badge and the fold bar
+    └── ui/badge.ts            # the badge, chip cards and the fold bar
 ```
 
 **LinkedIn changed its markup and badges are gone?** Everything DOM-related is in
