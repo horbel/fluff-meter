@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/icon/128.png" width="88" alt="" />
+<img src="src/assets/icon.svg" width="88" alt="" />
 
 # Fluff Meter
 

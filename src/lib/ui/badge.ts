@@ -1,4 +1,4 @@
-import cloudSvg from "../../assets/cloud.svg?raw";
+import cloudSvg from "../../assets/icon.svg?raw";
 import {
   AI_TELL_LABELS,
   aiLabel,

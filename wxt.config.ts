@@ -14,6 +14,8 @@ export default defineConfig({
     host_permissions: ["https://api.typesafe.ai/*", "https://openrouter.ai/*"],
     action: {
       default_title: "Fluff Meter",
+      // Rendered for each size from src/assets/icon*.svg, so the toolbar never shows a scaled one.
+      default_icon: { 16: "icon/16.png", 24: "icon/24.png", 32: "icon/32.png" },
     },
   },
   webExt: {
