@@ -8,42 +8,35 @@ Everything the developer dashboard asks for, ready to paste.
 (set as `name` in `wxt.config.ts`; the store shows the manifest name)
 
 **Summary** (132 characters max):
-Rates LinkedIn posts on a 0-100% Fluff Index, names the clichés and folds what you don't want to read.
+Rates LinkedIn posts by how much is fluff, tags clichés and good signs, and folds what you don't want to read.
 
-**Description:**
+**Description** (plain text; the same text is in `store-upload/description.txt` locally):
 
-> Scroll LinkedIn as usual. Every post gets a small badge: how much fluff it is (empty words
-> instead of facts), which clichés it leans on (engagement bait, humblebrags, too-neat fables,
-> truisms, broetry) and what it is about. Posts that share real data or results get a 📊 Real
-> numbers chip, and 🥊 Real take and 🌿 Owns a mistake mark the other good signs. Clichés
-> and good signs are tags: they never change the score.
+> Fluff Meter rates every LinkedIn post by how much of it is empty words instead of facts, and folds the ones you don't want to read.
 >
-> Pure fluff folds into one line, so you skip it in a second. Click the line to open it again, or
-> fold any post yourself.
+> ON EVERY POST
+> • A Fluff Index from 0 to 100%. Nothing concrete and corporate jargon push it up. It's the only number.
+> • Clichés, in orange: engagement bait, humblebrag, too-neat fables, truisms, hustle, broetry, reads like AI.
+> • Good signs, in green: real numbers, a real take backed by facts, a mistake the author owns.
+> • What the post is about: know-how, news, hiring, career moves, promo and more.
+> Click any chip to see what it means, with an example.
 >
-> Make it yours with two short lists. Fold: too much fluff, categories you skip (promo, career
-> moves, events…), clichés you can't stand, topics of your own like "crypto". Always show:
-> categories you want (know-how, hiring, news…), topics like "Rust", posts with a good sign.
-> Click any chip on a post to see what it means and fold or always show posts like it. Or pick a
-> preset: Engineer, Recruiter or Job seeker.
+> FOLD WHAT YOU DON'T WANT
+> Pure fluff folds into one line, and one click opens it again. Two short lists do the rest:
+> • Fold: too much fluff, categories you skip (promo, events…), clichés you can't stand, topics of your own like "crypto".
+> • Always show: categories you want, topics like "Rust", posts with a good sign.
+> Make a rule right from a post: click a chip and pick Fold or Always show. Or start from a preset: Engineer, Recruiter or Job seeker.
 >
-> The popup shows how much of your feed was fluff today, this week or this month, and how many
-> posts it folded for you.
+> YOUR FEED IN NUMBERS
+> The popup shows how much of your feed was fluff today, this week or this month, the top clichés and how many posts it folded for you.
 >
-> Posts about a loss, a war or an illness never get a score. It reads the text only, not images.
+> HOW IT WORKS
+> Scores come from Jev by TypeSafe, a fast model built for rating text: one call per post, about 10,000 posts for a dollar. It starts in demo mode with random numbers; add your own TypeSafe or OpenRouter key for real scores. It reads the text only, not images. Posts about a loss, a war or an illness never get a score.
 >
-> Scores come from Jev by TypeSafe, a fast model built for rating text: one quick call per post,
-> about 10,000 posts for a dollar.
->
-> It starts in demo mode with random numbers. For real scores, add your own TypeSafe or OpenRouter
-> API key.
->
-> Collects no data: no servers, no account, no analytics. Your key, settings and stats stay on
-> your device. Only the text of the posts you scroll past, and your topics if you added any, goes
-> to the AI provider you picked.
+> PRIVACY
+> No servers, no account, no analytics. Your key, settings and stats stay on your device. Only the text of the posts you scroll past, and your own topics, go to the AI provider you picked.
 >
 > Open source: https://github.com/horbel/fluff-meter
->
 > It rates posts, not people. Not affiliated with LinkedIn or TypeSafe.
 
 **Category:** Social & Communication
@@ -52,8 +45,8 @@ Rates LinkedIn posts on a 0-100% Fluff Index, names the clichés and folds what 
 **Assets** (all in [`store/`](../store)):
 - Icon: `icon-128.png`
 - Screenshots, 1280×800: `screenshot-1.png` (a feed with folded posts), `screenshot-2.png` (fluff
-  vs substance), `screenshot-3.png` (categories and presets), `screenshot-4.png` (the breakdown),
-  `screenshot-5.png` (feed stats)
+  vs substance), `screenshot-3.png` (a chip's card: fold posts like this), `screenshot-4.png` (the
+  Fold and Always show rules), `screenshot-5.png` (feed stats)
 - Small promo tile, 440×280: `promo-small-440x280.png`
 - Marquee, 1400×560: `marquee-1400x560.png`
 

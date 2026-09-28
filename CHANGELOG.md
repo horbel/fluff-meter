@@ -42,6 +42,12 @@ One number, the rest are tags, and settings you can read at a glance.
   percentage from a different signal. "Buzzwords" is now "Corporate jargon".
 - The author's own posts are scored like everyone else's, with a ✨ Legend chip on top.
 
+### Look
+
+- One cloud everywhere: the toolbar, the popup and fold bars use the same drawing with three
+  sparkles, bigger in its square. Toolbar icons are drawn for each size, so they stay sharp.
+- New store screenshots and description.
+
 ## 0.3.1
 
 - The script that runs on LinkedIn no longer loads the settings that hold your API key, not even
