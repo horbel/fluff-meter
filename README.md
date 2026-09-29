@@ -38,14 +38,19 @@ are not analyzed.
 
 Posts about a loss, a war or an illness never get a score. It rates posts, not people.
 
+> [!IMPORTANT]
+> **Real scores need an API key** from [TypeSafe](https://console.typesafe.ai/keys) or
+> [OpenRouter](https://openrouter.ai/settings/keys). Without one, Fluff Meter runs in **demo
+> mode**: every badge shows random numbers, just to show what it looks like. See
+> [API key](#api-key-required).
+
 ## Install
 
 **[Get it from the Chrome Web Store](https://chromewebstore.google.com/detail/fluff-meter-for-linkedin/ijfddippbjffofanjhmnfikabkkeeckj)**, then open LinkedIn. It works in Chrome, Edge,
 Brave, Arc and other Chromium browsers.
 
-It starts in **demo mode** with random numbers, so you can see how it looks. For real scores,
-click the extension icon and paste a [TypeSafe](https://console.typesafe.ai/keys) or
-[OpenRouter](https://openrouter.ai/settings/keys) API key. $1 covers about 10,000 posts.
+It starts in **demo mode** with random numbers. Add an [API key](#api-key-required) to get real
+scores.
 
 <details>
 <summary>Install from GitHub instead</summary>
@@ -59,9 +64,28 @@ click the extension icon and paste a [TypeSafe](https://console.typesafe.ai/keys
 This version doesn't update itself; the Web Store one does.
 </details>
 
-## Make it yours
+## API key (required)
 
-<img src="docs/popup.png" width="300" align="right" alt="The extension popup" />
+Fluff Meter has no server of its own: each post is scored by
+[Jev](https://docs.typesafe.ai/concepts/system-one) with **your** key, and you pay the provider
+directly. Either of these works; the extension tells them apart:
+
+| Provider | Get a key | Looks like |
+| --- | --- | --- |
+| TypeSafe | [console.typesafe.ai/keys](https://console.typesafe.ai/keys) | any other key |
+| OpenRouter | [openrouter.ai/settings/keys](https://openrouter.ai/settings/keys) | `sk-or-…` |
+
+1. Create a key with one of them and add a few dollars of credit. **$1 covers about 10,000 posts.**
+2. Click the Fluff Meter icon in the toolbar, paste the key and press **Save & test**.
+3. The popup switches from *Demo* to *Live · Jev via …*. Reload LinkedIn.
+
+Without a key nothing is sent anywhere, and the badges are random: demo mode is only a preview.
+
+> [!TIP]
+> Give the key a spending limit (OpenRouter lets you set one per key). The key stays in Chrome on
+> your device and other extensions can't read it, but a limit caps the cost if it ever leaks.
+
+## Make it yours
 
 The fluff score is the same for everyone. The rest is two short lists:
 
@@ -70,9 +94,25 @@ The fluff score is the same for everyone. The rest is two short lists:
 - **⭐ Always show**: a category or topic (*know-how*, *Rust*), a good sign. Posts with real
   numbers, a real take or a mistake owned always show by default. Always show wins over Fold.
 
-The quickest way to add a rule is right on a post: click any chip, see what it means, and
-**Fold posts like this** or **Always show** them. Or start from a preset: **Engineer**,
-**Recruiter** or **Job seeker**.
+Add a rule with **+ Add**, or start from a preset: **Engineer**, **Recruiter** or **Job seeker**.
+
+<table>
+<tr>
+<td width="33%" valign="top"><img src="docs/popup-rules.png" alt="The popup's two lists of rules. Fold: too much fluff at the Pure fluff level, Promo, the topic crypto and Bait. Always show: Know-how, News, Real numbers, Real take and Owns a mistake." /></td>
+<td width="33%" valign="top"><img src="docs/popup-add.png" alt="The Fold list with + Add open: every category, every cliché with a one-line explanation of the one pointed at, and a field for a topic of your own." /></td>
+<td width="33%" valign="top"><img src="docs/popup-stats.png" alt="The popup's feed stats: 41% Light fluff this week, 186 posts, 40 folded, top clichés and categories." /></td>
+</tr>
+<tr>
+<td valign="top"><sub><b>Two lists.</b> What folds, and what always shows.</sub></td>
+<td valign="top"><sub><b>+ Add.</b> Every category, cliché and good sign, or a topic of your own.</sub></td>
+<td valign="top"><sub><b>Your feed in numbers.</b> Today, this week or this month.</sub></td>
+</tr>
+</table>
+
+The quickest way is right on a post: click any chip to see what it means, then fold or always
+show posts like it.
+
+<img src="docs/chip-card.png" width="560" alt="A post with the Bait chip clicked: a card explains it begs for likes, comments or reposts, gives examples, and has a switch, Posts with bait: Show or Fold." />
 
 ## Privacy
 
@@ -87,7 +127,6 @@ extension.
 
 [Details](PRIVACY.md).
 
-<br clear="right" />
 
 ## Meet the cloud
 

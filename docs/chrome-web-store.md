@@ -14,6 +14,8 @@ Rates LinkedIn posts by how much is fluff, tags clichés and good signs, and fol
 
 > Fluff Meter rates every LinkedIn post by how much of it is empty words instead of facts, and folds the ones you don't want to read.
 >
+> Needs your own TypeSafe or OpenRouter API key (about 10,000 posts per dollar). Without one it runs in demo mode with random scores.
+>
 > ON EVERY POST
 > • A Fluff Index from 0 to 100%. Nothing concrete and corporate jargon push it up. It's the only number.
 > • Clichés, in orange: engagement bait, humblebrag, too-neat fables, truisms, hustle, broetry, reads like AI.
