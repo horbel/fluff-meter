@@ -66,7 +66,7 @@ What's your take? 👇`,
 
   routineJob: `I'm happy to share that I'm starting a new position as Senior QA Engineer at Globex! Huge thanks to everyone at Initech for 4 amazing years. Excited for this new chapter!`,
 
-  notableJob: `Personal news: after nine years at Google DeepMind, where I led the AlphaFold 3 team, I'm joining Anthropic to build a new lab for AI-driven drug discovery. We're starting with protein design for rare diseases and will publish our first results openly.`,
+  notableJob: `Personal news: after nine years at Initrode Research, where I led the protein-structure team, I'm joining Globex Bio to build a new lab for AI-driven drug discovery. We're starting with protein design for rare diseases and will publish our first results openly.`,
 
   b2bLesson: `Last weekend I proposed to my girlfriend.
 

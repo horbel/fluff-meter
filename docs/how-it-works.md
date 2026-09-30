@@ -83,9 +83,9 @@ On the sample posts in [`tests/fixtures`](../tests/fixtures/sample-posts.ts) tha
 | "Comment GROWTH and I'll send you the playbook" | 69% Fluffy | Promo | Bait |
 | "Starting a new position as Senior QA at Globex!" | 28% Solid | Career moves | |
 | "Last week we lost our colleague Tomasz…" | no badge | | |
+| "After nine years at Initrode Research… I'm joining Globex Bio" | 24% Solid | Career moves | |
 | Meetup recap with a link to slides | 20% Solid | Events | |
 | "What a night! Huge thanks to Anna, Piotr and Marta…" | 18% Solid | Thank-yous | |
-| "After nine years at DeepMind… I'm joining Anthropic" | 16% Solid | Career moves | |
 | "ok so the coffee machine has been broken for 3 weeks…" | 16% Solid | Stories & lessons | |
 | "We cut our CI time from 18 to 6 minutes. What helped…" | 1% Solid | Know-how | |
 | Job opening with stack and salary | 1% Solid | Hiring | |
